@@ -58,14 +58,12 @@ module Pidgin2Adium
 	    content= "ERROR: #{str}"
 	end
 	puts content
-	# FIXME: find an easy way to get @debug to logMsg but still have it be available to other classes
-	# @LOG_FILE_FH.puts( content ) if @debug == true
     end
 
     class Logs
 	# FILE_EXISTS is returned by ChatFileGenerator.buildDomAndOutput() if the output logfile already exists.
 	FILE_EXISTS = 42
-	def initialize(src, out, aliases, libdir, tz=nil, debug=false, logfile='chat_convert_log.txt')
+	def initialize(src, out, aliases, libdir, tz=nil, debug=false)
 	    # These files/directories show up in Dir.entries(x)
 	    @BAD_DIRS = %w{. .. .DS_Store Thumbs.db .system}
 	    src = File.expand_path(src)
@@ -98,12 +96,6 @@ module Pidgin2Adium
 	    # For AIM, it's like "AIM.<screenname>"
 	    @libdir = libdir
 	    @debug = debug
-=begin
-	    if @debug == true and logfile != nil
-		puts "You can find output from this program at " + Dir.pwd + '/' + logfile
-		@LOG_FILE_FH = File.new(logfile, 'w')
-	    end
-=end
 	    @DEFAULT_TIME_ZONE = tz || Time.now.zone
 	    # local offset, like "-0800" or "+1000"
 	    @DEFAULT_TZ_OFFSET = '%+03d00'%Time.zone_offset(@DEFAULT_TIME_ZONE)

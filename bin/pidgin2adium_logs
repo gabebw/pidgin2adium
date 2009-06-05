@@ -26,24 +26,8 @@ OptionParser.new do |opts|
 	    '~/Library/Application Support/Adium 2.0/Users/Default/Logs/AIM.<username>') do |ld|
 	options[:libdir] = ld
     end
-    opts.on('-d', '--debug [FILE]',
-	    'Turn debug on. If [FILE] provided, outputs to [FILE].') do |lf|
+    opts.on('-d', '--debug', 'Turn debug on.') do |lf|
 	options[:debug] = true
-=begin
-	options[:logfile] = lf
-	if not File.file?(lf)
-	    begin
-		FileUtils.touch(lf)
-	    rescue 
-		puts "Logfile (#{lf}) does not exist. Please create it."
-		exit 1
-	    end
-	end
-	if not File.writable?(lf)
-	    puts "Logfile (#{lf}) is not writable. Please make it writable or select a different logfile."
-	    exit 1
-	end
-=end
     end
     opts.on("--time-zone [TIME ZONE]",
 	    "Set time zone like \"EST\". Defaults to local time zone: #{Time.now.zone}") do |tz|
@@ -77,8 +61,7 @@ log_converter  =  Pidgin2Adium::Logs.new(src=options[:in],
 					 aliases = options[:aliases],
 					 libdir = options[:libdir],
 					 tz = options[:timezone],
-					 debug = options[:debug],
-					 logfile = options[:logfile]
+					 debug = options[:debug]
 					)
 
 log_converter.start
