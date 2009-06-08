@@ -24,17 +24,11 @@ module Pidgin2Adium
 	    # 2) what time/date
 	    # 3) what SN we used
 	    # 4) what protocol (AIM, jabber...)
-	    @first_line_regex = /Conversation with (.*?) at (.*?) on (.*?) \((.*?)\)/s
-	end
+	    @first_line_regex = /Conversation with (.*?) at (.*?) on (.*?) \((.*?)\)/
 
-	# Takes the body of a line of a chat and returns the [username, status] as a 2-element array.
-	# Example:
-	# Pass in "Generic Screenname228 has signed off" and it returns <tt>["Generic Screenname228", "offline"]</tt>
-	def getAliasAndStatus(str)
-	    alias_and_status = [nil, nil]
-
+	    # These maps are used in getAliasAndStatus
 	    # Screen name is in regex group 1.
-	    status_map = {
+	    @status_map = {
 		/(.+) logged in\.$/ => 'online',
 		/(.+) logged out\.$/ => 'offline',
 		/(.+) has signed on\.$/ => 'online',
@@ -50,7 +44,7 @@ module Pidgin2Adium
 	    }
 
 	    # statuses that come from my end. I totally made up these status names.
-	    my_status_map = {
+	    @my_status_map = {
 		# encryption
 		/^Received message encrypted with wrong key$/ => 'encrypt-error',
 		/^Requesting key\.\.\.$/ => 'encrypt-error',
@@ -79,12 +73,20 @@ module Pidgin2Adium
 		/^.+ left the room\.$/ => 'chat-left-room'
 	    }
 
-	    regex, status = status_map.detect{ |regex, status| regex.match(str) }
+	end
+
+	# Takes the body of a line of a chat and returns the [username, status] as a 2-element array.
+	# Example:
+	# Pass in "Generic Screenname228 has signed off" and it returns <tt>["Generic Screenname228", "offline"]</tt>
+	def getAliasAndStatus(str)
+	    alias_and_status = [nil, nil]
+
+	    regex, status = @status_map.detect{ |regex, status| regex.match(str) }
 	    if regex and status
 		alias_and_status = [regex.match(str)[1], status]
 	    else
 		# not one of the regular statuses, try my statuses.
-		regex, status = my_status_map.detect{ |regex, status| regex.match(str) }
+		regex, status = @my_status_map.detect{ |regex, status| regex.match(str) }
 		alias_and_status = ['System Message', status]
 	    end
 	    return alias_and_status
@@ -93,7 +95,7 @@ module Pidgin2Adium
 	def getTimeZoneOffset()
 	    tz_regex = /([-+]\d+)[A-Z]{3}\.(txt|html?)/
 	    tz_match = tz_regex.match(@srcPath)
-	    tz_offset =  tz_match.nil? ? @userTZOffset : tz_match[1]
+	    tz_offset =  (tz_match.nil?) ? @userTZOffset : tz_match[1]
 	    return tz_offset
 	end
 
@@ -104,17 +106,22 @@ module Pidgin2Adium
 	# ChatFileGenerator, which creates the XML data string.
 	# This method returns a ChatFileGenerator object.
 	def parseFile()
-	    fileContent = File.read(@srcPath) # one big string
+	    file = File.new(@srcPath, 'r')
+	    # Deal with first line.
+	    first_line_match = @first_line_regex.match(file.readline())
+	    if first_line_match.nil?
+		file.close()
+		Pidgin2Adium.logMsg("Parsing of #{@srcPath} failed (could not find first line).", true)
+		return false
+	    else
+		# one big string, without the first lien
+		fileContent = File.read(@srcPath)
+		file.close()
+	    end
 	    if self.class == SrcHtmlFileParse
 		fileContent = self.cleanup(fileContent)
 	    end
-	    # Deal with first line.
-	    first_line_match = @first_line_regex.match(fileContent)
 
-	    if first_line_match.nil?
-		Pidgin2Adium.logMsg("Parsing of #{@srcPath} failed (could not find first line).", true)
-		return false
-	    end
 	    service = first_line_match[4]
 	    # mySN is standardized to avoid "AIM.name" and "AIM.na me" folders
 	    mySN = first_line_match[3].downcase.sub(' ', '')
@@ -265,10 +272,11 @@ module Pidgin2Adium
 		    if span[:style] =~ color_regex
 			# Remove black-text spans after other processing because
 			# the processing can reduce spans to that
+			# Yes, sometimes there's a ">" before the ";"
 			span[:style] = span[:style].gsub(color_regex, '\1').
-					    gsub(/color: ?#000000; ?/,'')
+					    gsub(/color: ?#000000>?; ?/,'')
 			# Remove span but keep its contents
-			span.swap(span.innerHTML) if span[:style] == ''
+			span.swap(span.innerHTML) if span[:style].strip() == ''
 		    else
 			span.swap(span.innerHTML)
 		    end

@@ -1,6 +1,5 @@
 # ADD DOCUMENTATION
 require 'pidgin2adium/balance-tags.rb'
-require 'hpricot'
 
 module Pidgin2Adium
     def Pidgin2Adium.normalizeBodyEntities!(body)
