@@ -34,21 +34,21 @@ module Pidgin2Adium
 	    @basicTimeInfo = nil
 	    # @chatMessage is a 2D array composed of arrays like so (e.g.):
 	    # ['time'=>'2:23:48 PM', 'alias'=>'Me', 'status' => 'available', 'body'=>'abcdefg', auto-reply=true]
-	    @chatMessage=[]
+	    @chatMessage = []
 	    # chatTimeAdium_start format: YYYY-MM-DD\THH.MM.SS[+-]TZ_HRS like so:
 	    # 2008-10-05T22.26.20-0800
-	    @chatTimeAdium_start=nil
-	    @chatTimePidgin_start=chatTimePidgin_start
-	    @destDirBase=destDirBase
-	    @masterAlias=masterAlias
-	    @mySN=mySN
-	    @otherPersonsSN=otherPersonsSN
-	    @service=service
-	    @tzOffset=tzOffset
+	    @chatTimeAdium_start = nil
+	    @chatTimePidgin_start = chatTimePidgin_start
+	    @destDirBase = destDirBase
+	    @masterAlias = masterAlias
+	    @mySN = mySN
+	    @otherPersonsSN = otherPersonsSN
+	    @service = service
+	    @tzOffset = tzOffset
 	    # key is for Pidgin, value is for Adium
 	    # Just used for <service>.<screenname> in directory structure
-	    @SERVICE_NAME_MAP={'aim'=>'AIM',
-		'jabber'=>'jabber',
+	    @SERVICE_NAME_MAP = {'aim'=>'AIM',
+		'jabber' = >'jabber',
 		'gtalk'=>'GTalk',
 		'icq' => 'ICQ',
 		'qq'=>'QQ',
