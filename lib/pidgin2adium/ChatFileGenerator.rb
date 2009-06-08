@@ -47,13 +47,13 @@ module Pidgin2Adium
 	    @tzOffset = tzOffset
 	    # key is for Pidgin, value is for Adium
 	    # Just used for <service>.<screenname> in directory structure
-	    @SERVICE_NAME_MAP = {'aim'=>'AIM',
-		'jabber' = >'jabber',
-		'gtalk'=>'GTalk',
+	    @SERVICE_NAME_MAP = {'aim' => 'AIM',
+		'jabber' =>'jabber',
+		'gtalk'=> 'GTalk',
 		'icq' => 'ICQ',
-		'qq'=>'QQ',
-		'msn'=>'MSN',
-		'yahoo'=>'Yahoo'}
+		'qq' => 'QQ',
+		'msn' => 'MSN',
+		'yahoo' => 'Yahoo'}
 	end
 
 	def convert()
