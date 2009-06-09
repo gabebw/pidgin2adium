@@ -2,6 +2,9 @@
 # The class SrcFileParse has two subclasses, SrcTxtFileParse and SrcHtmlFileParse
 # It parses the file passed into it and extracts the following
 # from each line in the chat: time, alias, and message and/or status.
+
+require 'rubygems'
+require 'hpricot'
 module Pidgin2Adium
     # The two subclasses of SrcFileParse,
     # SrcTxtFileParse and SrcHtmlFileParse, only differ
