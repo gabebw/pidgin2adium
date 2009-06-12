@@ -8,6 +8,11 @@
 #A ruby program to convert Pidgin log files to Adium log files, then place
 #them in the Adium log directory with allowances for time zone differences.
 
+require 'pidgin2adium/SrcFileParse'
+require 'pidgin2adium/ChatFileGenerator'
+require 'parsedate'
+require 'fileutils'
+
 class Time
     ZoneOffset = {
 	'UTC' => 0,
@@ -46,11 +51,6 @@ class Time
 end
 
 module Pidgin2Adium
-    require 'pidgin2adium/SrcFileParse'
-    require 'pidgin2adium/ChatFileGenerator'
-    require 'parsedate'
-    require 'fileutils'
-    
     # put's content. Also put's to @LOG_FILE_FH if @debug == true.
     def Pidgin2Adium.logMsg(str, isError=false)
 	content = str.to_s
