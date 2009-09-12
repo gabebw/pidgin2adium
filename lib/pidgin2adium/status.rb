@@ -8,8 +8,13 @@
 # It doesn't work in Mac OSX 10.5 (Leopard).
 # See: http://trac.adiumx.com/ticket/8863
 # It should work in Mac OSX 10.4 (Tiger), but is untested.
-
-# location of status.xml
+#
+# TODO: check adium version in
+# /Applications/Adium.app/Contents
+# with this:
+#         <key>CFBundleShortVersionString</key>
+#         <string>1.3.4</string>
+# For Mac 10.5+, needs to be 1.4; should work for 10.4 with 1.3.x
 
 require 'rubygems'
 require 'hpricot'

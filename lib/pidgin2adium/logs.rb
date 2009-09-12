@@ -216,7 +216,7 @@ module Pidgin2Adium
 		in_both.each do |logdir|
 		    FileUtils.cp(
 			File.join(real_src_dir, name, logdir, logdir.sub('chatlog', 'xml')),
-				 File.join(real_dest_dir, name, logdir) + '/',
+			File.join(real_dest_dir, name, logdir) + '/',
 				 :verbose => false)
 		end
 		# The logs that are only in one of the dirs are not necessarily different logs than the dest.
