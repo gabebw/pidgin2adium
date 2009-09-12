@@ -24,7 +24,10 @@ spec = Gem::Specification.new do |s|
   s.add_dependency('hpricot', '>=0.8.1')
   s.rubyforge_project = "pidgin2adium"
   s.has_rdoc = false 
-  s.platform = Gem::Platform::RUBY
+  #s.platform = Gem::Platform::RUBY
+  #s.platform = Gem::Platform::CURRENT
+  # Require Mac OS X
+  s.platform = 'universal-darwin'
   #s.extra_rdoc_files = Dir['[A-Z]*']
   #s.rdoc_options << '--title' <<  'Builder -- Easy XML Building'
 end
