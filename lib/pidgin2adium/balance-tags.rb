@@ -40,7 +40,7 @@ module Pidgin2Adium
 		    #or close to be safe tag = '/' . tag
 		    # if stacktop value = tag close value then pop
 		elsif (tagstack[stacksize - 1] == tag) # found closing tag
-		    tag = '</' + tag + '>'; # Close Tag
+		    tag = '</' << tag << '>'; # Close Tag
 		    # Pop
 		    tagstack.pop
 		    stacksize -= 1
@@ -74,7 +74,7 @@ module Pidgin2Adium
 		    if ((stacksize > 0) &&
 			! nestable_tags.include?(tag) &&
 			(tagstack[stacksize - 1] == tag))
-			tagqueue = '</' + tagstack.pop + '>'
+			tagqueue = '</' << tagstack.pop << '>'
 			stacksize -= 1
 		    end
 		    stacksize = tagstack.push(tag).length
@@ -83,16 +83,16 @@ module Pidgin2Adium
 		# Attributes
 		attributes = regex[2]
 		if(attributes != '')
-		    attributes = ' ' + attributes
+		    attributes = ' ' << attributes
 		end
-		tag = '<' + tag + attributes + '>'
+		tag = '<' << tag << attributes << '>'
 		#If already queuing a close tag, then put this tag on, too
 		if (tagqueue)
 		    tagqueue << tag
 		    tag = ''
 		end
 	    end
-	    newtext << text[0,i] + tag
+	    newtext << text[0,i] << tag
 	    text = text[i+l, text.length - (i+l)]
 	end
 
