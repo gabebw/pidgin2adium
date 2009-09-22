@@ -7,7 +7,8 @@ module Pidgin2Adium
     # @license GPL v2.0
     # @copyright November 4, 2001
     # @return string Balanced text.
-    def Pidgin2Adium.balance_tags( text )
+    def Pidgin2Adium.balanceTags( text )
+	text = text.clone
 	tagstack = []
 	stacksize = 0
 	tagqueue = ''
@@ -24,7 +25,7 @@ module Pidgin2Adium
 
 	while ( regex = text.match(tag_regex) )
 	    regex = regex.to_a
-	    newtext += tagqueue
+	    newtext << tagqueue
 	    i = text.index(regex[0])
 	    l = regex[0].length
 
@@ -49,7 +50,7 @@ module Pidgin2Adium
 			    # add tag to tagqueue
 			    ss = stacksize - 1
 			    ss.downto(j) do |k|
-				tagqueue += '</' + tagstack.pop + '>'
+				tagqueue << '</' << tagstack.pop << '>'
 				stacksize -= 1
 			    end
 			    break
@@ -66,7 +67,7 @@ module Pidgin2Adium
 		    # If: self-closing or '', don't do anything.
 		elsif ( single_tags.include?(tag) )
 		    # ElseIf: it's a known single-entity tag but it doesn't close itself, do so
-		    regex[2] += '/'
+		    regex[2] << '/'
 		else
 		    # Push the tag onto the stack
 		    # If the top of the stack is the same as the tag we want to push, close previous tag
@@ -87,23 +88,23 @@ module Pidgin2Adium
 		tag = '<' + tag + attributes + '>'
 		#If already queuing a close tag, then put this tag on, too
 		if (tagqueue)
-		    tagqueue += tag
+		    tagqueue << tag
 		    tag = ''
 		end
 	    end
-	    newtext += text[0,i] + tag
+	    newtext << text[0,i] + tag
 	    text = text[i+l, text.length - (i+l)]
 	end
 
 	# Clear Tag Queue
-	newtext += tagqueue
+	newtext << tagqueue
 
 	# Add Remaining text
-	newtext += text
+	newtext << text
 
 	# Empty Stack
 	while(x = tagstack.pop)
-	    newtext += '</' + x + '>'; # Add remaining tags to close
+	    newtext << '</' << x << '>'; # Add remaining tags to close
 	end
 
 	# WP fix for the bug with HTML comments
