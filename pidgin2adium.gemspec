@@ -5,7 +5,7 @@
 
 spec = Gem::Specification.new do |s|
   s.name = 'pidgin2adium'
-  s.version = '0.0.1'
+  s.version = '1.0.0'
   # Summary is required
   s.summary = "Converts Pidgin logs and statuses to Adium format and makes them available to Adium."
   s.description = %q{
