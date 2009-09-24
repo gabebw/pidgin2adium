@@ -1,37 +1,66 @@
 # =SrcFileParse
-# The class SrcFileParse has two subclasses, SrcTxtFileParse and SrcHtmlFileParse
+# The class +SrcFileParse+ has 2 subclasses, +SrcTxtFileParse+ and +SrcHtmlFileParse+
 # It parses the file passed into it and extracts the following
 # from each line in the chat: time, alias, and message and/or status.
 
-require 'rubygems'
-require 'hpricot'
+require 'parsedate'
+
 module Pidgin2Adium
-    # The two subclasses of SrcFileParse,
-    # SrcTxtFileParse and SrcHtmlFileParse, only differ
-    # in that they have their own @line_regex, @line_regex_status,
-    # and most importantly, createMsgData, which takes the
-    # +MatchData+ objects from matching against @line_regex and
-    # fits them into hashes.
+    # The two subclasses of +SrcFileParse+,
+    # +SrcTxtFileParse+ and +SrcHtmlFileParse+, only differ
+    # in that they have their own @lineRegex, @lineRegexStatus,
+    # and most importantly, createMsg and createStatusOrEventMsg, which take
+    # the +MatchData+ objects from matching against @lineRegex or
+    # @lineRegexStatus, respectively and return object instances.
+    # +createMsg+ returns a +Message+ instance (or one of its subclasses).
+    # +createStatusOrEventMsg+ returns a +Status+ or +Event+ instance.
     class SrcFileParse
-	def initialize(srcPath, destDirBase, masterAlias, userTZ, userTZOffset)
+	def initialize(srcPath, destDirBase, userAliases, userTZ, userTZOffset)
 	    @srcPath = srcPath
 	    # these two are to pass to chatFG in parseFile
 	    @destDirBase = destDirBase
-	    @masterAlias = masterAlias
+	    @userAliases = userAliases
 	    @userTZ = userTZ
 	    @userTZOffset = userTZOffset
-	    # Automagically does grouping for you. Will be inserted in @line_regex{,_status}
-	    @timestamp_regex_str = '\(((?:\d{4}-\d{2}-\d{2} )?\d{1,2}:\d{1,2}:\d{1,2}(?: .{1,2})?)\)'
+	    @tzOffset = getTimeZoneOffset()
+
+	    # Used in @lineRegex{,Status}. Only one group: the entire timestamp.
+	    @timestampRegexStr = '\(((?:\d{4}-\d{2}-\d{2} )?\d{1,2}:\d{1,2}:\d{1,2}(?: .{1,2})?)\)'
 	    # the first line is special: it tells us
 	    # 1) who we're talking to 
 	    # 2) what time/date
 	    # 3) what SN we used
-	    # 4) what protocol (AIM, jabber...)
-	    @first_line_regex = /Conversation with (.*?) at (.*?) on (.*?) \((.*?)\)/
+	    # 4) what protocol (AIM, icq, jabber...)
+	    @firstLineRegex = /Conversation with (.+?) at (.+?) on (.+?) \((.+?)\)/
 
-	    # These maps are used in getAliasAndStatus
-	    # Screen name is in regex group 1.
-	    @status_map = {
+	    # Possible formats for timestamps:
+	    # "2007-04-17 12:33:13" => %w{2007, 04, 17, 12, 33, 13}
+	    @timeRegexOne = /(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/
+	    # "4/18/2007 11:02:00 AM" => %w{4, 18, 2007, 11, 02, 00, AM}
+	    @timeRegexTwo = %r{(\d{1,2})/(\d{1,2})/(\d{4}) (\d{1,2}):(\d{2}):(\d{2}) ([AP]M)}
+	    # sometimes a line in a chat doesn't have a full timestamp
+	    # "04:22:05 AM" => %w{04 22 05 AM}
+	    @minimalTimeRegex = /(\d{1,2}):(\d{2}):(\d{2}) ?([AP]M)?/
+	    
+	    # {user,partner}SN set in parseFile() after reading the first line
+	    @userSN = nil
+	    @partnerSN = nil
+	    
+	    # @basicTimeInfo is for files that only have the full timestamp at
+	    # the top; we can use it to fill in the minimal per-line timestamps.
+	    # It has only 3 elements (year, month, dayofmonth) because
+	    # you should be able to fill everything else in.
+	    # If you can't, something's wrong.
+	    @basicTimeInfo = []
+
+	    # @userAlias is set each time getSenderByAlias is called. Set an
+	    # initial value just in case the first message doesn't give us an
+	    # alias.
+	    @userAlias = @userAliases[0]
+	    
+	    # @statusMap, @libPurpleEvents, and @events are used in
+	    # createStatusOrEventMessage.
+	    @statusMap = {
 		/(.+) logged in\.$/ => 'online',
 		/(.+) logged out\.$/ => 'offline',
 		/(.+) has signed on\.$/ => 'online',
@@ -39,253 +68,414 @@ module Pidgin2Adium
 		/(.+) has gone away\.$/ => 'away',
 		/(.+) is no longer away\.$/ => 'available',
 		/(.+) has become idle\.$/ => 'idle',
-		/(.+) is no longer idle\.$/ => 'available',
+		/(.+) is no longer idle\.$/ => 'available'
+	    }
+
+	    # libPurpleEvents are all of eventType libPurple
+	    @libPurpleEvents = [
 		# file transfer
-		/Starting transfer of .+ from (.+)/ => 'file-transfer-start',
-		/^Offering to send .+ to (.+)$/ => 'fileTransferRequested',
-		/(.+) is offering to send file/ => 'fileTransferRequested',
-	    }
-
-	    # statuses that come from my end. I totally made up these status names.
-	    @my_status_map = {
+		/Starting transfer of .+ from (.+)/,
+		/^Offering to send .+ to (.+)$/,
+		/(.+) is offering to send file/,
+		/^Transfer of file .+ complete$/,
+		/Error reading|writing|accessing .+: .+/,
+		/You cancelled the transfer of/,
+		/File transfer cancelled/,
+		/(.+) cancelled the transfer of/,
+		/(.+) cancelled the file transfer/,
+		# Direct IM - actual (dis)connect events are their own types
+		/^Attempting to connect to (.+) at .+ for Direct IM\./,
+		/^Asking (.+) to connect to us at .+ for Direct IM\./,
+		/^Attempting to connect via proxy server\.$/,
+		/^Direct IM with (.+) failed/,
 		# encryption
-		/^Received message encrypted with wrong key$/ => 'encrypt-error',
-		/^Requesting key\.\.\.$/ => 'encrypt-error',
-		/^Outgoing message lost\.$/ => 'encrypt-error',
-		/^Conflicting Key Received!$/ => 'encrypt-error',
-		/^Error in decryption- asking for resend\.\.\.$/ => 'encrypt-error',
-		/^Making new key pair\.\.\.$/ => 'encrypt-key-create',
+		/Received message encrypted with wrong key/,
+		/^Requesting key\.\.\.$/,
+		/^Outgoing message lost\.$/,
+		/^Conflicting Key Received!$/,
+		/^Error in decryption- asking for resend\.\.\.$/,
+		/^Making new key pair\.\.\.$/,
 		# file transfer - these are in this (non-used) list because you can't get the alias out of matchData[1]
-		/^You canceled the transfer of .+$/ => 'file-transfer-cancel',
-		/^Transfer of file .+ complete$/ => 'fileTransferCompleted',
+		/^You canceled the transfer of .+$/,
 		# sending errors
-		/^Last outgoing message not received properly- resetting$/ => 'sending-error',
-		/^Resending\.\.\.$/ => 'sending-error',
+		/^Last outgoing message not received properly- resetting$/,
+		/'Resending\.\.\./,
 		# connection errors
-		/^Lost connection with the remote user:<br\/>Remote host closed connection\.$/ => 'lost-remote-conn',
-		# direct IM stuff
-		/^Attempting to connect to .+ at .+ for Direct IM\./ => 'direct-im-connect',
-		/^Asking .+ to connect to us at .+ for Direct IM\./ => 'direct-im-ask',
-		/^Direct IM with .+ failed/ => 'direct-im-failed',
-		/^Attempting to connect to .+\.$/ => 'direct-im-connect',
-		/^Attempting to connect via proxy server\.$/ => 'direct-im-proxy',
-		/^Direct IM established$/ => 'direct-im-established',
-		/^Lost connection with the remote user:<br\/>Windows socket error/ => 'direct-im-lost-conn',
+		/Lost connection with the remote user:.+/,
 		# chats
-		/^.+ entered the room\.$/ => 'chat-entered-room',
-		/^.+ left the room\.$/ => 'chat-left-room'
+		/^.+ entered the room\.$/,
+		/^.+ left the room\.$/
+	    ]
+
+	    # non-libpurple events
+	    # Each key maps to an eventType string. The keys will be matched against a line of chat
+	    # and the partner's alias will be in regex group 1, IF the alias is matched.
+	    @eventMap = {
+		# .+ is not an alias, it's a proxy server so no grouping
+		/^Attempting to connect to .+\.$/ => 'direct-im-connect',
+		# NB: pidgin doesn't track when Direct IM is disconnected, AFAIK
+		/^Direct IM established$/ => 'directIMConnected',
+		/Unable to send message. The message is too large./ => 'chat-error',
+		/You missed .+ messages from (.+) because they were too large./ => 'chat-error'
 	    }
-
-	end
-
-	# Takes the body of a line of a chat and returns the [username, status] as a 2-element array.
-	# Example:
-	# Pass in "Generic Screenname228 has signed off" and it returns <tt>["Generic Screenname228", "offline"]</tt>
-	def getAliasAndStatus(str)
-	    alias_and_status = [nil, nil]
-
-	    regex, status = @status_map.detect{ |regex, status| regex.match(str) }
-	    if regex and status
-		alias_and_status = [regex.match(str)[1], status]
-	    else
-		# not one of the regular statuses, try my statuses.
-		regex, status = @my_status_map.detect{ |regex, status| regex.match(str) }
-		alias_and_status = ['System Message', status]
-	    end
-	    return alias_and_status
 	end
 
 	def getTimeZoneOffset()
-	    tz_regex = /([-+]\d+)[A-Z]{3}\.(txt|html?)/
-	    tz_match = tz_regex.match(@srcPath)
-	    tz_offset =  (tz_match.nil?) ? @userTZOffset : tz_match[1]
-	    return tz_offset
+	    tzMatch = /([-\+]\d+)[A-Z]{3}\.txt|html?/.match(@srcPath)
+	    tzOffset = tzMatch[1] rescue @userTZOffset
+	    return tzOffset
+	end
+
+	# Adium time format: YYYY-MM-DD\THH.MM.SS[+-]TZ_HRS like:
+	# 2008-10-05T22.26.20-0800
+	def createAdiumTime(time)
+	    # parsedDate = [year, month, day, hour, min, sec]
+	    parsedDate = case time
+			 when @timeRegexOne
+			     [$~[1].to_i, # year
+			     $~[2].to_i,  # month
+			     $~[3].to_i,  # day
+			     $~[4].to_i,  # hour
+			     $~[5].to_i,  # minute
+			     $~[6].to_i]  # seconds
+			 when @timeRegexTwo
+			     hours = $~[4].to_i
+			     if $~[7] == 'PM' and hours != 12
+				 hours += 12
+			     end
+			     [$~[3].to_i, # year
+			      $~[1].to_i, # month
+			      $~[2].to_i, # day
+			      hours,
+			      $~[5].to_i, # minutes
+			      $~[6].to_i] # seconds
+			 when @minimalTimeRegex
+			     # "04:22:05" => %w{04 22 05}
+			     hours = $~[1].to_i
+			     if $~[4] == 'PM' and hours != 12
+				 hours += 12
+			     end
+			     @basicTimeInfo + # [year, month, day]
+			     [hours,
+			      $~[2].to_i, # minutes
+			      $~[3].to_i] # seconds
+			 else
+			     Pidgin2Adium.logMsg("You have found an odd timestamp.", true)
+			     Pidgin2Adium.logMsg("Please report it to the developer.")
+			     Pidgin2Adium.logMsg("The timestamp: #{time}")
+			     Pidgin2Adium.logMsg("Continuing...")
+
+			     ParseDate.parsedate(time)
+			 end
+	    return Time.local(*parsedDate).strftime("%Y-%m-%dT%H.%M.%S#{@tzOffset}")
 	end
 
 	# parseFile slurps up @srcPath into one big string and runs
 	# SrcHtmlFileParse.cleanup if it's an HTML file.
-	# It then uses regexes to break up the string, uses createMsgData
+	# It then uses regexes to break up the string, uses create(Status)Msg
 	# to turn the regex MatchData into data hashes, and feeds it to
 	# ChatFileGenerator, which creates the XML data string.
 	# This method returns a ChatFileGenerator object.
 	def parseFile()
 	    file = File.new(@srcPath, 'r')
 	    # Deal with first line.
-	    first_line_match = @first_line_regex.match(file.readline())
-	    if first_line_match.nil?
+	    firstLine = file.readline()
+	    firstLineMatch = @firstLineRegex.match(firstLine)
+	    if firstLineMatch.nil?
 		file.close()
-		Pidgin2Adium.logMsg("Parsing of #{@srcPath} failed (could not find first line).", true)
+		Pidgin2Adium.logMsg("Parsing of #{@srcPath} failed (could not find valid first line).", true)
 		return false
 	    else
-		# one big string, without the first lien
-		fileContent = File.read(@srcPath)
+		# one big string, without the first line
+		if self.class == SrcHtmlFileParse
+		    fileContent = self.cleanup(file.read())
+		else
+		    fileContent = file.read()
+		end
 		file.close()
 	    end
-	    if self.class == SrcHtmlFileParse
-		fileContent = self.cleanup(fileContent)
-	    end
+	    
+	    service = firstLineMatch[4]
+	    # userSN is standardized to avoid "AIM.name" and "AIM.na me" folders
+	    @userSN = firstLineMatch[3].downcase.gsub(' ', '')
+	    @partnerSN = firstLineMatch[1]
+	    pidginChatTimeStart = firstLineMatch[2]
+	    @basicTimeInfo = case firstLine
+			     when @timeRegexOne: [$1.to_i, $2.to_i, $3.to_i]
+			     when @timeRegexTwo: [$3.to_i, $1.to_i, $2.to_i]
+			     end
+	    adiumChatTimeStart = createAdiumTime(pidginChatTimeStart)
 
-	    service = first_line_match[4]
-	    # mySN is standardized to avoid "AIM.name" and "AIM.na me" folders
-	    mySN = first_line_match[3].downcase.sub(' ', '')
-	    otherPersonsSN = first_line_match[1]
-	    chatTimePidgin_start = first_line_match[2]
 	    chatFG = ChatFileGenerator.new(service,
-					   mySN,
-					   otherPersonsSN,
-					   chatTimePidgin_start,
-					   getTimeZoneOffset(),
-					   @masterAlias,
+					   @userSN,
+					   @partnerSN,
+					   adiumChatTimeStart,
 					   @destDirBase)
-	    all_line_matches = fileContent.scan( Regexp.union(@line_regex, @line_regex_status) )
-
-	    # an empty chat window that got saved
-	    if all_line_matches.empty?
-		return chatFG
-	    end
-
-	    all_line_matches.each do |line|
-		chatFG.appendLine( createMsgData(line) )
+	    fileContent.each_line do |line|
+		case line
+		when @lineRegex
+		    chatFG.appendLine( createMsg($~.captures) )
+		when @lineRegexStatus
+		    chatFG.appendLine( createStatusOrEventMsg($~.captures) )
+		end
 	    end
 	    return chatFG
+	end
+
+	def getSenderByAlias(aliasName)
+	    if @userAliases.include? aliasName.downcase.sub(/^\*{3}/,'').gsub(/\s+/, '')
+		# Set the current alias being used of the ones in @userAliases
+		@userAlias = aliasName.sub(/^\*{3}/, '')
+		return @userSN
+	    else
+		return @partnerSN
+	    end
+	end
+
+	# createMsg takes an array of captures from matching against @lineRegex
+	# and returns a Message object or one of its subclasses.
+	# It can be used for SrcTxtFileParse and SrcHtmlFileParse because
+	# both of them return data in the same indexes in the matches array.
+	def createMsg(matches)
+	    msg = nil
+	    # Either a regular message line or an auto-reply/away message.
+	    time = createAdiumTime(matches[0])
+	    aliasStr = matches[1]
+	    sender = getSenderByAlias(aliasStr)
+	    body = matches[3]
+	    if matches[2] # auto-reply
+		msg = AutoReplyMessage.new(sender, time, aliasStr, body)
+	    else
+		# normal message
+		msg = XMLMessage.new(sender, time, aliasStr, body)
+	    end
+	    return msg
+	end
+
+	# createStatusOrEventMsg takes an array of +MatchData+ captures from
+	# matching against @lineRegexStatus and returns an Event or Status.
+	def createStatusOrEventMsg(matches)
+	    # ["22:58:00", "BuddyName logged in."]
+	    # 0: time
+	    # 1: status message or event
+	    msg = nil
+	    time = createAdiumTime(matches[0])
+	    str = matches[1]
+	    regex, status = @statusMap.detect{|regex, status| str =~ regex}
+	    if regex and status
+		# Status message
+		aliasStr = regex.match(str)[1]
+		sender = getSenderByAlias(aliasStr)
+		msg = StatusMessage.new(sender, time, aliasStr, status)
+	    else
+		# Test for event
+		regex = @libPurpleEvents.detect{|regex| str =~ regex }
+		eventType = 'libpurpleEvent' if regex
+		unless regex and eventType
+		    # not a libpurple event, try others
+		    regexAndEventType = @eventMap.detect{|regex,eventType| str =~ regex}
+		    regex = regexAndEventType[0]
+		    eventType = regexAndEventType[1]
+		end
+		if regex and eventType
+		    regexMatches = regex.match(str)
+		    # Event message
+		    if regexMatches.size == 1
+			# No alias - this means it's the user
+			aliasStr = @userAlias
+			sender = @userSN
+		    else
+			aliasStr = regex.match(str)[1]
+			sender = getSenderByAlias(aliasStr)
+		    end
+		    msg = Event.new(sender, time, aliasStr, str, eventType)
+		end
+	    end
+	    return msg
 	end
     end
 
     class SrcTxtFileParse < SrcFileParse
-	def initialize(srcPath, destDirBase, masterAlias, userTZ, userTZOffset)
-	    super(srcPath, destDirBase, masterAlias, userTZ, userTZOffset)
-	    # @line_regex matches a line in an HTML log file other than the first
-	    # @line_regex matchdata:
+	def initialize(srcPath, destDirBase, userAliases, userTZ, userTZOffset)
+	    super(srcPath, destDirBase, userAliases, userTZ, userTZOffset)
+	    # @lineRegex matches a line in a TXT log file other than the first
+	    # @lineRegex matchdata:
 	    # 0: timestamp
-	    # 1: screen name
+	    # 1: screen name or alias, if alias set
 	    # 2: "<AUTO-REPLY>" or nil
-	    # 3: message
-	    @line_regex = /#{@timestamp_regex_str} (.*?) ?(<AUTO-REPLY>)?: (.*)$/
-	    # @line_regex_status matches a status line
-	    # @line_regex_status matchdata:
+	    # 3: message body
+	    @lineRegex = /#{@timestampRegexStr} (.*?) ?(<AUTO-REPLY>)?: (.*)$/o
+	    # @lineRegexStatus matches a status line
+	    # @lineRegexStatus matchdata:
 	    # 0: timestamp
-	    # 1: message
-	    @line_regex_status = /#{@timestamp_regex_str} ([^:]+?)[\r\n]{1,2}/
+	    # 1: status message
+	    @lineRegexStatus = /#{@timestampRegexStr} ([^:]+?)[\r\n]{1,2}/o
 	end
 
-	# createMsgData takes a +MatchData+ object (from @line_regex or @line_regex_status) and returns a hash
-	# with the following keys: time, alias, and message and/or status.
-	def createMsgData(matchObj)
-	    msg_data_hash = { 'time' => nil, 'alias' => nil, 'status' => nil, 'body' => nil, 'auto-reply' => nil }
-	    if matchObj[4..5] == [nil, nil]
-		# regular message
-		# ["10:58:29", "BuddyName", "<AUTO-REPLY>", "hello!\r", nil, nil]
-		msg_data_hash['time'] = matchObj[0]
-		msg_data_hash['alias'] = matchObj[1]
-		msg_data_hash['auto-reply'] = (matchObj[2] != nil)
-		# strip() to remove "\r" from end
-		msg_data_hash['body'] = matchObj[3].strip
-	    elsif matchObj[0..3] == [nil, nil, nil, nil]
-		# status message
-		# [nil, nil, nil, nil, "22:58:00", "BuddyName logged in."]
-		alias_and_status = getAliasAndStatus(matchObj[5])
-		msg_data_hash['time'] = matchObj[4]
-		msg_data_hash['alias'] = alias_and_status[0]
-		msg_data_hash['status'] = alias_and_status[1]
-	    end
-	    return msg_data_hash
-	end
     end
 
     class SrcHtmlFileParse < SrcFileParse
-	def initialize(srcPath, destDirBase, masterAlias, userTZ, userTZOffset)
-	    super(srcPath, destDirBase, masterAlias, userTZ, userTZOffset)
-	    # @line_regex matches a line in an HTML log file other than the first
+	def initialize(srcPath, destDirBase, userAliases, userTZ, userTZOffset)
+	    super(srcPath, destDirBase, userAliases, userTZ, userTZOffset)
+	    # @lineRegex matches a line in an HTML log file other than the first
 	    # time matches on either "2008-11-17 14:12" or "14:12"
-	    # @line_regex match obj:
+	    # @lineRegex match obj:
 	    # 0: timestamp, extended or not
-	    # 1: alias
+	    # 1: screen name or alias, if alias set
 	    # 2: "&lt;AUTO-REPLY&gt;" or nil
 	    # 3: message body
 	    #  <span style='color: #000000;'>test sms</span>
-	    @line_regex = /#{@timestamp_regex_str} ?<b>(.*?) ?(&lt;AUTO-REPLY&gt;)?:?<\/b> ?(.*)<br ?\/>/ #(?:[\n\r]{1,2}<(?:font|\/body))/s
-	    # @line_regex_status matches a status line
-	    # @line_regex_status match obj:
+	    @lineRegex = /#{@timestampRegexStr} ?<b>(.*?) ?(&lt;AUTO-REPLY&gt;)?:?<\/b> ?(.*)<br ?\/>/o
+	    # @lineRegexStatus matches a status line
+	    # @lineRegexStatus match obj:
 	    # 0: timestamp
 	    # 1: status message
-	    @line_regex_status = /#{@timestamp_regex_str} ?<b> (.*?)<\/b><br\/>/
+	    @lineRegexStatus = /#{@timestampRegexStr} ?<b> (.*?)<\/b><br ?\/>/o
 	end
 
-	# createMsgData takes a +MatchData+ object (from @line_regex or @line_regex_status) and returns a hash
-	# with the following keys: time, alias, and message and/or status.
-	def createMsgData(matchObj)
-	    msg_data_hash = { 'time' => nil,
-		'alias' => nil,
-		'auto-reply' => nil,
-		'body' => nil,
-		'status' => nil}
-	    # the Regexp.union leaves nil where one of the regexes didn't match.
-	    # (Is there any way to have it not do this?)
-	    # ie
-	    # the first one matches: ['foo', 'bar', 'baz', 'bash', nil, nil]
-	    # second one matches: [nil, nil, nil, nil, 'bim', 'bam']
-	    if matchObj[0..3] == [nil, nil, nil, nil]
-		# This is a status message.
-		# slice off results from other Regexp
-		# becomes: ["11:27:53", "Generic Screenname228 logged in."]
-		matchObj = matchObj[4..5]
-		alias_and_status = getAliasAndStatus(matchObj[1])
-		msg_data_hash['time'] = matchObj[0]
-		msg_data_hash['alias'] = alias_and_status[0]
-		msg_data_hash['status'] = alias_and_status[1]
-	    elsif matchObj[4..5] == [nil, nil]
-		# Either a regular message line or an auto-reply/away message.
-		# slice off results from other Regexp
-		matchObj = matchObj[0..3]
-		msg_data_hash['time'] = matchObj[0]
-		msg_data_hash['alias'] = matchObj[1]
-		msg_data_hash['body'] = matchObj[3]
-		if not matchObj[2].nil?
-		    # an auto-reply message
-		    msg_data_hash['auto-reply'] = true
-		end
-	    end
-	    return msg_data_hash
-	end
-
-	# Removes <font> tags, empty <a>s, spans with either no color
+	# Removes <font> tags, empty <a>s, and spans with either no color
 	# information or color information that just turns the text black.
 	# Returns a string.
 	def cleanup(text)
-	    color_regex = /.*(color: ?#[[:alnum:]]{6}; ?).*/
-	    # For some reason, Hpricot doesn't work well with
-	    # elem.swap(elem.innerHTML) when the elements are nested
-	    # (eg doc.search('font') only returns the outside <font> tags,
-	    # not "font font") and also it appears that it doesn't reinterpret
-	    # the doc when outside tags are swapped with their innerHTML (so
-	    # when <html> tags are replaced with their innerHTML, then
-	    # a search for <font> tags in the new HTML fails).
-	    # Long story short, we use gsub.
+	    # Pidgin and Adium both show bold using
+	    # <span style="font-weight: bold;"> except Pidgin uses single quotes
+	    # and Adium uses double quotes
 	    text.gsub!(/<\/?(html|body|font).*?>/, '')
-	    doc = Hpricot(text)
-	    # These empty links sometimes are appended to every line in a chat,
+	    # These empty links are sometimes appended to every line in a chat,
 	    # for some weird reason. Remove them.
-	    doc.search("a[text()='']").remove
-	    spans = doc.search('span')
-	    spans.each do |span|
-		if span.empty?
-		    Hpricot::Elements[span].remove
-		else
-		    # No need to check for the span.attributes.key?('style')
-		    if span[:style] =~ color_regex
-			# Remove black-text spans after other processing because
-			# the processing can reduce spans to that
-			# Yes, sometimes there's a ">" before the ";"
-			span[:style] = span[:style].gsub(color_regex, '\1').
-					    gsub(/color: ?#000000>?; ?/,'')
-			# Remove span but keep its contents
-			span.swap(span.innerHTML) if span[:style].strip() == ''
+	    text.gsub!(%r{<a href='.+?'>\s*?</a>}, '')
+	    text.gsub!(%r{(.*?)<span.+style='(.+?)'>(.*?)</span>(.*)}) do |s|
+		# before = text before match
+		# style = style declaration
+		# innertext = text inside <span>
+		# after = text after match
+		before, style, innertext, after = *($~[1..4])
+		# TODO: remove after from string then see what balanceTags does
+		# Remove empty spans.
+		nil if innertext == ''
+		# Only allow some style declarations
+		# We keep:
+		# font-weight: bold
+		# color (except #000000)
+		# text-decoration: underline
+		styleparts = style.split(/; ?/)
+		styleparts.map! do |p|
+		    # Short-circuit for common declaration
+		    # Yes, sometimes there's a ">" before the ";".
+		    if p == 'color: #000000;' or
+			p == 'color: #000000>;'
+			nil
 		    else
-			span.swap(span.innerHTML)
+			case p
+			when /font-family/: nil
+			when /font-size/: nil
+			when /background/: nil
+			end
 		    end
 		end
+		styleparts.compact!
+		if styleparts.empty?
+		    style = ''
+		elsif styleparts.size == 1
+		    p styleparts
+		    exit 1
+		    style = styleparts[0] << ';'
+		else
+		    style = styleparts.join('; ') << ';'
+		end
+		if style != ''
+		    innertext = "<span style=\"#{style}\">#{innertext}</span>"
+		end
+		before + innertext + after
 	    end
-	    return doc.to_html
+	    # Pidgin uses <em>, Adium uses <span>
+	    if text.gsub!('<em>', '<span style="italic">')
+		text.gsub!('</em>', '</span>')
+	    end
+	    return text
+	end
+    end
+
+    # A holding object for each line of the chat.
+    # It is subclassed as appropriate (eg AutoReplyMessage).
+    # All Messages have senders, times, and aliases.
+    class Message
+	def initialize(sender, time, aliasStr)
+	    @sender = sender
+	    @time = time
+	    @aliasStr = aliasStr
+	end
+    end
+   
+    # Basic message with body text (as opposed to pure status messages, which
+    # have no body).
+    class XMLMessage < Message
+	def initialize(sender, time, aliasStr, body)
+	    super(sender, time, aliasStr)
+	    @body = body
+	    normalizeBody!()
+	end
+
+	def getOutput
+	    return sprintf('<message sender="%s" time="%s" alias="%s">%s</message>' << "\n",
+			   @sender, @time, @aliasStr, @body)
+	end
+
+	def normalizeBody!
+	    normalizeBodyEntities!()
+	    # Fix mismatched tags. Yes, it's faster to do it per-message
+	    # than all at once.
+	    @body = Pidgin2Adium.balanceTags(@body)
+	    if @aliasStr[0,3] == '***'
+		# "***<alias>" is what pidgin sets as the alias for a /me action
+		@aliasStr.slice!(0,3)
+		@body = '*' << @body << '*'
+	    end
+	    @body = '<div><span style="font-family: Helvetica; font-size: 12pt;">' <<
+	    @body << 
+	    '</span></div>'
+	end
+
+	def normalizeBodyEntities!
+	    # Convert '&' to '&amp;' only if it's not followed by an entity.
+	    @body.gsub!(/&(?!lt|gt|amp|quot|apos)/, '&amp;')
+	    # replace single quotes with '&apos;' but only outside <span>s.
+	    @body.gsub!(/(.*?)(<span.*?>.*?<\/span>)(.*?)/) do
+		before, span, after = $1, ($2||''), $3||''
+		before.gsub("'", '&aquot;') <<
+		    span <<
+		    after.gsub("'", '&aquot;')
+	    end
+	end
+    end
+
+    # An auto reply message, meaning it has a body.
+    class AutoReplyMessage < XMLMessage
+	def getOutput
+	    return sprintf('<message sender="%s" time="%s" auto="true" alias="%s">%s</message>' << "\n", @sender, @time, @aliasStr, @body)
+	end
+    end
+
+    # A message saying e.g. "Blahblah has gone away."
+    class StatusMessage < Message
+	def initialize(sender, time, aliasStr, status)
+	    super(sender, time, aliasStr) 
+	    @status = status
+	end
+	def getOutput
+	    return sprintf('<status type="%s" sender="%s" time="%s" alias="%s"/>' << "\n", @status, @sender, @time, @aliasStr)
+	end
+    end
+  
+    # An <event> line of the chat
+    class Event < XMLMessage
+	def initialize(sender, time, aliasStr, body, type="libpurpleMessage")
+	    super(sender, time, aliasStr, body)
+	    @type = type
+	end
+
+	def getOutput
+	    return sprintf('<event type="%s" sender="%s" time="%s" alias="%s">%s</event>', @type, @sender, @time, @aliasStr, @body)
 	end
     end
 end # end module
