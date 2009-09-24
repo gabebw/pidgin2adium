@@ -18,22 +18,22 @@ OptionParser.new do |opts|
     opts.on('-i IN_DIR', '--in IN_DIR', 'Specify directory where pidgin logs are stored') do |v|
 	options[:in] = v
     end
-    opts.on('-o OUT_DIR', '--out OUT_DIR', 'Specify directory where Adium logs will be stored (not the Adium directory in ~/Library') do |out|
+    opts.on('-o', '--out OUT_DIR', 'Specify directory where Adium logs will be stored (not the Adium directory in ~/Library)') do |out|
 	options[:out] = out
     end
-    opts.on('-l LIBRARY_DIR', '--libdir LIBRARY_DIR',
+    opts.on('-l', '--libdir LIBRARY_DIR',
 	    'Specify dirname where Adium logs are stored (eg "AIM.<username>" for',
-	    '~/Library/Application Support/Adium 2.0/Users/Default/Logs/AIM.<username>') do |ld|
+	    '~/Library/Application Support/Adium 2.0/Users/Default/Logs/AIM.<username>)') do |ld|
 	options[:libdir] = ld
     end
     opts.on('-d', '--debug', 'Turn debug on.') do |lf|
 	options[:debug] = true
     end
-    opts.on("--time-zone [TIME ZONE]",
+    opts.on('-t', "--time-zone [TIME ZONE]",
 	    "Set time zone like \"EST\". Defaults to local time zone: #{Time.now.zone}") do |tz|
 	options[:timezone] = tz
     end
-    opts.on('-a MY_ALIASES_AND_SNs', "--aliases MY_ALIASES_AND_SNs",
+    opts.on('-a', "--aliases MY_ALIASES_AND_SNs",
 	    "A comma-separated list of your aliases and screenname(s) so this script knows which person in a chat is you.",
 	    "Whitespace is removed and aliases are lowercased.") do |aliases|
 	options[:aliases] = aliases.split(',')
@@ -56,12 +56,12 @@ required_opts.each do |short, long|
 end
 exit 1 if need_opts
 
-log_converter  =  Pidgin2Adium::Logs.new(src=options[:in],
-					 out = options[:out],
-					 aliases = options[:aliases],
-					 libdir = options[:libdir],
-					 tz = options[:timezone],
-					 debug = options[:debug]
+log_converter  =  Pidgin2Adium::Logs.new(options[:in],
+					 options[:out],
+					 options[:aliases],
+					 options[:libdir],
+					 options[:timezone],
+					 options[:debug]
 					)
 
 log_converter.start
