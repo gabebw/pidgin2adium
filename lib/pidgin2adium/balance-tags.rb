@@ -8,7 +8,6 @@ module Pidgin2Adium
     # @copyright November 4, 2001
     # @return string Balanced text.
     def Pidgin2Adium.balanceTags( text )
-	text = text.clone
 	tagstack = []
 	stacksize = 0
 	tagqueue = ''
