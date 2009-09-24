@@ -10,7 +10,6 @@
 
 require 'pidgin2adium/SrcFileParse'
 require 'pidgin2adium/ChatFileGenerator'
-require 'parsedate'
 require 'fileutils'
 
 class Time
@@ -66,37 +65,30 @@ module Pidgin2Adium
 	def initialize(src, out, aliases, libdir, tz=nil, debug=false)
 	    # These files/directories show up in Dir.entries(x)
 	    @BAD_DIRS = %w{. .. .DS_Store Thumbs.db .system}
-	    src = File.expand_path(src)
-	    out = File.expand_path(out)
-	    unless File.directory?(src)
-		puts "Source directory #{src} does not exist or is not a directory."
-		raise Errno::ENOENT
-	    end
-	    unless File.directory?(out)
-		begin
-		    FileUtils.mkdir_p(out)
-		rescue
-		    puts "Output directory #{out} does not exist or is not a directory and could not be created."
-		    raise Errno::ENOENT
-		end
-	    end
-
-	    if libdir.nil?
-		puts "You must provide libdir."
-		raise Error
-	    end
-
-	    @src_dir = src
-	    @out_dir = out
-
+	    @src_dir = File.expand_path(src)
+	    @out_dir = File.expand_path(out)
 	    # Whitespace is removed for easy matching later on.
 	    @my_aliases = aliases.map{|x| x.downcase.gsub(/\s+/,'') }.uniq
 	    # @libdir is the directory in
 	    # ~/Library/Application Support/Adium 2.0/Users/Default/Logs/.
 	    # For AIM, it's like "AIM.<screenname>"
+	    # FIXME: don't make the user pass in libdir - we can and SHOULD change it on a per-service/screenname basis
 	    @libdir = libdir
-	    @debug = debug
 	    @DEFAULT_TIME_ZONE = tz || Time.now.zone
+	    @debug = debug
+	    unless File.directory?(@src_dir)
+		puts "Source directory #{@src_dir} does not exist or is not a directory."
+		raise Errno::ENOENT
+	    end
+	    unless File.directory?(@out_dir)
+		begin
+		    FileUtils.mkdir_p(@out_dir)
+		rescue
+		    puts "Output directory #{@out_dir} does not exist or is not a directory and could not be created."
+		    raise Errno::ENOENT
+		end
+	    end
+
 	    # local offset, like "-0800" or "+1000"
 	    @DEFAULT_TZ_OFFSET = '%+03d00'%Time.zone_offset(@DEFAULT_TIME_ZONE)
 	end
@@ -104,16 +96,20 @@ module Pidgin2Adium
 	def start
 	    Pidgin2Adium.logMsg "Begin converting."
 	    begin
-		filesPath = getAllChatFilesPath(@src_dir)
+		filesPath = getAllChatFiles(@src_dir)
 	    rescue Errno::EACCES => bang
-		Pidgin2Adium.logMsg("Sorry, permission denied for getting chat files from #{@src_dir}.", true)
+		Pidgin2Adium.logMsg("Sorry, permission denied for getting Pidgin chat files from #{@src_dir}.", true)
 		Pidgin2Adium.logMsg("Details: #{bang.message}", true)
 		raise Errno::EACCES
 	    end
 
-	    Pidgin2Adium.logMsg(filesPath.length.to_s + " files to convert.")
-	    filesPath.each do |fname|
-		Pidgin2Adium.logMsg("Converting #{fname}...")
+	    Pidgin2Adium.logMsg("#{filesPath.length} files to convert.")
+	    totalFiles = filesPath.size
+	    filesPath.each_with_index do |fname, i|
+		Pidgin2Adium.logMsg(
+		    sprintf("[%d/%d] Converting %s...",
+			(i+1), totalFiles, fname)
+		)
 		convert(fname)
 	    end
 
@@ -164,10 +160,10 @@ module Pidgin2Adium
 		    Pidgin2Adium.logMsg("Could not create #{toCreate}: #{bang.class} #{bang.message}", true)
 		    return false
 		end
-		fileWithXmlExt = srcPath[0, srcPath.size-File.extname(srcPath).size] + ".xml"
+		fileWithXmlExt = srcPath[0, srcPath.size-File.extname(srcPath).size] << ".xml"
 		# @src_dir/log.chatlog (file) -> @out_dir/log.chatlog/log.xml
 		File.cp(srcPath, File.join(@out_dir, srcPath, fileWithXmlExt))
-		Pidgin2Adium.logMsg("Copied #{srcPath} to " + File.join(@out_dir, srcPath, fileWithXmlExt))
+		Pidgin2Adium.logMsg("Copied #{srcPath} to " << File.join(@out_dir, srcPath, fileWithXmlExt))
 		return true
 	    else
 		Pidgin2Adium.logMsg("srcPath (#{srcPath}) is not a txt, html, or chatlog file. Doing nothing.")
@@ -192,54 +188,58 @@ module Pidgin2Adium
 		end
 	end
 
-	def getAllChatFilesPath(dir)
+	def getAllChatFiles(dir)
 	    return [] if File.basename(dir) == ".system"
 	    # recurse into each subdir
-	    return (Dir.glob(File.join(@src_dir, '**', '*.{html,txt}')) - @BAD_DIRS)
+	    return (Dir.glob(File.join(@src_dir, '**', '*.{htm,html,txt}')) - @BAD_DIRS)
 	end
 
 	# Copies logs, accounting for timezone changes
 	def copyLogs
 	    Pidgin2Adium.logMsg "Copying logs with accounting for different time zones..."
-	    real_dest_dir = File.expand_path('~/Library/Application Support/Adium 2.0/Users/Default/Logs/') + '/' + @libdir + '/'
-	    real_src_dir = File.join(@out_dir, @libdir) + '/'
+	    # FIXME: not all logs are AIM logs, libdir may change
+	    realSrcDir = File.expand_path('~/Library/Application Support/Adium 2.0/Users/Default/Logs/') << "/#{@libdir}/"
+	    realDestDir = File.join(@out_dir, @libdir) << '/'
 
-	    src_entries =  Dir.entries(real_src_dir)
-	    dest_entries =  Dir.entries(real_dest_dir)
+	    src_entries =  Dir.entries(realSrcDir)
+	    dest_entries =  Dir.entries(realDestDir)
 	    both_entries = (src_entries & dest_entries) - @BAD_DIRS
 
 	    both_entries.each do |name|
-		my_src_entries = Dir.entries(real_src_dir + name) - @BAD_DIRS
-		my_dest_entries = Dir.entries(real_dest_dir + name) - @BAD_DIRS
+		my_src_entries = Dir.entries(realSrcDir << name) - @BAD_DIRS
+		my_dest_entries = Dir.entries(realDestDir << name) - @BAD_DIRS
 
 		in_both = my_src_entries & my_dest_entries
 		in_both.each do |logdir|
 		    FileUtils.cp(
-			File.join(real_src_dir, name, logdir, logdir.sub('chatlog', 'xml')),
-			File.join(real_dest_dir, name, logdir) + '/',
+			File.join(realSrcDir, name, logdir, logdir.sub('chatlog', 'xml')),
+			File.join(realDestDir, name, logdir) << '/',
 				 :verbose => false)
 		end
-		# The logs that are only in one of the dirs are not necessarily different logs than the dest.
-		# They might just have different timestamps. Thus, we use regexes.
+		# The logs that are only in one of the dirs are not necessarily
+		# different logs than the dest.  They might just have different
+		# timestamps. Thus, we use regexes.
 		only_in_src  = my_src_entries - in_both
 		only_in_dest = my_dest_entries - in_both
-		# Move files from real_src_dir that are actually in both, but just have different time zones.
+		# Move files from realSrcDir that are actually in both, but
+		# just have different time zones.
 		only_in_src.each do |srcLogDir|
 		    # Match on everything except the timezone ("-0400.chatlog")
-		    fname_beginning_regex = Regexp.new( Regexp.escape(srcLogDir.sub(/-\d{4}.\.chatlog$/, '')) )
-		    target_chatlog_dir = only_in_dest.find{|d| d =~ fname_beginning_regex }
-		    if target_chatlog_dir.nil?
-			# Only in source, so we can copy it without fear of overwriting.
-			target_chatlog_dir = srcLogDir
-			FileUtils.mkdir_p(File.join(real_dest_dir, name, target_chatlog_dir))
+		    fileBeginRegex = Regexp.new('^'<<Regexp.escape(srcLogDir.sub(/-\d{4}.\.chatlog$/, '')) )
+		    targetChatlogDir = only_in_dest.find{|d| d =~ fileBeginRegex}
+		    if targetChatlogDir.nil?
+			# Only in source, so we can copy it without fear of
+			# overwriting.
+			targetChatlogDir = srcLogDir
+			FileUtils.mkdir_p(File.join(realDestDir, name, targetChatlogDir))
 		    end
-		    # Move to target_chatlog_dir so we overwrite the destination
+		    # Move to targetChatlogDir so we overwrite the destination
 		    # file but still use its timestamp
 		    # (if it exists; if it doesn't, then we're using our own
 		    # timestamp).
 		    FileUtils.cp(
-			File.join(real_src_dir, name, srcLogDir, srcLogDir.sub('chatlog', 'xml')),
-			File.join(real_dest_dir, name, target_chatlog_dir, target_chatlog_dir.sub('chatlog', 'xml')),
+			File.join(realSrcDir, name, srcLogDir, srcLogDir.sub('chatlog', 'xml')),
+			File.join(realDestDir, name, targetChatlogDir, targetChatlogDir.sub('chatlog', 'xml')),
 			:verbose => false
 		    )
 		end
