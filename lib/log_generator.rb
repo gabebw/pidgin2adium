@@ -42,7 +42,7 @@ module Pidgin2Adium
 
 	    all_msgs = ""
 	    # TODO: inject?
-	    @chat_lines.each { |obj| all_msgs << obj.get_output() }
+	    @chat_lines.each { |obj| all_msgs << obj.to_s }
 	    # xml is done.
 	    
 	    # no \n before </chat> because all_msgs has it already
