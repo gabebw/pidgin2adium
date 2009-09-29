@@ -50,7 +50,7 @@ class Time
 end
 
 module Pidgin2Adium
-    # put's content. Also put's to @LOG_FILE_FH if @debug == true.
+    # Prints arguments.
     def Pidgin2Adium.log_msg(str, is_error=false)
 	content = str.to_s
 	if is_error == true
@@ -121,9 +121,10 @@ module Pidgin2Adium
 	end
 
 
-	# Problem: imported logs are viewable in the Chat Transcript Viewer, but are not indexed,
-	# so a search of the logs doesn't give results from the imported logs.
-	# To fix this, we delete the cached log indexes, which forces Adium to re-index.
+	# Here is the problem: imported logs are viewable in the Adium Chat
+	# Transcript Viewer, but are not indexed, so a search of the logs
+	# doesn't give results from the imported logs. To fix this, we delete
+	# the cached log indexes, which forces Adium to re-index.
 	def delete_search_indexes()
 	    Pidgin2Adium.log_msg "Deleting log search indexes in order to force re-indexing of imported logs..."
 	    dirty_file=File.expand_path("~/Library/Caches/Adium/Default/DirtyLogs.plist")
@@ -141,9 +142,9 @@ module Pidgin2Adium
 	    Pidgin2Adium.log_msg "When you next start the Adium Chat Transcript Viewer, it will re-index the logs, which may take a while."
 	end
 
-	# <tt>convert</tt> creates a new HtmlLogParser or TextLogParser object,
-	# as appropriate, and calls its parse() method.
-	# Returns false if there was a problem, true otherwise
+	# Create a new HtmlLogParser or TextLogParser object
+	# (as appropriate) and calls its parse() method.
+	# Returns false if there was a problem, true otherwise.
 	def convert(src_path)
 	    ext = File.extname(src_path).sub('.', '').downcase
 	    if(ext == "html" || ext == "htm")
@@ -189,32 +190,34 @@ module Pidgin2Adium
 		end
 	end
 
+	# Returns an array of all .htm, .html, and .txt files in provided path.
 	def get_all_chat_files(dir)
 	    return [] if File.basename(dir) == ".system"
 	    # recurse into each subdir
 	    return (Dir.glob(File.join(@src_dir, '**', '*.{htm,html,txt}')) - @BAD_DIRS)
 	end
 
-	# Copies logs, accounting for timezone changes
+	# Copies logs with allowance for timezone changes.
 	def copy_logs
 	    Pidgin2Adium.log_msg "Copying logs with accounting for different time zones..."
 	    # FIXME: not all logs are AIM logs, libdir may change
-	    real_src_dir = File.expand_path('~/Library/Application Support/Adium 2.0/Users/Default/Logs/') << "/#{@libdir}/"
-	    real_dest_dir = File.join(@out_dir, @libdir) << '/'
+	    src_dir = File.expand_path('~/Library/Application Support/Adium 2.0/Users/Default/Logs/') << "/#{@libdir}/"
+	    dest_dir = File.join(@out_dir, @libdir) << '/'
 
-	    src_entries =  Dir.entries(real_src_dir)
-	    dest_entries =  Dir.entries(real_dest_dir)
+	    src_entries =  Dir.entries(src_dir)
+	    dest_entries =  Dir.entries(dest_dir)
 	    both_entries = (src_entries & dest_entries) - @BAD_DIRS
 
 	    both_entries.each do |name|
-		my_src_entries = Dir.entries(real_src_dir << name) - @BAD_DIRS
-		my_dest_entries = Dir.entries(real_dest_dir << name) - @BAD_DIRS
+		my_src_entries = Dir.entries(src_dir << name) - @BAD_DIRS
+		my_dest_entries = Dir.entries(dest_dir << name) - @BAD_DIRS
 
 		in_both = my_src_entries & my_dest_entries
+		# Copy files 
 		in_both.each do |logdir|
 		    FileUtils.cp(
-			File.join(real_src_dir, name, logdir, logdir.sub('chatlog', 'xml')),
-			File.join(real_dest_dir, name, logdir) << '/',
+			File.join(src_dir, name, logdir, logdir.sub('chatlog', 'xml')),
+			File.join(dest_dir, name, logdir) << '/',
 				 :verbose => false)
 		end
 		# The logs that are only in one of the dirs are not necessarily
@@ -222,25 +225,23 @@ module Pidgin2Adium
 		# timestamps. Thus, we use regexes.
 		only_in_src  = my_src_entries - in_both
 		only_in_dest = my_dest_entries - in_both
-		# Move files from real_src_dir that are actually in both, but
+		# Move files from src_dir that are actually in both, but
 		# just have different time zones.
 		only_in_src.each do |src_log_dir|
 		    # Match on everything except the timezone ("-0400.chatlog")
 		    file_begin_regex = Regexp.new('^'<<Regexp.escape(src_log_dir.sub(/-\d{4}.\.chatlog$/, '')) )
 		    target_chatlog_dir = only_in_dest.find{|d| d =~ file_begin_regex}
 		    if target_chatlog_dir.nil?
-			# Only in source, so we can copy it without fear of
+			# Really only in source, so we can copy it without fear of
 			# overwriting.
 			target_chatlog_dir = src_log_dir
-			FileUtils.mkdir_p(File.join(real_dest_dir, name, target_chatlog_dir))
+			FileUtils.mkdir_p(File.join(dest_dir, name, target_chatlog_dir))
 		    end
-		    # Move to target_chatlog_dir so we overwrite the destination
-		    # file but still use its timestamp
-		    # (if it exists; if it doesn't, then we're using our own
-		    # timestamp).
+		    # If the target file exists, then we are overwriting its content but keeping its name.
+		    # If it doesn't, then there's no problem anyway.
 		    FileUtils.cp(
-			File.join(real_src_dir, name, src_log_dir, src_log_dir.sub('chatlog', 'xml')),
-			File.join(real_dest_dir, name, target_chatlog_dir, target_chatlog_dir.sub('chatlog', 'xml')),
+			File.join(src_dir, name, src_log_dir, src_log_dir.sub('chatlog', 'xml')),
+			File.join(dest_dir, name, target_chatlog_dir, target_chatlog_dir.sub('chatlog', 'xml')),
 			:verbose => false
 		    )
 		end
