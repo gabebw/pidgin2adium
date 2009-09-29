@@ -1,5 +1,5 @@
 # ADD DOCUMENTATION
-require 'pidgin2adium/balance-tags.rb'
+require 'balance-tags.rb'
 
 module Pidgin2Adium
     class ChatFileGenerator

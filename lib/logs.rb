@@ -8,8 +8,8 @@
 #A ruby program to convert Pidgin log files to Adium log files, then place
 #them in the Adium log directory with allowances for time zone differences.
 
-require 'pidgin2adium/SrcFileParse'
-require 'pidgin2adium/ChatFileGenerator'
+require 'SrcFileParse'
+require 'ChatFileGenerator'
 require 'fileutils'
 
 class Time
