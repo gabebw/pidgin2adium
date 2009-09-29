@@ -1,0 +1,10 @@
+.autotest
+History.txt
+Manifest.txt
+README.rdoc
+Rakefile.rb
+bin/pidgin2adium_logs
+lib/pidgin2adium.rb
+lib/pidgin2adium/balance_tags.rb
+lib/pidgin2adium/log_generator.rb
+lib/pidgin2adium/parser.rb
