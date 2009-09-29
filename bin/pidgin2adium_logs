@@ -9,7 +9,7 @@ For <tt>-a/--aliases</tt>, there is no need to use spaces or capitalization, sin
 be lowercased anyway.
 =end
 
-require 'pidgin2adium/logs'
+require 'pidgin2adium'
 require 'optparse'
 
 options = {}
