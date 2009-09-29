@@ -51,16 +51,16 @@ end
 
 module Pidgin2Adium
     # put's content. Also put's to @LOG_FILE_FH if @debug == true.
-    def Pidgin2Adium.logMsg(str, isError=false)
+    def Pidgin2Adium.log_msg(str, is_error=false)
 	content = str.to_s
-	if isError == true
+	if is_error == true
 	    content= "ERROR: #{str}"
 	end
 	puts content
     end
 
     class Logs
-	# FILE_EXISTS is returned by ChatFileGenerator.buildDomAndOutput() if the output logfile already exists.
+	# FILE_EXISTS is returned by ChatFileGenerator.build_dom_and_output() if the output logfile already exists.
 	FILE_EXISTS = 42
 	def initialize(src, out, aliases, libdir, tz=nil, debug=false)
 	    # These files/directories show up in Dir.entries(x)
@@ -94,126 +94,126 @@ module Pidgin2Adium
 	end
 
 	def start
-	    Pidgin2Adium.logMsg "Begin converting."
+	    Pidgin2Adium.log_msg "Begin converting."
 	    begin
-		filesPath = getAllChatFiles(@src_dir)
+		files_path = get_all_chat_files(@src_dir)
 	    rescue Errno::EACCES => bang
-		Pidgin2Adium.logMsg("Sorry, permission denied for getting Pidgin chat files from #{@src_dir}.", true)
-		Pidgin2Adium.logMsg("Details: #{bang.message}", true)
+		Pidgin2Adium.log_msg("Sorry, permission denied for getting Pidgin chat files from #{@src_dir}.", true)
+		Pidgin2Adium.log_msg("Details: #{bang.message}", true)
 		raise Errno::EACCES
 	    end
 
-	    Pidgin2Adium.logMsg("#{filesPath.length} files to convert.")
-	    totalFiles = filesPath.size
-	    filesPath.each_with_index do |fname, i|
-		Pidgin2Adium.logMsg(
+	    Pidgin2Adium.log_msg("#{files_path.length} files to convert.")
+	    total_files = files_path.size
+	    files_path.each_with_index do |fname, i|
+		Pidgin2Adium.log_msg(
 		    sprintf("[%d/%d] Converting %s...",
-			(i+1), totalFiles, fname)
+			(i+1), total_files, fname)
 		)
 		convert(fname)
 	    end
 
-	    copyLogs()
-	    deleteSearchIndexes()
+	    copy_logs()
+	    delete_search_indexes()
 
-	    Pidgin2Adium.logMsg "Finished converting! Converted #{filesPath.length} files."
+	    Pidgin2Adium.log_msg "Finished converting! Converted #{files_path.length} files."
 	end
 
 
 	# Problem: imported logs are viewable in the Chat Transcript Viewer, but are not indexed,
 	# so a search of the logs doesn't give results from the imported logs.
 	# To fix this, we delete the cached log indexes, which forces Adium to re-index.
-	def deleteSearchIndexes()
-	    Pidgin2Adium.logMsg "Deleting log search indexes in order to force re-indexing of imported logs..."
-	    dirtyFile=File.expand_path("~/Library/Caches/Adium/Default/DirtyLogs.plist")
-	    logIndexFile=File.expand_path("~/Library/Caches/Adium/Default/Logs.index")
-	    [dirtyFile, logIndexFile].each do |f|
+	def delete_search_indexes()
+	    Pidgin2Adium.log_msg "Deleting log search indexes in order to force re-indexing of imported logs..."
+	    dirty_file=File.expand_path("~/Library/Caches/Adium/Default/DirtyLogs.plist")
+	    log_index_file=File.expand_path("~/Library/Caches/Adium/Default/Logs.index")
+	    [dirty_file, log_index_file].each do |f|
 		if File.exist?(f)
 		    if File.writable?(f)
 			File.delete(f)
 		    else
-			Pidgin2Adium.logMsg("#{f} exists but is not writable. Please delete it yourself.", true)
+			Pidgin2Adium.log_msg("#{f} exists but is not writable. Please delete it yourself.", true)
 		    end
 		end
 	    end
-	    Pidgin2Adium.logMsg "...done."
-	    Pidgin2Adium.logMsg "When you next start the Adium Chat Transcript Viewer, it will re-index the logs, which may take a while."
+	    Pidgin2Adium.log_msg "...done."
+	    Pidgin2Adium.log_msg "When you next start the Adium Chat Transcript Viewer, it will re-index the logs, which may take a while."
 	end
 
 	# <tt>convert</tt> creates a new SrcHtmlFileParse or SrcTxtFileParse object,
 	# as appropriate, and calls its parse() method.
 	# Returns false if there was a problem, true otherwise
-	def convert(srcPath)
-	    ext = File.extname(srcPath).sub('.', '').downcase
+	def convert(src_path)
+	    ext = File.extname(src_path).sub('.', '').downcase
 	    if(ext == "html" || ext == "htm")
-		srcFileParse = SrcHtmlFileParse.new(srcPath, @out_dir, @my_aliases, @DEFAULT_TIME_ZONE, @DEFAULT_TZ_OFFSET)
+		parser = SrcHtmlFileParse.new(src_path, @out_dir, @my_aliases, @DEFAULT_TIME_ZONE, @DEFAULT_TZ_OFFSET)
 	    elsif(ext == "txt")
-		srcFileParse = SrcTxtFileParse.new(srcPath, @out_dir, @my_aliases, @DEFAULT_TIME_ZONE, @DEFAULT_TZ_OFFSET)
+		parser = SrcTxtFileParse.new(src_path, @out_dir, @my_aliases, @DEFAULT_TIME_ZONE, @DEFAULT_TZ_OFFSET)
 	    elsif(ext == "chatlog")
 		# chatlog FILE, not directory
-		Pidgin2Adium.logMsg("Found chatlog FILE - moving to chatlog DIRECTORY.")
+		Pidgin2Adium.log_msg("Found chatlog FILE - moving to chatlog DIRECTORY.")
 		# Create out_dir/log.chatlog/
 		begin
-		    toCreate = "#{@out_dir}/#{srcPath}" 
-		    Dir.mkdir(toCreate)
+		    to_create = "#{@out_dir}/#{src_path}" 
+		    Dir.mkdir(to_create)
 		rescue => bang
-		    Pidgin2Adium.logMsg("Could not create #{toCreate}: #{bang.class} #{bang.message}", true)
+		    Pidgin2Adium.log_msg("Could not create #{to_create}: #{bang.class} #{bang.message}", true)
 		    return false
 		end
-		fileWithXmlExt = srcPath[0, srcPath.size-File.extname(srcPath).size] << ".xml"
+		file_with_xml_ext = src_path[0, src_path.size-File.extname(src_path).size] << ".xml"
 		# @src_dir/log.chatlog (file) -> @out_dir/log.chatlog/log.xml
-		File.cp(srcPath, File.join(@out_dir, srcPath, fileWithXmlExt))
-		Pidgin2Adium.logMsg("Copied #{srcPath} to " << File.join(@out_dir, srcPath, fileWithXmlExt))
+		File.cp(src_path, File.join(@out_dir, src_path, file_with_xml_ext))
+		Pidgin2Adium.log_msg("Copied #{src_path} to " << File.join(@out_dir, src_path, file_with_xml_ext))
 		return true
 	    else
-		Pidgin2Adium.logMsg("srcPath (#{srcPath}) is not a txt, html, or chatlog file. Doing nothing.")
+		Pidgin2Adium.log_msg("src_path (#{src_path}) is not a txt, html, or chatlog file. Doing nothing.")
 		return false
 	    end
 
-	    chatFG = srcFileParse.parseFile()
-	    return false if chatFG == false
+	    generator = parser.parse_file()
+	    return false if generator == false
 
-	    destFilePath = chatFG.convert()
+	    dest_file_path = generator.convert()
 	    return \
-		case destFilePath
+		case dest_file_path
 		when false
-		    Pidgin2Adium.logMsg("Converting #{srcPath} failed.", true); 
+		    Pidgin2Adium.log_msg("Converting #{src_path} failed.", true); 
 		    false
 		when FILE_EXISTS
-		    Pidgin2Adium.logMsg("File already exists.")
+		    Pidgin2Adium.log_msg("File already exists.")
 		    true
 		else
-		    Pidgin2Adium.logMsg("Output to: #{destFilePath}")
+		    Pidgin2Adium.log_msg("Output to: #{dest_file_path}")
 		    true
 		end
 	end
 
-	def getAllChatFiles(dir)
+	def get_all_chat_files(dir)
 	    return [] if File.basename(dir) == ".system"
 	    # recurse into each subdir
 	    return (Dir.glob(File.join(@src_dir, '**', '*.{htm,html,txt}')) - @BAD_DIRS)
 	end
 
 	# Copies logs, accounting for timezone changes
-	def copyLogs
-	    Pidgin2Adium.logMsg "Copying logs with accounting for different time zones..."
+	def copy_logs
+	    Pidgin2Adium.log_msg "Copying logs with accounting for different time zones..."
 	    # FIXME: not all logs are AIM logs, libdir may change
-	    realSrcDir = File.expand_path('~/Library/Application Support/Adium 2.0/Users/Default/Logs/') << "/#{@libdir}/"
-	    realDestDir = File.join(@out_dir, @libdir) << '/'
+	    real_src_dir = File.expand_path('~/Library/Application Support/Adium 2.0/Users/Default/Logs/') << "/#{@libdir}/"
+	    real_dest_dir = File.join(@out_dir, @libdir) << '/'
 
-	    src_entries =  Dir.entries(realSrcDir)
-	    dest_entries =  Dir.entries(realDestDir)
+	    src_entries =  Dir.entries(real_src_dir)
+	    dest_entries =  Dir.entries(real_dest_dir)
 	    both_entries = (src_entries & dest_entries) - @BAD_DIRS
 
 	    both_entries.each do |name|
-		my_src_entries = Dir.entries(realSrcDir << name) - @BAD_DIRS
-		my_dest_entries = Dir.entries(realDestDir << name) - @BAD_DIRS
+		my_src_entries = Dir.entries(real_src_dir << name) - @BAD_DIRS
+		my_dest_entries = Dir.entries(real_dest_dir << name) - @BAD_DIRS
 
 		in_both = my_src_entries & my_dest_entries
 		in_both.each do |logdir|
 		    FileUtils.cp(
-			File.join(realSrcDir, name, logdir, logdir.sub('chatlog', 'xml')),
-			File.join(realDestDir, name, logdir) << '/',
+			File.join(real_src_dir, name, logdir, logdir.sub('chatlog', 'xml')),
+			File.join(real_dest_dir, name, logdir) << '/',
 				 :verbose => false)
 		end
 		# The logs that are only in one of the dirs are not necessarily
@@ -221,30 +221,30 @@ module Pidgin2Adium
 		# timestamps. Thus, we use regexes.
 		only_in_src  = my_src_entries - in_both
 		only_in_dest = my_dest_entries - in_both
-		# Move files from realSrcDir that are actually in both, but
+		# Move files from real_src_dir that are actually in both, but
 		# just have different time zones.
-		only_in_src.each do |srcLogDir|
+		only_in_src.each do |src_log_dir|
 		    # Match on everything except the timezone ("-0400.chatlog")
-		    fileBeginRegex = Regexp.new('^'<<Regexp.escape(srcLogDir.sub(/-\d{4}.\.chatlog$/, '')) )
-		    targetChatlogDir = only_in_dest.find{|d| d =~ fileBeginRegex}
-		    if targetChatlogDir.nil?
+		    file_begin_regex = Regexp.new('^'<<Regexp.escape(src_log_dir.sub(/-\d{4}.\.chatlog$/, '')) )
+		    target_chatlog_dir = only_in_dest.find{|d| d =~ file_begin_regex}
+		    if target_chatlog_dir.nil?
 			# Only in source, so we can copy it without fear of
 			# overwriting.
-			targetChatlogDir = srcLogDir
-			FileUtils.mkdir_p(File.join(realDestDir, name, targetChatlogDir))
+			target_chatlog_dir = src_log_dir
+			FileUtils.mkdir_p(File.join(real_dest_dir, name, target_chatlog_dir))
 		    end
-		    # Move to targetChatlogDir so we overwrite the destination
+		    # Move to target_chatlog_dir so we overwrite the destination
 		    # file but still use its timestamp
 		    # (if it exists; if it doesn't, then we're using our own
 		    # timestamp).
 		    FileUtils.cp(
-			File.join(realSrcDir, name, srcLogDir, srcLogDir.sub('chatlog', 'xml')),
-			File.join(realDestDir, name, targetChatlogDir, targetChatlogDir.sub('chatlog', 'xml')),
+			File.join(real_src_dir, name, src_log_dir, src_log_dir.sub('chatlog', 'xml')),
+			File.join(real_dest_dir, name, target_chatlog_dir, target_chatlog_dir.sub('chatlog', 'xml')),
 			:verbose => false
 		    )
 		end
 	    end
-	    Pidgin2Adium.logMsg "Log files copied!"
+	    Pidgin2Adium.log_msg "Log files copied!"
 	end
     end
 end

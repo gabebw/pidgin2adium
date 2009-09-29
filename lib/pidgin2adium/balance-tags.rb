@@ -7,7 +7,7 @@ module Pidgin2Adium
     # @license GPL v2.0
     # @copyright November 4, 2001
     # @return string Balanced text.
-    def Pidgin2Adium.balanceTags( text )
+    def Pidgin2Adium.balance_tags( text )
 	tagstack = []
 	stacksize = 0
 	tagqueue = ''
