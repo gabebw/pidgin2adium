@@ -9,7 +9,7 @@
 #them in the Adium log directory with allowances for time zone differences.
 
 require 'parser'
-require 'writer'
+require 'log_writer'
 require 'fileutils'
 
 class Time
@@ -60,6 +60,7 @@ module Pidgin2Adium
     end
 
     class Logs
+	VERSION = "1.0.0"
 	# FILE_EXISTS is returned by LogGenerator.build_dom_and_output() if the output logfile already exists.
 	FILE_EXISTS = 42
 	def initialize(src, out, aliases, libdir, tz=nil, debug=false)
