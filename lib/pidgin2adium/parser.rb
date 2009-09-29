@@ -1,4 +1,4 @@
-# =parser=
+# =parser
 # Note: This file can be require'd separately from the rest of this gem and used for your own parsing needs.
 # The class BasicParser has 2 subclasses, TextLogParser and HtmlLogParser
 # It parses the file passed into it and extracts the following
