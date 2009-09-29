@@ -2,7 +2,7 @@
 require 'balance-tags.rb'
 
 module Pidgin2Adium
-    class ChatFileGenerator
+    class LogGenerator
 	def initialize(service, user_SN, partner_SN, adium_chat_time_start, dest_dir_base)
 	    @service = service
 	    @user_SN = user_SN
@@ -25,13 +25,13 @@ module Pidgin2Adium
 
 	# Add a line to @chat_lines.
 	# It is its own method because attr_writer creates the method
-	# 'chat_message=', which doesn't help for chat_message.push
+	# 'chat_lines=', which doesn't help for chat_lines.push
 	def append_line(line)
 	    @chat_lines.push(line)
 	end
 
 	# Returns path of output file
-	def convert()
+	def convert
 	    service_name = @SERVICE_NAME_MAP[@service.downcase]
 	    dest_dir_real = File.join(@dest_dir_base, "#{service_name}.#{@user_SN}", @partner_SN, "#{@partner_SN} (#{@adium_chat_time_start}).chatlog")
 	    FileUtils.mkdir_p(dest_dir_real)

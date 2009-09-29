@@ -1,20 +1,21 @@
-# =SrcFileParse
-# The class +SrcFileParse+ has 2 subclasses, +SrcTxtFileParse+ and +SrcHtmlFileParse+
+# =parser=
+# Note: This file can be require'd separately from the rest of this gem and used for your own parsing needs.
+# The class BasicParser has 2 subclasses, TextLogParser and HtmlLogParser
 # It parses the file passed into it and extracts the following
 # from each line in the chat: time, alias, and message and/or status.
 
 require 'parsedate'
 
 module Pidgin2Adium
-    # The two subclasses of +SrcFileParse+,
-    # +SrcTxtFileParse+ and +SrcHtmlFileParse+, only differ
+    # The two subclasses of +BasicParser+,
+    # +TextLogParser+ and +HtmlLogParser+, only differ
     # in that they have their own @line_regex, @line_regex_status,
     # and most importantly, create_msg and create_status_or_event_msg, which take
     # the +MatchData+ objects from matching against @line_regex or
     # @line_regex_status, respectively and return object instances.
     # +create_msg+ returns a +Message+ instance (or one of its subclasses).
     # +create_status_or_event_msg+ returns a +Status+ or +Event+ instance.
-    class SrcFileParse
+    class BasicParser
 	def initialize(src_path, dest_dir_base, user_aliases, user_tz, user_tz_offset)
 	    @src_path = src_path
 	    # these two are to pass to generator in pare_file
@@ -131,51 +132,50 @@ module Pidgin2Adium
 	def create_adium_time(time)
 	    # parsed_date = [year, month, day, hour, min, sec]
 	    parsed_date = case time
-			 when @time_regex_one
-			     [$~[1].to_i, # year
-			     $~[2].to_i,  # month
-			     $~[3].to_i,  # day
-			     $~[4].to_i,  # hour
-			     $~[5].to_i,  # minute
-			     $~[6].to_i]  # seconds
-			 when @time_regex_two
-			     hours = $~[4].to_i
-			     if $~[7] == 'PM' and hours != 12
-				 hours += 12
-			     end
-			     [$~[3].to_i, # year
-			      $~[1].to_i, # month
-			      $~[2].to_i, # day
-			      hours,
-			      $~[5].to_i, # minutes
-			      $~[6].to_i] # seconds
-			 when @minimal_time_regex
-			     # "04:22:05" => %w{04 22 05}
-			     hours = $~[1].to_i
-			     if $~[4] == 'PM' and hours != 12
-				 hours += 12
-			     end
-			     @basic_time_info + # [year, month, day]
-			     [hours,
-			      $~[2].to_i, # minutes
-			      $~[3].to_i] # seconds
-			 else
-			     Pidgin2Adium.log_msg("You have found an odd timestamp.", true)
-			     Pidgin2Adium.log_msg("Please report it to the developer.")
-			     Pidgin2Adium.log_msg("The timestamp: #{time}")
-			     Pidgin2Adium.log_msg("Continuing...")
-
-			     ParseDate.parsedate(time)
+			  when @time_regex_one
+			      [$~[1].to_i, # year
+				  $~[2].to_i,  # month
+				  $~[3].to_i,  # day
+				  $~[4].to_i,  # hour
+				  $~[5].to_i,  # minute
+				  $~[6].to_i]  # seconds
+			  when @time_regex_two
+			      hours = $~[4].to_i
+			      if $~[7] == 'PM' and hours != 12
+				  hours += 12
+			      end
+			      [$~[3].to_i, # year
+				  $~[1].to_i, # month
+				  $~[2].to_i, # day
+				  hours,
+				  $~[5].to_i, # minutes
+				  $~[6].to_i] # seconds
+			  when @minimal_time_regex
+			      # "04:22:05" => %w{04 22 05}
+			      hours = $~[1].to_i
+			      if $~[4] == 'PM' and hours != 12
+				  hours += 12
+			      end
+			      @basic_time_info + # [year, month, day]
+				  [hours,
+				   $~[2].to_i, # minutes
+				   $~[3].to_i] # seconds
+			  else
+			      Pidgin2Adium.log_msg("You have found an odd timestamp.", true)
+			      Pidgin2Adium.log_msg("Please report it to the developer.")
+			      Pidgin2Adium.log_msg("The timestamp: #{time}")
+			      Pidgin2Adium.log_msg("Continuing...")
+			      ParseDate.parsedate(time)
 			 end
 	    return Time.local(*parsed_date).strftime("%Y-%m-%dT%H.%M.%S#{@tz_offset}")
 	end
 
 	# parse_file slurps up @src_path into one big string and runs
-	# SrcHtmlFileParse.cleanup if it's an HTML file.
+	# HtmlLogParser.cleanup if it's an HTML file.
 	# It then uses regexes to break up the string, uses create(Status)Msg
 	# to turn the regex MatchData into data hashes, and feeds it to
-	# ChatFileGenerator, which creates the XML data string.
-	# This method returns a ChatFileGenerator object.
+	# LogWriter, which creates the XML data string.
+	# This method returns a LogWriter object.
 	def parse_file()
 	    file = File.new(@src_path, 'r')
 	    # Deal with first line.
@@ -187,7 +187,7 @@ module Pidgin2Adium
 		return false
 	    else
 		# one big string, without the first line
-		if self.class == SrcHtmlFileParse
+		if self.class == HtmlLogParser
 		    file_content = self.cleanup(file.read())
 		else
 		    file_content = file.read()
@@ -201,25 +201,25 @@ module Pidgin2Adium
 	    @partner_SN = first_line_match[1]
 	    pidgin_chat_time_start = first_line_match[2]
 	    @basic_time_info = case first_line
-			     when @time_regex_one: [$1.to_i, $2.to_i, $3.to_i]
-			     when @time_regex_two: [$3.to_i, $1.to_i, $2.to_i]
-			     end
+			       when @time_regex_one: [$1.to_i, $2.to_i, $3.to_i]
+			       when @time_regex_two: [$3.to_i, $1.to_i, $2.to_i]
+			       end
 	    adium_chat_time_start = create_adium_time(pidgin_chat_time_start)
 
-	    generator = ChatFileGenerator.new(service,
-					   @user_SN,
-					   @partner_SN,
-					   adium_chat_time_start,
-					   @dest_dir_base)
+	    log_generator = LogGenerator.new(service,
+					  @user_SN,
+					  @partner_SN,
+					  adium_chat_time_start,
+					  @dest_dir_base)
 	    file_content.each_line do |line|
 		case line
 		when @line_regex
-		    generator.append_line( create_msg($~.captures) )
+		    log_generator.append_line( create_msg($~.captures) )
 		when @line_regex_status
-		    generator.append_line( create_status_or_event_msg($~.captures) )
+		    log_generator.append_line( create_status_or_event_msg($~.captures) )
 		end
 	    end
-	    return generator
+	    return log_generator
 	end
 
 	def get_sender_by_alias(alias_name)
@@ -234,7 +234,7 @@ module Pidgin2Adium
 
 	# create_msg takes an array of captures from matching against @line_regex
 	# and returns a Message object or one of its subclasses.
-	# It can be used for SrcTxtFileParse and SrcHtmlFileParse because
+	# It can be used for TextLogParser and HtmlLogParser because
 	# both of them return data in the same indexes in the matches array.
 	def create_msg(matches)
 	    msg = nil
@@ -295,7 +295,7 @@ module Pidgin2Adium
 	end
     end
 
-    class SrcTxtFileParse < SrcFileParse
+    class TextLogParser < BasicParser
 	def initialize(src_path, dest_dir_base, user_aliases, user_tz, user_tz_offset)
 	    super(src_path, dest_dir_base, user_aliases, user_tz, user_tz_offset)
 	    # @line_regex matches a line in a TXT log file other than the first
@@ -314,7 +314,7 @@ module Pidgin2Adium
 
     end
 
-    class SrcHtmlFileParse < SrcFileParse
+    class HtmlLogParser < BasicParser
 	def initialize(src_path, dest_dir_base, user_aliases, user_tz, user_tz_offset)
 	    super(src_path, dest_dir_base, user_aliases, user_tz, user_tz_offset)
 	    # @line_regex matches a line in an HTML log file other than the first
@@ -416,7 +416,7 @@ module Pidgin2Adium
 	    normalize_body!()
 	end
 
-	def get_output
+	def to_s
 	    return sprintf('<message sender="%s" time="%s" alias="%s">%s</message>' << "\n",
 			   @sender, @time, @alias_str, @body)
 	end
@@ -442,16 +442,14 @@ module Pidgin2Adium
 	    # replace single quotes with '&apos;' but only outside <span>s.
 	    @body.gsub!(/(.*?)(<span.*?>.*?<\/span>)(.*?)/) do
 		before, span, after = $1, ($2||''), $3||''
-		before.gsub("'", '&aquot;') <<
-		    span <<
-		    after.gsub("'", '&aquot;')
+		before.gsub("'", '&aquot;') << span << after.gsub("'", '&aquot;')
 	    end
 	end
     end
 
     # An auto reply message, meaning it has a body.
     class AutoReplyMessage < XMLMessage
-	def get_output
+	def to_s
 	    return sprintf('<message sender="%s" time="%s" auto="true" alias="%s">%s</message>' << "\n", @sender, @time, @alias_str, @body)
 	end
     end
@@ -462,7 +460,7 @@ module Pidgin2Adium
 	    super(sender, time, alias_str) 
 	    @status = status
 	end
-	def get_output
+	def to_s
 	    return sprintf('<status type="%s" sender="%s" time="%s" alias="%s"/>' << "\n", @status, @sender, @time, @alias_str)
 	end
     end
@@ -474,7 +472,7 @@ module Pidgin2Adium
 	    @type = type
 	end
 
-	def get_output
+	def to_s
 	    return sprintf('<event type="%s" sender="%s" time="%s" alias="%s">%s</event>', @type, @sender, @time, @alias_str, @body)
 	end
     end

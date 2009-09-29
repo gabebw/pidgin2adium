@@ -8,8 +8,8 @@
 #A ruby program to convert Pidgin log files to Adium log files, then place
 #them in the Adium log directory with allowances for time zone differences.
 
-require 'SrcFileParse'
-require 'ChatFileGenerator'
+require 'parser'
+require 'writer'
 require 'fileutils'
 
 class Time
@@ -60,7 +60,7 @@ module Pidgin2Adium
     end
 
     class Logs
-	# FILE_EXISTS is returned by ChatFileGenerator.build_dom_and_output() if the output logfile already exists.
+	# FILE_EXISTS is returned by LogGenerator.build_dom_and_output() if the output logfile already exists.
 	FILE_EXISTS = 42
 	def initialize(src, out, aliases, libdir, tz=nil, debug=false)
 	    # These files/directories show up in Dir.entries(x)
@@ -140,15 +140,15 @@ module Pidgin2Adium
 	    Pidgin2Adium.log_msg "When you next start the Adium Chat Transcript Viewer, it will re-index the logs, which may take a while."
 	end
 
-	# <tt>convert</tt> creates a new SrcHtmlFileParse or SrcTxtFileParse object,
+	# <tt>convert</tt> creates a new HtmlLogParser or TextLogParser object,
 	# as appropriate, and calls its parse() method.
 	# Returns false if there was a problem, true otherwise
 	def convert(src_path)
 	    ext = File.extname(src_path).sub('.', '').downcase
 	    if(ext == "html" || ext == "htm")
-		parser = SrcHtmlFileParse.new(src_path, @out_dir, @my_aliases, @DEFAULT_TIME_ZONE, @DEFAULT_TZ_OFFSET)
+		parser = HtmlLogParser.new(src_path, @out_dir, @my_aliases, @DEFAULT_TIME_ZONE, @DEFAULT_TZ_OFFSET)
 	    elsif(ext == "txt")
-		parser = SrcTxtFileParse.new(src_path, @out_dir, @my_aliases, @DEFAULT_TIME_ZONE, @DEFAULT_TZ_OFFSET)
+		parser = TextLogParser.new(src_path, @out_dir, @my_aliases, @DEFAULT_TIME_ZONE, @DEFAULT_TZ_OFFSET)
 	    elsif(ext == "chatlog")
 		# chatlog FILE, not directory
 		Pidgin2Adium.log_msg("Found chatlog FILE - moving to chatlog DIRECTORY.")

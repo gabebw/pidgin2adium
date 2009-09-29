@@ -1,4 +1,3 @@
-
 module Pidgin2Adium
     #From Wordpress's formatting.php; rewritten in Ruby by Gabe Berke-Williams, 2009.
     #Balances tags of string using a modified stack.
