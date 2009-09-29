@@ -9,7 +9,7 @@
 #them in the Adium log directory with allowances for time zone differences.
 
 require 'parser'
-require 'log_writer'
+require 'log_generator'
 require 'fileutils'
 
 class Time

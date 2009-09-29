@@ -1,5 +1,5 @@
 # ADD DOCUMENTATION
-require 'balance-tags.rb'
+require 'balance_tags'
 
 module Pidgin2Adium
     class LogGenerator
