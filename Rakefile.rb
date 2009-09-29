@@ -1,40 +1,25 @@
-#!/usr/bin/ruby
-
 require 'rubygems'
-require 'rake/gempackagetask'
+gem 'hoe', '>= 2.1.0'
+require 'hoe'
+require 'fileutils'
+require './lib/pidgin2adium.rb'
 
-# Spec reference:
-# http://docs.rubygems.org/read/chapter/20
-darwin_spec = Gem::Specification.new do |s|
-    # Require Mac OS X
-    s.platform = Gem::Platform::CURRENT
-    s.name = 'pidgin2adium'
-    s.version = '1.0.0'
-    # Summary is required
-    s.summary = "Converts Pidgin logs to Adium format and makes them available to Adium."
-    s.description = %q{
-      Converts Pidgin logs to Adium format and makes them available to Adium. Works through a shell script, pidgin2adium.
-    }.gsub(/\s{2,}/, '')
-    s.author = "Gabe B-W"
-    s.email = "gbw@rubyforge.org"
-    s.homepage = 'http://pidgin2adium.rubyforge.org'
-    s.files = Dir["lib/*.rb"].to_a
-    s.executables = %w{pidgin2adium}
-    s.rubyforge_project = "pidgin2adium"
-    # default: false
-    s.has_rdoc = false 
+Hoe.plugin :newgem
+# Hoe.plugin :website
+# Hoe.plugin :cucumberfeatures
+
+# Generate all the Rake tasks
+# Run 'rake -T' to see list of generated tasks (from gem root directory)
+$hoe = Hoe.spec 'pidgin2adium' do
+  self.developer('Gabe B-W', 'gbw@brandeis.edu')
+  #self.post_install_message = 'PostInstall.txt' # TODO remove if post-install message not required
+  self.rubyforge_name       = self.name # TODO this is default value
+  # self.extra_deps         = [['activesupport','>= 2.0.2']]
 end
 
-# Just change the platform
-ruby_spec = darwin_spec.clone
-ruby_spec.platform = Gem::Platform::RUBY
+require 'newgem/tasks'
+Dir['tasks/**/*.rake'].each { |t| load t }
 
-# http://rake.rubyforge.org/classes/Rake/PackageTask.html
-[ruby_spec, darwin_spec].each do |spec|
-    Rake::GemPackageTask.new(spec) do |pkg|
-	# Create a gzipped tar package
-	pkg.need_tar = true
-    end
-end
-
-task :default => [:package]
+# TODO - want other tests/tasks run by default? Add them to the list
+# remove_task :default
+# task :default => [:spec, :features]
