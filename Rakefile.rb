@@ -13,13 +13,13 @@ darwin_spec = Gem::Specification.new do |s|
     # Summary is required
     s.summary = "Converts Pidgin logs to Adium format and makes them available to Adium."
     s.description = %q{
-      Converts Pidgin logs to Adium format and makes them available to Adium. Works through a shell script, pidgin2adium_logs.
+      Converts Pidgin logs to Adium format and makes them available to Adium. Works through a shell script, pidgin2adium.
     }.gsub(/\s{2,}/, '')
     s.author = "Gabe B-W"
     s.email = "gbw@rubyforge.org"
     s.homepage = 'http://pidgin2adium.rubyforge.org'
     s.files = Dir["lib/*.rb"].to_a
-    s.executables = %w{pidgin2adium_logs}
+    s.executables = %w{pidgin2adium}
     s.rubyforge_project = "pidgin2adium"
     # default: false
     s.has_rdoc = false 
