@@ -18,7 +18,7 @@ darwin_spec = Gem::Specification.new do |s|
     s.author = "Gabe B-W"
     s.email = "gbw@rubyforge.org"
     s.homepage = 'http://pidgin2adium.rubyforge.org'
-    s.files = Dir["lib/**/*.rb"].to_a
+    s.files = Dir["lib/*.rb"].to_a
     s.executables = %w{pidgin2adium_logs}
     s.rubyforge_project = "pidgin2adium"
     # default: false
