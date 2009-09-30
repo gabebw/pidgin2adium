@@ -53,7 +53,7 @@ module Pidgin2Adium
     # FILE_EXISTS is returned by LogGenerator.build_dom_and_output() if the
     # output logfile already exists.
     FILE_EXISTS = 42
-    VERSION = "1.0.0"
+    VERSION = "2.0.0"
     ERROR_MAJOR = 'ERROR_MAJOR'
     ERROR_MINOR = 'ERROR_MINOR'
     # Prints arguments.
