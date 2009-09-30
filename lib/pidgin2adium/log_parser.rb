@@ -17,6 +17,7 @@ module Pidgin2Adium
     # +create_msg+ returns a +Message+ instance (or one of its subclasses).
     # +create_status_or_event_msg+ returns a +Status+ or +Event+ instance.
     class BasicParser
+	include Pidgin2Adium
 	def initialize(src_path, dest_dir_base, user_aliases, user_tz, user_tz_offset)
 	    @src_path = src_path
 	    # these two are to pass to generator in pare_file
@@ -164,10 +165,10 @@ module Pidgin2Adium
 				   $~[2].to_i,   # minutes
 				   $~[3].to_i]   # seconds
 			  else
-			      Pidgin2Adium.log_msg("You have found an odd timestamp.", true)
-			      Pidgin2Adium.log_msg("Please report it to the developer.")
-			      Pidgin2Adium.log_msg("The timestamp: #{time}")
-			      Pidgin2Adium.log_msg("Continuing...")
+			      log_msg("You have found an odd timestamp.", true)
+			      log_msg("Please report it to the developer.")
+			      log_msg("The timestamp: #{time}")
+			      log_msg("Continuing...")
 			      ParseDate.parsedate(time)
 			 end
 	    return Time.local(*parsed_date).strftime("%Y-%m-%dT%H.%M.%S#{@tz_offset}")
@@ -186,7 +187,7 @@ module Pidgin2Adium
 	    first_line_match = @first_line_regex.match(first_line)
 	    if first_line_match.nil?
 		file.close()
-		Pidgin2Adium.log_msg("Parsing of #{@src_path} failed (could not find valid first line).", true)
+		log_msg("Parsing of #{@src_path} failed (could not find valid first line).", true)
 		return false
 	    else
 		# one big string, without the first line
@@ -414,6 +415,7 @@ module Pidgin2Adium
     # Basic message with body text (as opposed to pure status messages, which
     # have no body).
     class XMLMessage < Message
+	include Pidgin2Adium
 	def initialize(sender, time, alias_str, body)
 	    super(sender, time, alias_str)
 	    @body = body
@@ -432,7 +434,7 @@ module Pidgin2Adium
 	    normalize_body_entities!()
 	    # Fix mismatched tags. Yes, it's faster to do it per-message
 	    # than all at once.
-	    @body = Pidgin2Adium.balance_tags(@body)
+	    @body = balance_tags(@body)
 	    if @alias_str[0,3] == '***'
 		# "***<alias>" is what pidgin sets as the alias for a /me action
 		@alias_str.slice!(0,3)

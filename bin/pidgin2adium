@@ -18,14 +18,6 @@ OptionParser.new do |opts|
     opts.on('-i IN_DIR', '--in IN_DIR', 'Specify directory where pidgin logs are stored') do |v|
 	options[:in] = v
     end
-    opts.on('-o', '--out OUT_DIR', 'Specify directory where Adium logs will be stored (not the Adium directory in ~/Library)') do |out|
-	options[:out] = out
-    end
-    opts.on('-l', '--libdir LIBRARY_DIR',
-	    'Specify dirname where Adium logs are stored (eg "AIM.<username>" for',
-	    '~/Library/Application Support/Adium 2.0/Users/Default/Logs/AIM.<username>)') do |ld|
-	options[:libdir] = ld
-    end
     opts.on('-d', '--debug', 'Turn debug on.') do |lf|
 	options[:debug] = true
     end
@@ -45,7 +37,7 @@ OptionParser.new do |opts|
 end.parse!
 
 need_opts = false
-required_opts = [[:i, :in], [:o, :out], [:l, :libdir], [:a, :aliases]]
+required_opts = [[:i, :in], [:a, :aliases]]
 required_opts.each do |short, long|
     if options.has_key?(short) or options.has_key?(long)
 	next
@@ -57,11 +49,10 @@ end
 exit 1 if need_opts
 
 log_converter = Pidgin2Adium::LogConverter.new(options[:in],
-					       options[:out],
 					       options[:aliases],
-					       options[:libdir],
 					       options[:timezone],
 					       options[:debug]
+					       # user_temp_dir
 					      )
 
 log_converter.start

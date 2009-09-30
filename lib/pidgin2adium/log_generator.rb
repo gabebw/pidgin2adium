@@ -1,6 +1,7 @@
 # ADD DOCUMENTATION
 module Pidgin2Adium
     class LogGenerator
+	include Pidgin2Adium
 	def initialize(service, user_SN, partner_SN, adium_chat_time_start, dest_dir_base)
 	    @service = service
 	    @user_SN = user_SN
@@ -35,7 +36,7 @@ module Pidgin2Adium
 	    FileUtils.mkdir_p(dest_dir_real)
 	    dest_file_path = dest_dir_real << '/' << "#{@partner_SN} (#{@adium_chat_time_start}).xml"
 	    if File.exist?(dest_file_path)
-		return Pidgin2Adium::FILE_EXISTS
+		return FILE_EXISTS
 	    end
 
 	    all_msgs = ""
