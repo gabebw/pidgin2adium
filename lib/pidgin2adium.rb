@@ -52,6 +52,7 @@ module Pidgin2Adium
     # FILE_EXISTS is returned by LogGenerator.build_dom_and_output() if the
     # output logfile already exists.
     FILE_EXISTS = 42
+    VERSION = "1.0.0"
     # Prints arguments.
     def Pidgin2Adium.log_msg(str, is_error=false)
 	content = str.to_s
@@ -62,7 +63,6 @@ module Pidgin2Adium
     end
 
     class LogConverter
-	VERSION = "1.0.0"
 	def initialize(src, out, aliases, libdir, tz=nil, debug=false)
 	    # These files/directories show up in Dir.entries(x)
 	    @BAD_DIRS = %w{. .. .DS_Store Thumbs.db .system}
