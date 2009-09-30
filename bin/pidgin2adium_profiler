@@ -1,0 +1,84 @@
+#!/usr/bin/ruby -w
+
+=begin
+Author: Gabe Berke-Williams, 2008
+This is the shell script, which is a wrapper around Pidgin2Adium::LogConverter.
+Call it like so:
+<tt>pidgin2adium -i ~/in_logs/ -o ~/out_logs/ -l AIM.myscreenname -a me,screenname,my_pidgin_alias,other_pidgin_alias</tt>
+For <tt>-a/--aliases</tt>, there is no need to use spaces or capitalization, since spaces will be stripped out and the aliases will
+be lowercased anyway.
+=end
+
+require 'pidgin2adium'
+require 'optparse'
+require 'ruby-prof'
+
+options = {}
+OptionParser.new do |opts|
+    opts.banner = "Usage: #{File.basename($0)} [options]"
+    opts.on('-i IN_DIR', '--in IN_DIR', 'Specify directory where pidgin logs are stored') do |v|
+	options[:in] = v
+    end
+    opts.on('-o', '--out OUT_DIR', 'Specify directory where Adium logs will be stored (not the Adium directory in ~/Library)') do |out|
+	options[:out] = out
+    end
+    opts.on('-l', '--libdir LIBRARY_DIR',
+	    'Specify dirname where Adium logs are stored (eg "AIM.<username>" for',
+	    '~/Library/Application Support/Adium 2.0/Users/Default/Logs/AIM.<username>)') do |ld|
+	options[:libdir] = ld
+    end
+    opts.on('-d', '--debug', 'Turn debug on.') do |lf|
+	options[:debug] = true
+    end
+    opts.on('-t', "--time-zone [TIME ZONE]",
+	    "Set time zone like \"EST\". Defaults to local time zone: #{Time.now.zone}") do |tz|
+	options[:timezone] = tz
+    end
+    opts.on('-a', "--aliases MY_ALIASES_AND_SNs",
+	    "A comma-separated list of your aliases and screenname(s) so this script knows which person in a chat is you.",
+	    "Whitespace is removed and aliases are lowercased.") do |aliases|
+	options[:aliases] = aliases.split(',')
+    end
+    opts.on_tail("-h", "--help", "Show this message") do
+	puts opts
+	exit
+    end
+end.parse!
+
+need_opts = false
+required_opts = [[:i, :in], [:o, :out], [:l, :libdir], [:a, :aliases]]
+required_opts.each do |short, long|
+    if options.has_key?(short) or options.has_key?(long)
+	next
+    else
+	need_opts = true
+	puts "Required option -#{short}/--#{long} missing."
+    end
+end
+exit 1 if need_opts
+
+RubyProf.start
+log_converter = Pidgin2Adium::LogConverter.new(options[:in],
+					       options[:out],
+					       options[:aliases],
+					       options[:libdir],
+					       options[:timezone],
+					       options[:debug]
+					      )
+
+log_converter.start
+result = RubyProf.stop
+printer = RubyProf::GraphHtmlPrinter.new(result)
+highest = Dir.glob('profiler_result*').sort.last
+if highest.nil?
+    # This is the first profiler html created
+    fname = "profiler_result.html"
+else
+    match = highest.match(/(d+)/)
+    if match
+	num = match.captures.last + 1
+    end
+    fname = "profiler_result%d.html" % num
+end
+f = File.new(fname, 'w')
+printer.print(f, 0)
