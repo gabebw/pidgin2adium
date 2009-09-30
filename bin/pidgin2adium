@@ -2,9 +2,9 @@
 
 =begin
 Author: Gabe Berke-Williams, 2008
-This is the shell script, which is a wrapper around Pidgin2Adium::Logs.
+This is the shell script, which is a wrapper around Pidgin2Adium::LogConverter.
 Call it like so:
-<tt>pidgin2adium_logs.rb -i ~/in_logs/ -o ~/out_logs/ -l AIM.myscreenname -a me,screenname,my_pidgin_alias,other_pidgin_alias</tt>
+<tt>pidgin2adium -i ~/in_logs/ -o ~/out_logs/ -l AIM.myscreenname -a me,screenname,my_pidgin_alias,other_pidgin_alias</tt>
 For <tt>-a/--aliases</tt>, there is no need to use spaces or capitalization, since spaces will be stripped out and the aliases will
 be lowercased anyway.
 =end
@@ -56,12 +56,12 @@ required_opts.each do |short, long|
 end
 exit 1 if need_opts
 
-log_converter  =  Pidgin2Adium::Logs.new(options[:in],
-					 options[:out],
-					 options[:aliases],
-					 options[:libdir],
-					 options[:timezone],
-					 options[:debug]
-					)
+log_converter = Pidgin2Adium::LogConverter.new(options[:in],
+					       options[:out],
+					       options[:aliases],
+					       options[:libdir],
+					       options[:timezone],
+					       options[:debug]
+					      )
 
 log_converter.start

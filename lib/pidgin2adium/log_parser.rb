@@ -5,7 +5,8 @@
 # into it and place the data in a subclass of Message.
 
 require 'parsedate'
-require 'log_generator'
+require 'pidgin2adium/log_generator'
+require 'pidgin2adium/balance_tags'
 
 module Pidgin2Adium
     # The two subclasses of +BasicParser+, +TextLogParser+ and +HtmlLogParser+,

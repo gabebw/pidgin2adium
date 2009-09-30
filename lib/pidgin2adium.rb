@@ -1,5 +1,3 @@
-#!/usr/bin/ruby -w
-
 #Author: Gabe Berke-Williams, 2008
 #With thanks to Li Ma, whose blog post at
 #http://li-ma.blogspot.com/2008/10/pidgin-log-file-to-adium-log-converter.html
@@ -8,8 +6,9 @@
 #A ruby program to convert Pidgin log files to Adium log files, then place
 #them in the Adium log directory with allowances for time zone differences.
 
-require 'parser'
-require 'log_generator'
+$:.unshift(File.dirname(__FILE__)) unless
+  $:.include?(File.dirname(__FILE__)) || $:.include?(File.expand_path(File.dirname(__FILE__)))
+require 'pidgin2adium/log_parser'
 require 'fileutils'
 
 class Time
@@ -50,6 +49,9 @@ class Time
 end
 
 module Pidgin2Adium
+    # FILE_EXISTS is returned by LogGenerator.build_dom_and_output() if the
+    # output logfile already exists.
+    FILE_EXISTS = 42
     # Prints arguments.
     def Pidgin2Adium.log_msg(str, is_error=false)
 	content = str.to_s
@@ -59,10 +61,8 @@ module Pidgin2Adium
 	puts content
     end
 
-    class Logs
+    class LogConverter
 	VERSION = "1.0.0"
-	# FILE_EXISTS is returned by LogGenerator.build_dom_and_output() if the output logfile already exists.
-	FILE_EXISTS = 42
 	def initialize(src, out, aliases, libdir, tz=nil, debug=false)
 	    # These files/directories show up in Dir.entries(x)
 	    @BAD_DIRS = %w{. .. .DS_Store Thumbs.db .system}
@@ -181,7 +181,7 @@ module Pidgin2Adium
 		when false
 		    Pidgin2Adium.log_msg("Converting #{src_path} failed.", true); 
 		    false
-		when FILE_EXISTS
+		when Pidgin2Adium::FILE_EXISTS
 		    Pidgin2Adium.log_msg("File already exists.")
 		    true
 		else
@@ -201,8 +201,8 @@ module Pidgin2Adium
 	def copy_logs
 	    Pidgin2Adium.log_msg "Copying logs with accounting for different time zones..."
 	    # FIXME: not all logs are AIM logs, libdir may change
-	    src_dir = File.expand_path('~/Library/Application Support/Adium 2.0/Users/Default/Logs/') << "/#{@libdir}/"
-	    dest_dir = File.join(@out_dir, @libdir) << '/'
+	    src_dir = File.join(@out_dir, @libdir) << '/'
+	    dest_dir = File.expand_path('~/Library/Application Support/Adium 2.0/Users/Default/Logs/') << "/#{@libdir}/"
 
 	    src_entries =  Dir.entries(src_dir)
 	    dest_entries =  Dir.entries(dest_dir)
@@ -236,6 +236,8 @@ module Pidgin2Adium
 			# overwriting.
 			target_chatlog_dir = src_log_dir
 			FileUtils.mkdir_p(File.join(dest_dir, name, target_chatlog_dir))
+		    else
+			puts "!!! #{target_chatlog_dir}"
 		    end
 		    # If the target file exists, then we are overwriting its content but keeping its name.
 		    # If it doesn't, then there's no problem anyway.

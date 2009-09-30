@@ -6,4 +6,4 @@ bin/pidgin2adium
 lib/pidgin2adium.rb
 lib/pidgin2adium/balance_tags.rb
 lib/pidgin2adium/log_generator.rb
-lib/pidgin2adium/parser.rb
+lib/pidgin2adium/log_parser.rb
