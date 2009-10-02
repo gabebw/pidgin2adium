@@ -3,6 +3,7 @@ Manifest.txt
 README.rdoc
 Rakefile.rb
 bin/pidgin2adium
+bin/pidgin2adium_profiler
 lib/pidgin2adium.rb
 lib/pidgin2adium/balance_tags.rb
 lib/pidgin2adium/log_generator.rb
