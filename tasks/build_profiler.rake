@@ -37,5 +37,13 @@ EOF
     prof_file.close
 end
 
-desc "Install debug version of gem, with profiler"
-task :install_debug => [:install_gem, :build_profiler]
+desc "Set profiler to blank file"
+task :clear_profiler do
+    base = Dir.pwd
+    x = File.new("#{base}/bin/pidgin2adium_profiler", 'w')
+    x.puts
+    x.close
+end
+
+desc "Install debug version of gem, with profiler. Clears profiler file after installing."
+task :install_debug => [:build_profiler, :install_gem, :clear_profiler]
