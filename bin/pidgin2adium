@@ -4,7 +4,7 @@
 Author: Gabe Berke-Williams, 2008
 This is the shell script, which is a wrapper around Pidgin2Adium::LogConverter.
 Call it like so:
-<tt>pidgin2adium -i ~/in_logs/ -o ~/out_logs/ -l AIM.myscreenname -a me,screenname,my_pidgin_alias,other_pidgin_alias</tt>
+<tt>pidgin2adium -i ~/in_logs/ -a me,screenname,my_pidgin_alias,other_pidgin_alias</tt>
 For <tt>-a/--aliases</tt>, there is no need to use spaces or capitalization, since spaces will be stripped out and the aliases will
 be lowercased anyway.
 =end
@@ -15,11 +15,8 @@ require 'optparse'
 options = {}
 OptionParser.new do |opts|
     opts.banner = "Usage: #{File.basename($0)} [options]"
-    opts.on('-i IN_DIR', '--in IN_DIR', 'Specify directory where pidgin logs are stored') do |v|
-	options[:in] = v
-    end
-    opts.on('-d', '--debug', 'Turn debug on.') do |lf|
-	options[:debug] = true
+    opts.on('-i', '--in IN_DIR', 'Specify directory where pidgin logs are stored') do |i|
+	options[:in] = i
     end
     opts.on('-t', "--time-zone [TIME ZONE]",
 	    "Set time zone like \"EST\". Defaults to local time zone: #{Time.now.zone}") do |tz|
@@ -29,6 +26,9 @@ OptionParser.new do |opts|
 	    "A comma-separated list of your aliases and screenname(s) so this script knows which person in a chat is you.",
 	    "Whitespace is removed and aliases are lowercased.") do |aliases|
 	options[:aliases] = aliases.split(',')
+    end
+    opts.on('-f', '--force', 'Overwrite logs in Adium log folder with converted logs of same name') do |f|
+	options[:force] = f
     end
     opts.on_tail("-h", "--help", "Show this message") do
 	puts opts
@@ -51,7 +51,7 @@ exit 1 if need_opts
 log_converter = Pidgin2Adium::LogConverter.new(options[:in],
 					       options[:aliases],
 					       options[:timezone],
-					       options[:debug]
+					       options[:force],
 					       # user_temp_dir
 					      )
 
