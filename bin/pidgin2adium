@@ -51,8 +51,8 @@ exit 1 if need_opts
 log_converter = Pidgin2Adium::LogConverter.new(options[:in],
 					       options[:aliases],
 					       options[:timezone],
-					       options[:force],
-					       # user_temp_dir
+					       options[:force]
 					      )
+					      # user_temp_dir
 
 log_converter.start
