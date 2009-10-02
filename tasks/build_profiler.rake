@@ -5,11 +5,11 @@ task :build_profiler do |t|
     orig_lines = File.readlines("#{base}/bin/pidgin2adium")
     # remove "log_converter.start" line so we can surround it with RubyProf
     lastline = orig_lines.pop
-    orig_text = orig_lines.join("\n")
+    orig_text = orig_lines.join
     
     prof_file = File.new("#{base}/bin/pidgin2adium_profiler", 'w')
 new_text = <<EOF
-require 'rubyprof'
+require 'ruby-prof'
 RubyProf.start
 log_converter.start
 result = RubyProf.stop
@@ -33,3 +33,6 @@ EOF
     prof_file.write(new_text)
     prof_file.close
 end
+
+desc "Install debug version of gem, with profiler"
+task :install_debug => [:install_gem, :build_profiler]
