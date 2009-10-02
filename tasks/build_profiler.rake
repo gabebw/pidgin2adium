@@ -18,16 +18,19 @@ highest = Dir.glob('profiler_result*').sort.last
 if highest.nil?
     # This is the first profiler html created
     fname = "profiler_result.html"
+    f = File.new(fname, 'w')
 else
-    match = highest.match(/(d+)/)
+    match = highest.match(/(\d+)/)
     if match
-	num = match.captures.last + 1
+	num = match.captures.last.to_i + 1
+	fname = "profiler_result%d.html" % num
+	f = File.new(fname, 'w')
+    else
+	puts "!!! Oops, no match but there is definitely a profile file that exists. Unsure what happened. Outputting to stdout."
+	f = STDOUT
     end
-    fname = "profiler_result%d.html" % num
 end
-f = File.new(fname, 'w')
 printer.print(f, {:filename => nil})
-f.close
 EOF
     prof_file.write(orig_text)
     prof_file.write(new_text)
