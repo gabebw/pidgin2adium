@@ -56,6 +56,8 @@ module Pidgin2Adium
     VERSION = "2.0.0"
     ERROR_MAJOR = 'ERROR_MAJOR'
     ERROR_MINOR = 'ERROR_MINOR'
+
+    class InvalidFirstLineError < StandardError; end
     # Prints arguments.
     def log_msg(str, error_level=nil)
 	content = str.to_s
@@ -71,14 +73,14 @@ module Pidgin2Adium
 
     class LogConverter
 	include Pidgin2Adium
-	def initialize(pidgin_log_dir, aliases, tz=nil, debug=false, user_temp_dir=nil)
+	def initialize(pidgin_log_dir, aliases, tz=nil, force=false, user_temp_dir=nil)
 	    # These files/directories show up in Dir.entries()
 	    @bad_dirs = %w{. .. .DS_Store Thumbs.db .system}
 	    @pidgin_log_dir = File.expand_path(pidgin_log_dir)
 	    # Whitespace is removed for easy matching later on.
 	    @my_aliases = aliases.map{|x| x.downcase.gsub(/\s+/,'') }.uniq
 	    @default_time_zone = tz || Time.now.zone
-	    @debug = debug
+	    @force = force # overwrite even if log is found?
 	    # Optional dir to place converted logs instead of in Adium location
 	    @user_temp_dir = user_temp_dir
 
@@ -109,7 +111,7 @@ module Pidgin2Adium
 	    begin
 		files_path = get_all_chat_files(@pidgin_log_dir)
 	    rescue Errno::EACCES => bang
-		log_msg("Sorry, permission denied for getting Pidgin chat files from #{@pidgin_log_dir}.", ERROR_BAD)
+		log_msg("Sorry, permission denied for getting Pidgin chat files from #{@pidgin_log_dir}.", ERROR_MAJOR)
 		log_msg("Details: #{bang.message}", ERROR_MAJOR)
 		raise Errno::EACCES
 	    end
@@ -144,7 +146,7 @@ module Pidgin2Adium
 		    if File.writable?(f)
 			File.delete(f)
 		    else
-			log_msg("#{f} exists but is not writable. Please delete it yourself.", ERROR_BAD)
+			log_msg("#{f} exists but is not writable. Please delete it yourself.", ERROR_MAJOR)
 		    end
 		end
 	    end
@@ -169,7 +171,7 @@ module Pidgin2Adium
 		    chatlog_directory = "#{@adium_log_dir}/#{logfile}" 
 		    Dir.mkdir(chatlog_directory)
 		rescue => bang
-		    log_msg("Could not create #{chatlog_directory}: #{bang.class} #{bang.message}", ERROR_BAD)
+		    log_msg("Could not create #{chatlog_directory}: #{bang.class} #{bang.message}", ERROR_MAJOR)
 		    return false
 		end
 		# @pidgin_log_dir/log.chatlog (file) -> @adium_log_dir/log.chatlog/log.xml
@@ -182,14 +184,11 @@ module Pidgin2Adium
 		return false
 	    end
 
-	    generator = parser.parse_file()
-	    return false if generator == false
-
-	    dest_file_path = generator.convert()
+	    dest_file_path = parser.parse_and_generate(@force)
 	    return \
 		case dest_file_path
 		when false
-		    log_msg("Converting #{logfile} failed.", ERROR_OOPS); 
+		    log_msg("Converting #{logfile} failed.", ERROR_MINOR); 
 		    false
 		when FILE_EXISTS
 		    log_msg("File already exists.")

@@ -26,6 +26,10 @@ module Pidgin2Adium
 	    @user_tz = user_tz
 	    @user_tz_offset = user_tz_offset
 	    @tz_offset = get_time_zone_offset()
+	   
+	    @file = File.new(@src_path, 'r')
+	    @file_content = @file.readlines
+	    @file.close
 
 	    # Used in @line_regex{,_status}. Only one group: the entire
 	    # timestamp.
@@ -46,17 +50,28 @@ module Pidgin2Adium
 	    # sometimes a line in a chat doesn't have a full timestamp
 	    # "04:22:05 AM" => %w{04 22 05 AM}
 	    @minimal_time_regex = /(\d{1,2}):(\d{2}):(\d{2}) ?([AP]M)?/
-	    
-	    # {user,partner}_SN set in parse_file() after reading the first line
+	  
+	    # Whether or not the first line is parseable.
+	    @first_line_is_valid = true
+	    # These variables are set by pre_parse
 	    @user_SN = nil
 	    @partner_SN = nil
-	    
+	    @service = nil
+	    # When the chat started, in Adium's format
+	    @adium_chat_time_start = nil
 	    # @basic_time_info is for files that only have the full timestamp at
 	    # the top; we can use it to fill in the minimal per-line timestamps.
 	    # It has only 3 elements (year, month, dayofmonth) because
 	    # you should be able to fill everything else in.
 	    # If you can't, something's wrong.
 	    @basic_time_info = []
+	    # ...and set them.
+	    begin
+		pre_parse()
+	    rescue InvalidFirstLineError
+		@first_line_is_valid = false
+		log_msg("Parsing of #{@src_path} failed (could not find valid first line).", true)
+	    end
 
 	    # @user_alias is set each time get_sender_by_alias is called. Set an
 	    # initial value just in case the first message doesn't give us an
@@ -174,56 +189,63 @@ module Pidgin2Adium
 	    return Time.local(*parsed_date).strftime("%Y-%m-%dT%H.%M.%S#{@tz_offset}")
 	end
 
-	# parse_file slurps up @src_path into one big string and runs
-	# HtmlLogParser.cleanup if it's an HTML file.
-	# It then uses regexes to break up the string, uses create(Status)Msg
-	# to turn the regex MatchData into data hashes, and feeds it to
-	# LogWriter, which creates the XML data string.
-	# This method returns a LogWriter object.
-	def parse_file()
-	    file = File.new(@src_path, 'r')
+	# Extract required data from the file. Run by parse and parse_and_generate.
+	def pre_parse
 	    # Deal with first line.
-	    first_line = file.readline()
+	    first_line = @file_content.shift
 	    first_line_match = @first_line_regex.match(first_line)
 	    if first_line_match.nil?
-		file.close()
-		log_msg("Parsing of #{@src_path} failed (could not find valid first line).", true)
-		return false
+		raise InvalidFirstLineError
 	    else
-		# one big string, without the first line
-		if self.class == HtmlLogParser
-		    file_content = self.cleanup(file.read())
-		else
-		    file_content = file.read()
-		end
-		file.close()
+		@service = first_line_match[4]
+		# user_SN is standardized to avoid "AIM.name" and "AIM.na me" folders
+		@user_SN = first_line_match[3].downcase.gsub(' ', '')
+		@partner_SN = first_line_match[1]
+		pidgin_chat_time_start = first_line_match[2]
+		@basic_time_info = case first_line
+				   when @time_regex_one: [$1.to_i, $2.to_i, $3.to_i]
+				   when @time_regex_two: [$3.to_i, $1.to_i, $2.to_i]
+				   end
+		@adium_chat_time_start = create_adium_time(pidgin_chat_time_start)
 	    end
-	    
-	    service = first_line_match[4]
-	    # user_SN is standardized to avoid "AIM.name" and "AIM.na me" folders
-	    @user_SN = first_line_match[3].downcase.gsub(' ', '')
-	    @partner_SN = first_line_match[1]
-	    pidgin_chat_time_start = first_line_match[2]
-	    @basic_time_info = case first_line
-			       when @time_regex_one: [$1.to_i, $2.to_i, $3.to_i]
-			       when @time_regex_two: [$3.to_i, $1.to_i, $2.to_i]
-			       end
-	    adium_chat_time_start = create_adium_time(pidgin_chat_time_start)
+	end
 
-	    log_generator = LogGenerator.new(service,
-					  @user_SN,
-					  @partner_SN,
-					  adium_chat_time_start,
-					  @dest_dir_base)
-	    file_content.each_line do |line|
+	# This method returns an array of Message objects (or its subclasses), each of which have a to_s method that will print out their contents
+	# in a manner suitable for insertion in a logfile.
+	# Returns false if an error occurred.
+	def parse
+	    return false unless @first_line_is_valid
+	    if self.class == HtmlLogParser
+		@file_content = self.cleanup(@file_content.join).split
+	    end
+	    @file_content.map! do |line|
 		case line
 		when @line_regex
-		    log_generator.append_line( create_msg($~.captures) )
+		    create_msg($~.captures)
 		when @line_regex_status
-		    log_generator.append_line( create_status_or_event_msg($~.captures) )
+		    create_status_or_event_msg($~.captures)
 		end
 	    end
-	    return log_generator
+	    return @file_content
+	end
+
+	# Set force=true to create a logfile even if logfile already exists.
+	# Runs parse() then uses a LogGenerator object to generate the logfile.
+	# Returns one of: false (if an error occurred), Pidgin2Adium::FILE_EXISTS (a constant) or the path to the new Adium log file.
+	def parse_and_generate(force=false)
+	    return false unless @first_line_is_valid
+	    log_generator = LogGenerator.new(@service,
+					     @user_SN,
+					     @partner_SN,
+					     @adium_chat_time_start,
+					     @dest_dir_base,
+					     force)
+	    if log_generator.file_exists? and force == false
+		return FILE_EXISTS
+	    else
+		parse()
+		return log_generator.generate(@file_content)
+	    end
 	end
 
 	def get_sender_by_alias(alias_name)
@@ -289,7 +311,7 @@ module Pidgin2Adium
 			alias_str = @user_alias
 			sender = @user_SN
 		    else
-			alias_str = regex.match(str)[1]
+			alias_str = regex_matches[1]
 			sender = get_sender_by_alias(alias_str)
 		    end
 		    msg = Event.new(sender, time, alias_str, str, event_type)
@@ -313,7 +335,7 @@ module Pidgin2Adium
 	    # @line_regex_status matchdata:
 	    # 0: timestamp
 	    # 1: status message
-	    @line_regex_status = /#{@timestamp_regex_str} ([^:]+?)[\r\n]{1,2}/o
+	    @line_regex_status = /#{@timestamp_regex_str} ([^:]+?)[\r\n]{0,2}/o
 	end
     end
 

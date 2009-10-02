@@ -2,15 +2,15 @@
 module Pidgin2Adium
     class LogGenerator
 	include Pidgin2Adium
-	def initialize(service, user_SN, partner_SN, adium_chat_time_start, dest_dir_base)
+	def initialize(service, user_SN, partner_SN, adium_chat_time_start, dest_dir_base, force=false)
 	    @service = service
 	    @user_SN = user_SN
 	    @partner_SN = partner_SN
 	    @adium_chat_time_start = adium_chat_time_start
 	    @dest_dir_base = dest_dir_base
+	    # Should we generate a log file even though it exists?
+	    @force = force
 
-	    # @chat_lines is an array of Message, Status, and Event objects
-	    @chat_lines = []
 	    # key is for Pidgin, value is for Adium
 	    # Just used for <service>.<screenname> in directory structure
 	    @SERVICE_NAME_MAP = {'aim' => 'AIM',
@@ -20,39 +20,35 @@ module Pidgin2Adium
 		'qq' => 'QQ',
 		'msn' => 'MSN',
 		'yahoo' => 'Yahoo'}
-	end
-
-	# Add a line to @chat_lines.
-	# It is its own method because attr_writer creates the method
-	# 'chat_lines=', which doesn't help for chat_lines.push
-	def append_line(line)
-	    @chat_lines.push(line)
-	end
-
-	# Returns path of output file
-	def convert
+	    
 	    service_name = @SERVICE_NAME_MAP[@service.downcase]
 	    dest_dir_real = File.join(@dest_dir_base, "#{service_name}.#{@user_SN}", @partner_SN, "#{@partner_SN} (#{@adium_chat_time_start}).chatlog")
 	    FileUtils.mkdir_p(dest_dir_real)
-	    dest_file_path = dest_dir_real << '/' << "#{@partner_SN} (#{@adium_chat_time_start}).xml"
-	    if File.exist?(dest_file_path)
-		return FILE_EXISTS
-	    end
+	    @dest_file_path = dest_dir_real << '/' << "#{@partner_SN} (#{@adium_chat_time_start}).xml"
+	end
 
+	def file_exists?
+	    return File.exist?(@dest_file_path)
+	end
+
+	# Returns path of output file.
+	def generate(chat_array)
+	    # chat_array is an array of Message, Status, and Event objects created by LogParser
+	    if not @force
+		return FILE_EXISTS if file_exists?
+	    end
 	    all_msgs = ""
-	    # TODO: inject?
-	    @chat_lines.each { |obj| all_msgs << obj.to_s }
-	    # xml is done.
+	    # TODO: inject? map! ?
+	    chat_array.each { |obj| all_msgs << obj.to_s }
 	    
 	    # no \n before </chat> because all_msgs has it already
 	    ret = sprintf('<?xml version="1.0" encoding="UTF-8" ?>'<<"\n"+
 		      '<chat xmlns="http://purl.org/net/ulf/ns/0.4-02" account="%s" service="%s">'<<"\n"<<'%s</chat>', @user_SN, service_name, all_msgs)
 
-	    # we already checked to see if the file previously existed.
-	    outfile = File.new(dest_file_path, 'w')
+	    outfile = File.new(@dest_file_path, 'w')
 	    outfile.puts(ret)
 	    outfile.close
-	    return dest_file_path
+	    return @dest_file_path
 	end
     end
 end
