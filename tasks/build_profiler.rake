@@ -20,7 +20,7 @@ if highest.nil?
     fname = "profiler_result.html"
     f = File.new(fname, 'w')
 else
-    match = highest.match(/(\d+)/)
+    match = highest.match(/(\\d+)/)
     if match
 	num = match.captures.last.to_i + 1
 	fname = "profiler_result%d.html" % num
