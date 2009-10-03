@@ -12,59 +12,66 @@ require 'pidgin2adium/log_parser'
 require 'fileutils'
 require 'tmpdir'
 
-class Time
-    ZoneOffset = {
-	'UTC' => 0,
-	# ISO 8601
-	'Z' => 0,
-	# RFC 822
-	'UT' => 0, 'GMT' => 0,
-	'EST' => -5, 'EDT' => -4,
-	'CST' => -6, 'CDT' => -5,
-	'MST' => -7, 'MDT' => -6,
-	'PST' => -8, 'PDT' => -7,
-	# Following definition of military zones is original one.
-	# See RFC 1123 and RFC 2822 for the error in RFC 822.
-	'A' => +1, 'B' => +2, 'C' => +3, 'D' => +4,  'E' => +5,  'F' => +6, 
-	'G' => +7, 'H' => +8, 'I' => +9, 'K' => +10, 'L' => +11, 'M' => +12,
-	'N' => -1, 'O' => -2, 'P' => -3, 'Q' => -4,  'R' => -5,  'S' => -6, 
-	'T' => -7, 'U' => -8, 'V' => -9, 'W' => -10, 'X' => -11, 'Y' => -12
-    }
-    # Returns offset in hours, e.g. '+0900'
-    def Time.zone_offset(zone, year=Time.now.year)
-	off = nil
-	zone = zone.upcase
-	if /\A([+-])(\d\d):?(\d\d)\z/ =~ zone
-	    off = ($1 == '-' ? -1 : 1) * ($2.to_i * 60 + $3.to_i) * 60
-	elsif /\A[+-]\d\d\z/ =~ zone
-	    off = zone.to_i
-	elsif ZoneOffset.include?(zone)
-	    off = ZoneOffset[zone]
-	elsif ((t = Time.local(year, 1, 1)).zone.upcase == zone rescue false)
-	    off = t.utc_offset / 3600
-	elsif ((t = Time.local(year, 7, 1)).zone.upcase == zone rescue false)
-	    off = t.utc_offset / 3600
+unless Time.respond_to?('zone_offset')
+# :nodoc:
+    class Time
+	ZoneOffset = {
+	    'UTC' => 0,
+	    # ISO 8601
+	    'Z' => 0,
+	    # RFC 822
+	    'UT' => 0, 'GMT' => 0,
+	    'EST' => -5, 'EDT' => -4,
+	    'CST' => -6, 'CDT' => -5,
+	    'MST' => -7, 'MDT' => -6,
+	    'PST' => -8, 'PDT' => -7,
+	    # Following definition of military zones is original one.
+	    # See RFC 1123 and RFC 2822 for the error in RFC 822.
+	    'A' => +1, 'B' => +2, 'C' => +3, 'D' => +4,  'E' => +5,  'F' => +6, 
+	    'G' => +7, 'H' => +8, 'I' => +9, 'K' => +10, 'L' => +11, 'M' => +12,
+	    'N' => -1, 'O' => -2, 'P' => -3, 'Q' => -4,  'R' => -5,  'S' => -6, 
+	    'T' => -7, 'U' => -8, 'V' => -9, 'W' => -10, 'X' => -11, 'Y' => -12
+	}
+	# Returns offset in hours, e.g. '+0900'
+	def Time.zone_offset(zone, year=Time.now.year)
+	    off = nil
+	    zone = zone.upcase
+	    if /\A([+-])(\d\d):?(\d\d)\z/ =~ zone
+		off = ($1 == '-' ? -1 : 1) * ($2.to_i * 60 + $3.to_i) * 60
+	    elsif /\A[+-]\d\d\z/ =~ zone
+		off = zone.to_i
+	    elsif ZoneOffset.include?(zone)
+		off = ZoneOffset[zone]
+	    elsif ((t = Time.local(year, 1, 1)).zone.upcase == zone rescue false)
+		off = t.utc_offset / 3600
+	    elsif ((t = Time.local(year, 7, 1)).zone.upcase == zone rescue false)
+		off = t.utc_offset / 3600
+	    end
+	    off
 	end
-	off
     end
 end
 
 module Pidgin2Adium
-    # FILE_EXISTS is returned by LogGenerator.build_dom_and_output() if the
-    # output logfile already exists.
+    # FILE_EXISTS is returned by LogGenerator.generate if the output logfile
+    # already exists.
     FILE_EXISTS = 42
     VERSION = "2.0.0"
 
+    # Empty class. Raised by LogParser if first line of a log is not parseable.
     class InvalidFirstLineError < StandardError; end
-    # Prints arguments.
+
+    # :nodoc:
     def log_msg(str)
 	puts str.to_s
     end
 
+    # :nodoc:
     def oops(str)
 	warn("Oops: #{str}")
     end
 
+    # :nodoc:
     def error(str)
 	warn("ERROR: #{str}")
     end
@@ -79,7 +86,7 @@ module Pidgin2Adium
 	    @my_aliases = aliases.map{|x| x.downcase.gsub(/\s+/,'') }.uniq
 	    @default_time_zone = tz || Time.now.zone
 	    @force = force # overwrite even if log is found?
-	    # Optional dir to place converted logs instead of in Adium location
+	    # FIXME: Optional dir to place converted logs instead of in Adium location
 	    @user_temp_dir = user_temp_dir
 
 	    @adium_log_dir = File.expand_path('~/Library/Application Support/Adium 2.0/Users/Default/Logs/') << '/' 
@@ -104,6 +111,8 @@ module Pidgin2Adium
 	    @default_tz_offset = '%+03d00'%Time.zone_offset(@default_time_zone)
 	end
 
+	# Runs LogConverter.convert on every log file in directory provided in initialize, then copies logs 
+	# to Adium log folder and deletes Adium's search indexes to force it to rescan logs on startup.
 	def start
 	    log_msg "Begin converting."
 	    begin
@@ -114,27 +123,29 @@ module Pidgin2Adium
 		raise Errno::EACCES
 	    end
 
-	    log_msg("#{files_path.length} files to convert.")
 	    total_files = files_path.size
+	    total_successes = 0
+	    log_msg("#{total_files} files to convert.")
 	    files_path.each_with_index do |fname, i|
 		log_msg(
 		    sprintf("[%d/%d] Converting %s...",
 			(i+1), total_files, fname)
 		)
-		convert(fname)
+		result = convert(fname)
+		total_successes += 1 if result == true
 	    end
 
 	    copy_logs()
 	    delete_search_indexes()
 
-	    log_msg "Finished converting! Converted #{files_path.length} files."
+	    log_msg "Finished converting! Converted #{total_successes} files of #{total_files} total."
 	end
 
 
-	# Here is the problem: imported logs are viewable in the Adium Chat
-	# Transcript Viewer, but are not indexed, so a search of the logs
-	# doesn't give results from the imported logs. To fix this, we delete
-	# the cached log indexes, which forces Adium to re-index.
+	# Newly-converted logs are viewable in the Adium Chat Transcript
+	# Viewer, but are not indexed, so a search of the logs doesn't give
+	# results from the converted logs. To fix this, we delete the cached log
+	# indexes, which forces Adium to re-index.
 	def delete_search_indexes()
 	    log_msg "Deleting log search indexes in order to force re-indexing of imported logs..."
 	    dirty_file=File.expand_path("~/Library/Caches/Adium/Default/DirtyLogs.plist")
@@ -155,30 +166,29 @@ module Pidgin2Adium
 	# Create a new HtmlLogParser or TextLogParser object
 	# (as appropriate) and calls its parse() method.
 	# Returns false if there was a problem, true otherwise.
-	def convert(logfile)
-	    ext = File.extname(logfile).sub('.', '').downcase
+	def convert(logfile_path)
+	    ext = File.extname(logfile_path).sub('.', '').downcase
 	    if(ext == "html" || ext == "htm")
-		# def initialize(src_path, dest_dir_base, user_aliases, user_tz, user_tz_offset)
-		parser = HtmlLogParser.new(logfile, @adium_log_dir, @my_aliases, @default_time_zone, @default_tz_offset)
+		parser = HtmlLogParser.new(logfile_path, @adium_log_dir, @my_aliases, @default_time_zone, @default_tz_offset)
 	    elsif(ext == "txt")
-		parser = TextLogParser.new(logfile, @adium_log_dir, @my_aliases, @default_time_zone, @default_tz_offset)
+		parser = TextLogParser.new(logfile_path, @adium_log_dir, @my_aliases, @default_time_zone, @default_tz_offset)
 	    elsif(ext == "chatlog")
 		log_msg("Found chatlog FILE - moving to chatlog DIRECTORY.")
 		# Create out_dir/log.chatlog/
 		begin
-		    chatlog_directory = "#{@adium_log_dir}/#{logfile}" 
+		    chatlog_directory = "#{@adium_log_dir}/#{logfile_path}" 
 		    Dir.mkdir(chatlog_directory)
 		rescue => bang
 		    error("Could not create #{chatlog_directory}: #{bang.class} #{bang.message}")
 		    return false
 		end
 		# @pidgin_log_dir/log.chatlog (file) -> @adium_log_dir/log.chatlog/log.xml
-		adium_destination = File.join(@adium_log_dir, logfile, logfile[0, logfile.size-File.extname(logfile).size] << ".xml")
-		File.cp(logfile, adium_destination)
-		log_msg("Copied #{logfile} to #{adium_destination}")
+		adium_destination = File.join(@adium_log_dir, logfile_path, logfile_path[0, logfile_path.size-File.extname(logfile_path).size] << ".xml")
+		File.cp(logfile_path, adium_destination)
+		log_msg("Copied #{logfile_path} to #{adium_destination}")
 		return true
 	    else
-		log_msg("logfile (#{logfile}) is not a txt, html, or chatlog file. Doing nothing.")
+		log_msg("logfile (#{logfile_path}) is not a txt, html, or chatlog file. Doing nothing.")
 		return false
 	    end
 
@@ -186,7 +196,7 @@ module Pidgin2Adium
 	    return \
 		case dest_file_path
 		when false
-		    oops("Converting #{logfile} failed.") 
+		    oops("Converting #{logfile_path} failed.") 
 		    false
 		when FILE_EXISTS
 		    log_msg("File already exists.")
@@ -197,7 +207,7 @@ module Pidgin2Adium
 		end
 	end
 
-	# Returns an array of all .htm, .html, and .txt files in provided path.
+	# :nodoc:
 	def get_all_chat_files(dir)
 	    return [] if File.basename(dir) == ".system"
 	    # recurse into each subdir
