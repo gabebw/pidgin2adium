@@ -13,28 +13,43 @@ require 'pidgin2adium'
 require 'optparse'
 
 options = {}
-OptionParser.new do |opts|
+oparser = OptionParser.new do |opts|
     opts.banner = "Usage: #{File.basename($0)} [options]"
-    opts.on('-i', '--in IN_DIR', 'Specify directory where pidgin logs are stored') do |i|
+    opts.on('-i', '--in IN_DIR', String, 'Specify directory where pidgin logs are stored') do |i|
 	options[:in] = i
     end
-    opts.on('-t', "--time-zone [TIME ZONE]",
-	    "Set time zone like \"EST\". Defaults to local time zone: #{Time.now.zone}") do |tz|
-	options[:timezone] = tz
-    end
-    opts.on('-a', "--aliases MY_ALIASES_AND_SNs",
+    opts.on('-a', "--aliases screenname,alias1,alias2", Array,
 	    "A comma-separated list of your aliases and screenname(s) so this script knows which person in a chat is you.",
-	    "Whitespace is removed and aliases are lowercased.") do |aliases|
+	    "Whitespace and case do not matter.") do |aliases|
 	options[:aliases] = aliases.split(',')
     end
-    opts.on('-f', '--force', 'Overwrite logs in Adium log folder with converted logs of same name') do |f|
+    opts.on('-t', "--time-zone ZONE", String,
+	    "Set time zone (example: \"EST\"). Defaults to local time zone: #{Time.now.zone}") do |tz|
+	options[:timezone] = tz
+    end
+    opts.on('-f', '--force', 'If logs in the Adium log folder have the same name as converted logs, the Adium logs will be overwritten.') do |f|
 	options[:force] = f
     end
     opts.on_tail("-h", "--help", "Show this message") do
 	puts opts
 	exit
     end
-end.parse!
+end
+begin
+    oparser.parse!
+rescue => bang
+    if bang.class == OptionParser::MissingArgument 
+	# No argument provided for a switch that requires an argument.
+	puts '"%s" requires an argument.' % bang.args[0]
+	exit 1
+    elsif bang.class == OptionParser::InvalidOption 
+	# Provided a switch that we don't handle.
+	puts '"%s" is not a valid switch.' % bang.args[0]
+    elsif bang.class == OptionParser::NeedlessArgument
+	# Raised when argument provided for a switch that doesn't take an argument.
+	puts bang.message
+    end
+end
 
 need_opts = false
 required_opts = [[:i, :in], [:a, :aliases]]
@@ -46,7 +61,10 @@ required_opts.each do |short, long|
 	puts "Required option -#{short}/--#{long} missing."
     end
 end
-exit 1 if need_opts
+if need_opts
+    puts oparser.to_s
+    exit 1
+end
 
 log_converter = Pidgin2Adium::LogConverter.new(options[:in],
 					       options[:aliases],
