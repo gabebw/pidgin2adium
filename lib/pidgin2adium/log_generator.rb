@@ -1,4 +1,3 @@
-# ADD DOCUMENTATION
 module Pidgin2Adium
     class LogGenerator
 	include Pidgin2Adium
