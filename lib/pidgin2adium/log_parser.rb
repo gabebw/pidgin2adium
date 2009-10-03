@@ -5,22 +5,18 @@
 # into it and place the data in a subclass of Message.
 
 require 'parsedate'
-require 'pidgin2adium/log_generator'
 require 'pidgin2adium/balance_tags'
 
 module Pidgin2Adium
-    # The two subclasses of +BasicParser+, +TextLogParser+ and +HtmlLogParser+,
-    # only differ in that they have their own @line_regex, @line_regex_status,
-    # and most importantly, create_msg and create_status_or_event_msg, which
-    # take the +MatchData+ objects from matching against @line_regex or
-    # @line_regex_status, respectively and return object instances.
-    # +create_msg+ returns a +Message+ instance (or one of its subclasses).
-    # +create_status_or_event_msg+ returns a +Status+ or +Event+ instance.
+    # BasicParser is a base class. Use its subclasses, TextLogParser and
+    # HtmlLogParser.
+    # All *Parser classes are initialized with a path to a log file. Then run
+    # parse (returns an array of Message, Status, and/or Event objects) or
+    # parse_and_generate, which runs parse() then generates the log file.
     class BasicParser
 	include Pidgin2Adium
 	def initialize(src_path, dest_dir_base, user_aliases, user_tz, user_tz_offset)
 	    @src_path = src_path
-	    # these two are to pass to generator in pare_file
 	    @dest_dir_base = dest_dir_base
 	    @user_aliases = user_aliases
 	    @user_tz = user_tz
@@ -31,17 +27,7 @@ module Pidgin2Adium
 	    @file_content = @file.readlines
 	    @file.close
 
-	    # Used in @line_regex{,_status}. Only one group: the entire
-	    # timestamp.
-	    @timestamp_regex_str = '\(((?:\d{4}-\d{2}-\d{2}
-)?\d{1,2}:\d{1,2}:\d{1,2}(?: .{1,2})?)\)'
-	    # the first line is special: it tells us
-	    # 1) who we're talking to 
-	    # 2) what time/date
-	    # 3) what SN we used
-	    # 4) what protocol (AIM, icq, jabber...)
-	    @first_line_regex = /Conversation with (.+?) at (.+?) on (.+?) \((.+?)\)/
-
+	    # Timestamps must be set before pre_parse().
 	    # Possible formats for timestamps:
 	    # "2007-04-17 12:33:13" => %w{2007, 04, 17, 12, 33, 13}
 	    @time_regex_one = /(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/
@@ -50,7 +36,9 @@ module Pidgin2Adium
 	    # sometimes a line in a chat doesn't have a full timestamp
 	    # "04:22:05 AM" => %w{04 22 05 AM}
 	    @minimal_time_regex = /(\d{1,2}):(\d{2}):(\d{2}) ?([AP]M)?/
-	  
+	    # Used in @line_regex{,_status}. Only one group: the whole timestamp.
+	    @timestamp_regex_str = '\(((?:\d{4}-\d{2}-\d{2})?\d{1,2}:\d{1,2}:\d{1,2}(?: .{1,2})?)\)'
+
 	    # Whether or not the first line is parseable.
 	    @first_line_is_valid = true
 	    # These variables are set by pre_parse
@@ -71,6 +59,7 @@ module Pidgin2Adium
 	    rescue InvalidFirstLineError
 		@first_line_is_valid = false
 		error("Parsing of #{@src_path} failed (could not find valid first line).")
+		return # stop processing
 	    end
 
 	    # @user_alias is set each time get_sender_by_alias is called. Set an
@@ -79,7 +68,7 @@ module Pidgin2Adium
 	    @user_alias = @user_aliases[0]
 	    
 	    # @status_map, @lib_purple_events, and @events are used in
-	    # create_status_or_event_message.
+	    # create_status_or_event_msg
 	    @status_map = {
 		/(.+) logged in\.$/ => 'online',
 		/(.+) logged out\.$/ => 'offline',
@@ -135,7 +124,7 @@ module Pidgin2Adium
 		/^Attempting to connect to .+\.$/ => 'direct-im-connect',
 		# NB: pidgin doesn't track when Direct IM is disconnected, AFAIK
 		/^Direct IM established$/ => 'directIMConnected',
-		/Unable to send message. The message is too large./ => 'chat-error',
+		/Unable to send message/ => 'chat-error',
 		/You missed .+ messages from (.+) because they were too large./ => 'chat-error'
 	    }
 	end
@@ -188,16 +177,22 @@ module Pidgin2Adium
 	    return Time.local(*parsed_date).strftime("%Y-%m-%dT%H.%M.%S#{@tz_offset}")
 	end
 
-	# Extract required data from the file. Run by parse and parse_and_generate.
+	# Extract required data from the file. Run by parse and
+	# parse_and_generate.
 	def pre_parse
 	    # Deal with first line.
 	    first_line = @file_content.shift
-	    first_line_match = @first_line_regex.match(first_line)
+	    # the first line is special. It tells us (in order of regex groups):
+	    # 1) who we're talking to 
+	    # 2) what time/date
+	    # 3) what SN we used
+	    # 4) what protocol (AIM, icq, jabber...)
+	    first_line_match = /Conversation with (.+?) at (.+?) on (.+?) \((.+?)\)/.match(first_line)
 	    if first_line_match.nil?
 		raise InvalidFirstLineError
 	    else
 		@service = first_line_match[4]
-		# user_SN is standardized to avoid "AIM.name" and "AIM.na me" folders
+		# @user_SN is normalized to avoid "AIM.name" and "AIM.na me" folders
 		@user_SN = first_line_match[3].downcase.gsub(' ', '')
 		@partner_SN = first_line_match[1]
 		pidgin_chat_time_start = first_line_match[2]
@@ -229,9 +224,13 @@ module Pidgin2Adium
 	end
 
 	# Set force=true to create a logfile even if logfile already exists.
-	# Runs parse() then uses a LogGenerator object to generate the logfile.
-	# Returns one of: false (if an error occurred), Pidgin2Adium::FILE_EXISTS (a constant) or the path to the new Adium log file.
+	# Runs parse() then uses LogGenerator to generate the logfile.
+	# Returns one of:
+	# * false (if an error occurred),
+	# * Pidgin2Adium::FILE_EXISTS (a constant) if the file to be generated already exists, or
+	# * the path to the new Adium log file.
 	def parse_and_generate(force=false)
+	    require 'pidgin2adium/log_generator'
 	    return false unless @first_line_is_valid
 	    log_generator = LogGenerator.new(@service,
 					     @user_SN,
@@ -334,7 +333,7 @@ module Pidgin2Adium
 	    # @line_regex_status matchdata:
 	    # 0: timestamp
 	    # 1: status message
-	    @line_regex_status = /#{@timestamp_regex_str} ([^:]+?)[\r\n]{0,2}/o
+	    @line_regex_status = /#{@timestamp_regex_str} ([^:]+?)[\r\n]{1,2}/o
 	end
     end
 
