@@ -54,21 +54,19 @@ module Pidgin2Adium
     # output logfile already exists.
     FILE_EXISTS = 42
     VERSION = "2.0.0"
-    ERROR_MAJOR = 'ERROR_MAJOR'
-    ERROR_MINOR = 'ERROR_MINOR'
 
     class InvalidFirstLineError < StandardError; end
     # Prints arguments.
-    def log_msg(str, error_level=nil)
-	content = str.to_s
-	unless error_level.nil?
-	    if error_level == ERROR_MAJOR
-		content = "ERROR: #{str}"
-	    elsif error_level == ERROR_MINOR
-		content = "Oops: #{str}"
-	    end
-	end
-	puts content
+    def log_msg(str)
+	puts str.to_s
+    end
+
+    def oops(str)
+	warn("Oops: #{str}")
+    end
+
+    def error(str)
+	warn("ERROR: #{str}")
     end
 
     class LogConverter
@@ -111,8 +109,8 @@ module Pidgin2Adium
 	    begin
 		files_path = get_all_chat_files(@pidgin_log_dir)
 	    rescue Errno::EACCES => bang
-		log_msg("Sorry, permission denied for getting Pidgin chat files from #{@pidgin_log_dir}.", ERROR_MAJOR)
-		log_msg("Details: #{bang.message}", ERROR_MAJOR)
+		error("Sorry, permission denied for getting Pidgin chat files from #{@pidgin_log_dir}.")
+		error("Details: #{bang.message}")
 		raise Errno::EACCES
 	    end
 
@@ -146,7 +144,7 @@ module Pidgin2Adium
 		    if File.writable?(f)
 			File.delete(f)
 		    else
-			log_msg("#{f} exists but is not writable. Please delete it yourself.", ERROR_MAJOR)
+			error("#{f} exists but is not writable. Please delete it yourself.")
 		    end
 		end
 	    end
@@ -171,7 +169,7 @@ module Pidgin2Adium
 		    chatlog_directory = "#{@adium_log_dir}/#{logfile}" 
 		    Dir.mkdir(chatlog_directory)
 		rescue => bang
-		    log_msg("Could not create #{chatlog_directory}: #{bang.class} #{bang.message}", ERROR_MAJOR)
+		    error("Could not create #{chatlog_directory}: #{bang.class} #{bang.message}")
 		    return false
 		end
 		# @pidgin_log_dir/log.chatlog (file) -> @adium_log_dir/log.chatlog/log.xml
@@ -188,7 +186,7 @@ module Pidgin2Adium
 	    return \
 		case dest_file_path
 		when false
-		    log_msg("Converting #{logfile} failed.", ERROR_MINOR); 
+		    oops("Converting #{logfile} failed.") 
 		    false
 		when FILE_EXISTS
 		    log_msg("File already exists.")

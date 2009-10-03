@@ -70,7 +70,7 @@ module Pidgin2Adium
 		pre_parse()
 	    rescue InvalidFirstLineError
 		@first_line_is_valid = false
-		log_msg("Parsing of #{@src_path} failed (could not find valid first line).", true)
+		error("Parsing of #{@src_path} failed (could not find valid first line).")
 	    end
 
 	    # @user_alias is set each time get_sender_by_alias is called. Set an
@@ -180,8 +180,7 @@ module Pidgin2Adium
 				   $~[2].to_i,   # minutes
 				   $~[3].to_i]   # seconds
 			  else
-			      log_msg("You have found an odd timestamp.", true)
-			      log_msg("Please report it to the developer.")
+			      error("You have found an odd timestamp. Please report it to the developer.")
 			      log_msg("The timestamp: #{time}")
 			      log_msg("Continuing...")
 			      ParseDate.parsedate(time)
