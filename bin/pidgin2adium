@@ -15,19 +15,19 @@ require 'optparse'
 options = {}
 oparser = OptionParser.new do |opts|
     opts.banner = "Usage: #{File.basename($0)} [options]"
-    opts.on('-i', '--in IN_DIR', String, 'Specify directory where pidgin logs are stored') do |i|
+    opts.on('-i', '--in=IN_DIR', String, 'Specify directory where pidgin logs are stored') do |i|
 	options[:in] = i
     end
-    opts.on('-a', "--aliases screenname,alias1,alias2", Array,
+    opts.on('-a screenname,alias1,alias2', "--aliases=screenname,alias1,alias2", Array,
 	    "A comma-separated list of your aliases and screenname(s) so this script knows which person in a chat is you.",
 	    "Whitespace and case do not matter.") do |aliases|
-	options[:aliases] = aliases.split(',')
+	options[:aliases] = aliases
     end
-    opts.on('-t', "--time-zone ZONE", String,
+    opts.on('-t', "--time-zone=ZONE", String,
 	    "Set time zone (example: \"EST\"). Defaults to local time zone: #{Time.now.zone}") do |tz|
 	options[:timezone] = tz
     end
-    opts.on('-f', '--force', 'If logs in the Adium log folder have the same name as converted logs, the Adium logs will be overwritten.') do |f|
+    opts.on('-f', '--force', 'If this is set, then logs in the Adium log folder that have the same name as converted logs will be overwritten.') do |f|
 	options[:force] = f
     end
     opts.on_tail("-h", "--help", "Show this message") do
