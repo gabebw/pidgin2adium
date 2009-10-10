@@ -23,7 +23,7 @@ else
     match = highest.match(/(\\d+)/)
     if match
 	num = match.captures.last.to_i + 1
-	fname = "profiler_result%d.html" % num
+	fname = "profiler_result%02d.html" % num
 	f = File.new(fname, 'w')
     else
 	puts "!!! Oops, no match but there is definitely a profile file that exists. Unsure what happened. Outputting to stdout."
