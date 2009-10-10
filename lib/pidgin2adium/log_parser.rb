@@ -136,7 +136,7 @@ module Pidgin2Adium
 	def parse
 	    return false unless @first_line_is_valid
 	    if self.class == HtmlLogParser
-		@file_content = self.cleanup(@file_content.join).split("\n")
+		@file_content = cleanup(@file_content.join).split("\n")
 	    end
 	    @file_content.map! do |line|
 		next if line =~ /^\s+$/
