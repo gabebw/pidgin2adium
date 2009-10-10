@@ -28,6 +28,10 @@ module Pidgin2Adium
 	warn("Error: #{str}")
     end
 
+    #######################
+    private :log_msg, :oops, :error
+    #######################
+
     # Returns a LogFile instance or false if an error occurred.
     def parse(logfile_path, my_aliases)
 	logfile_path = File.expand_path(logfile_path)
@@ -89,10 +93,11 @@ module Pidgin2Adium
     # Viewer, but are not indexed, so a search of the logs doesn't give
     # results from the converted logs. To fix this, we delete the cached log
     # indexes, which forces Adium to re-index.
-    # Note: This function is run by LogConverter after converting all of its files.
-    # It is NOT run by LogFile.write_out() in order to have it only run when
-    # all files are converted. Thus, you will probably want to run
-    # Pidgin2Adium.delete_search_indexes() after running LogFile.write_out() in
+    # 
+    # Note: This function is run by LogConverter after converting all of its
+    # files.  LogFile.write_out intentionally does _not_ run it in order to
+    # allow for batch-processing of files. Thus, you will probably want to run
+    # Pidgin2Adium.delete_search_indexes after running LogFile.write_out in
     # your own scripts.
     def delete_search_indexes()
 	log_msg "Deleting log search indexes in order to force re-indexing of imported logs..."

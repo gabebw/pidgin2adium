@@ -1,8 +1,7 @@
-# ADD DOCUMENTATION
-
 require 'pidgin2adium'
 
 module Pidgin2Adium
+    # An easy way to batch-process a directory. Used by the pidgin2adium command-line script.
     class LogConverter
 	include Pidgin2Adium
 	def initialize(pidgin_log_dir, aliases, overwrite = false)
@@ -17,7 +16,7 @@ module Pidgin2Adium
 	end
 
 	# Runs Pidgin2Adium::parse_and_generate on every log file in directory
-	# provided in initialize, then deletes Adium's search indexes to force
+	# provided in new, then deletes Adium's search indexes to force
 	# it to rescan logs on startup.
 	def start
 	    log_msg "Begin converting."
@@ -45,6 +44,10 @@ module Pidgin2Adium
 
 	    log_msg "Finished converting! Converted #{total_successes} files of #{total_files} total."
 	end
+
+	###########
+	private
+	###########
 
 	def get_all_chat_files(dir)
 	    return [] if File.basename(dir) == ".system"

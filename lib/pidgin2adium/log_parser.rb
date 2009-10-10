@@ -1,9 +1,9 @@
 # Contains the class BasicParser and its subclasses, HtmlLogParser and
 # TextFileParser, which parse the file passed into it and return a LogFile
 # object. 
+#
 # Please use Pidgin2Adium.parse or Pidgin2Adium.parse_and_generate instead of
 # using these classes directly.
-
 require 'parsedate'
 
 require 'pidgin2adium/balance_tags'
@@ -14,11 +14,11 @@ module Pidgin2Adium
     # parseable.
     class InvalidFirstLineError < StandardError; end
 
-    # BasicParser is a base class. Use its subclasses, TextLogParser and
+    # BasicParser is a base class. Its subclasses are TextLogParser and
     # HtmlLogParser.
-    # All *Parser classes are initialized with a path to a log file. Then run
-    # parse, which returns an array of XMLMessage, Status, and/or Event
-    # objects.
+    #
+    # Please use Pidgin2Adium.parse or Pidgin2Adium.parse_and_generate instead of
+    # using this class directly.
     class BasicParser
 	include Pidgin2Adium
 	def initialize(src_path, user_aliases)
@@ -132,6 +132,32 @@ module Pidgin2Adium
 	    }
 	end
 
+	# This method returns a LogFile instance, or false if an error occurred.
+	def parse
+	    return false unless @first_line_is_valid
+	    if self.class == HtmlLogParser
+		@file_content = self.cleanup(@file_content.join).split("\n")
+	    end
+	    @file_content.map! do |line|
+		next if line =~ /^\s+$/
+		line.gsub!("\r", '')
+		if line =~ @line_regex
+		    create_msg($~.captures)
+		elsif line =~ @line_regex_status
+		    create_status_or_event_msg($~.captures)
+		else
+		    error "Could not parse line:"
+		    p line # returns nil which is removed by compact
+		    exit 1 if $DEBUG
+		end
+	    end.compact!
+	    return LogFile.new(@file_content, @service, @user_SN, @partner_SN, @adium_chat_time_start)
+	end
+
+	#################
+	private
+	#################
+
 	def get_time_zone_offset()
 	    tz_match = /([-\+]\d+)[A-Z]{3}\.(?:txt|htm|html)/.match(@src_path)
 	    tz_offset = tz_match[1] rescue ''
@@ -183,8 +209,7 @@ module Pidgin2Adium
 	    return Time.local(*parsed_date).strftime("%Y-%m-%dT%H.%M.%S#{@tz_offset}")
 	end
 
-	# Extract required data from the file. Run by parse and
-	# parse_and_generate.
+	# Extract required data from the file. Run by parse.
 	def pre_parse
 	    # Deal with first line.
 	    first_line = @file_content.shift
@@ -213,28 +238,6 @@ module Pidgin2Adium
 			basic_time_info,
 			adium_chat_time_start]
 	    end
-	end
-
-	# This method returns a LogFile instance, or false if an error occurred.
-	def parse
-	    return false unless @first_line_is_valid
-	    if self.class == HtmlLogParser
-		@file_content = self.cleanup(@file_content.join).split("\n")
-	    end
-	    @file_content.map! do |line|
-		next if line =~ /^\s+$/
-		line.gsub!("\r", '')
-		if line =~ @line_regex
-		    create_msg($~.captures)
-		elsif line =~ @line_regex_status
-		    create_status_or_event_msg($~.captures)
-		else
-		    error "Could not parse line:"
-		    p line # returns nil which is removed by compact
-		    exit 1 if $DEBUG
-		end
-	    end.compact!
-	    return LogFile.new(@file_content, @service, @user_SN, @partner_SN, @adium_chat_time_start)
 	end
 
 	def get_sender_by_alias(alias_name)
@@ -269,8 +272,10 @@ module Pidgin2Adium
 	    return msg
 	end
 
+	#--
 	# create_status_or_event_msg takes an array of +MatchData+ captures from
 	# matching against @line_regex_status and returns an Event or Status.
+	#++
 	def create_status_or_event_msg(matches)
 	    # ["22:58:00", "BuddyName logged in."]
 	    # 0: time
@@ -317,6 +322,8 @@ module Pidgin2Adium
 	end
     end
 
+    # Please use Pidgin2Adium.parse or Pidgin2Adium.parse_and_generate instead of
+    # using this class directly.
     class TextLogParser < BasicParser
 	def initialize(src_path, user_aliases)
 	    super(src_path, user_aliases)
@@ -335,6 +342,8 @@ module Pidgin2Adium
 	end
     end
 
+    # Please use Pidgin2Adium.parse or Pidgin2Adium.parse_and_generate instead of
+    # using this class directly.
     class HtmlLogParser < BasicParser
 	def initialize(src_path, user_aliases) 
 	    super(src_path, user_aliases)
@@ -353,6 +362,10 @@ module Pidgin2Adium
 	    # 1: status message
 	    @line_regex_status = /#{@timestamp_regex_str} ?<b> (.+)<\/b><br ?\/>/o
 	end
+
+	#################
+	private
+	#################
 
 	# Returns a cleaned string.
 	# Removes the following tags from _text_:
@@ -462,6 +475,10 @@ module Pidgin2Adium
 	    return sprintf('<message sender="%s" time="%s" alias="%s">%s</message>' << "\n",
 			   @sender, @time, @buddy_alias, @styled_body)
 	end
+
+	#################
+	private
+	#################
 
 	# Balances mismatched tags, normalizes body style, and fixes actions
 	# so they are in Adium style (Pidgin uses "***Buddy waves at you", Adium uses

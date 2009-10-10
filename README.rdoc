@@ -1,15 +1,12 @@
-= pidgin2adium
-
+== pidgin2adium
 * http://rubyforge.org/projects/pidgin2adium/
 
 == DESCRIPTION:
-
 Pidgin2Adium is a fast, easy way to convert Pidgin (formerly gaim) logs to the
 Adium format.
 Note that it assumes a Mac OS X environment with Adium installed.
 
 == FEATURES/PROBLEMS:
-
 * No problems (well, hopefully).
 
 == SYNOPSIS:
@@ -46,20 +43,21 @@ You can also create log files yourself using Pidgin2Adium.parse_and_generate.
      puts "Oh no! Could not parse!"
  else
      logfile.each do |message|
-     # Every message has these properties
+	# Every message has these properties
 	puts "Sender's screen name: #{message.sender}"
  	puts "Time message was sent: #{message.time}"
  	puts "Sender's alias: #{message.buddy_alias}"
  	if [Pidgin2Adium::XMLMessage, Pidgin2Adium::AutoReplyMessage, Pidgin2Adium::Event].include?(message.class)
+ 	    # All of these have a body
  	    puts "Message body: #{message.body}"
  	    if message.class == Pidgin2Adium::Event
  		puts "Event type: #{message.event_type}"
  	    end
  	elsif message.class == Pidgin2Adium::StatusMessage
-	    # status only in StatusMessage
+	    # Only StatusMessage has status
  	    puts "Status: #{message.status}"
  	end
- 	# Prints out the message in Adium format
+ 	# Prints out the message in Adium log format
  	puts message.to_s
      end
  end
@@ -68,22 +66,19 @@ You can also create log files yourself using Pidgin2Adium.parse_and_generate.
 If you want to output the logfile to an output dir instead of just parsing it, use Pidgin2Adium.parse_and_generate:
  
  require 'pidgin2adium'
- opts = {:overwrite => true, :output_dir => "/my/output/dir" }
+ opts = {:overwrite => true, :output_dir => "/my/output/dir"}
  path_to_converted_log = Pidgin2Adium.parse_and_generate("/path/to/log/file.html", "gabe,gbw,gabeb-w", opts)
-== REQUIREMENTS:
 
+== REQUIREMENTS:
 * None
 
 == INSTALL:
-
 * sudo gem install pidgin2adium
 
 == THANKS
 With thanks to Li Ma, whose blog post at
 http://li-ma.blogspot.com/2008/10/pidgin-log-file-to-adium-log-converter.html
 helped tremendously.
-
-
 
 == LICENSE:
 
