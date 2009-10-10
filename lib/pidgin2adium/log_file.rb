@@ -1,0 +1,102 @@
+# ADD DOCUMENTATION
+
+require 'fileutils'
+
+module Pidgin2Adium
+    # A holding object for the result of LogParser.parse.  It makes the
+    # instance variable @chat_lines available, which is an array of objects
+    # which each have at least the instance variables _sender_, _time_, and
+    # _buddy_alias_ available. Some objects in @chat_lines have more variables
+    # available, specifically:
+    # * XMLMessage, AutoReplyMessage, and Event:: _body_
+    # * Event:: _event_type_
+    # * StatusMessage:: _status_
+    class LogFile
+	include Pidgin2Adium
+	def initialize(chat_lines, service, user_SN, partner_SN, adium_chat_time_start)
+	    @chat_lines = chat_lines
+	    @user_SN = user_SN
+	    @partner_SN = partner_SN
+	    @adium_chat_time_start = adium_chat_time_start
+
+	    # @chat_str is generated when to_s is called
+	    @chat_str = nil
+	    
+	    # key is for Pidgin, value is for Adium
+	    # Just used for <service>.<screenname> in directory structure
+	    service_name_map = {'aim' => 'AIM',
+		'jabber' =>'jabber',
+		'gtalk'=> 'GTalk',
+		'icq' => 'ICQ',
+		'qq' => 'QQ',
+		'msn' => 'MSN',
+		'yahoo' => 'Yahoo'}
+	    
+	    @service = service_name_map[service.downcase]
+	end
+	
+	attr_reader :chat_lines, :service, :user_SN, :partner_SN, :adium_chat_time_start
+
+	# Returns contents of log file
+	def to_s
+	    if @chat_str.nil?
+		# Faster than inject() or each()
+		@chat_str = @chat_lines.map{|l| l.to_s }.join
+	    end
+	    return @chat_str
+	end
+	
+	# TODO: TEST ME
+	def each(&blk)
+	    @chat_lines.each{|l| yield l }
+	end
+
+	# Set overwrite=true to create a logfile even if logfile already exists.
+	# Returns one of:
+	# * false (if an error occurred),
+	# * Pidgin2Adium::FILE_EXISTS if the file to be generated already exists and overwrite=false, or
+	# * the path to the new Adium log file.
+	def write_out(overwrite = false, output_dir_base = ADIUM_LOG_DIR)
+	    # output_dir_base + "/buddyname (2009-08-04T18.38.50-0700).chatlog"
+	    output_dir = File.join(output_dir_base, "#{@service}.#{@user_SN}", partner_SN, "#{partner_SN} (#{adium_chat_time_start}).chatlog")
+	    # output_dir + "/buddyname (2009-08-04T18.38.50-0700).chatlog/buddyname (2009-08-04T18.38.50-0700).xml"
+	    output_path = output_dir + '/' + "#{partner_SN} (#{adium_chat_time_start}).xml"
+	    begin
+		FileUtils.mkdir_p(output_dir)
+	    rescue => bang
+		error "Could not create destination directory for log file. (Details: #{bang.class}: #{bang.message})"
+		return false
+	    end
+	    if overwrite
+		unless File.exist?(output_path) 
+		    # File doesn't exist, but maybe it does with a different
+		    # time zone. Check for a file that differs only in time
+		    # zone and, if found, change @output_path to target it.
+		    maybe_matches = Dir.glob(output_dir_base + '/' << File.basename(output_path).sub(/-\d{4}\)\.chatlog$/, '') << '/*')
+		    unless maybe_matches.empty?
+			output_path = maybe_matches[0]
+		    end
+		end
+	    else
+		if File.exist?(output_path)
+		    return FILE_EXISTS
+		end
+	    end
+
+	    begin
+		outfile = File.new(output_path, 'w')
+	    rescue => bang
+		error "Could not open log file for writing. (Details: #{bang.class}: #{bang.message})"
+		return false
+	    end
+
+	    # no \n before </chat> because @chat_str (from to_s) has it already
+	    outfile.printf('<?xml version="1.0" encoding="UTF-8" ?>'<<"\n"+
+			   '<chat xmlns="http://purl.org/net/ulf/ns/0.4-02" account="%s" service="%s">'<<"\n"<<'%s</chat>',
+			   @user_SN, @service, self.to_s)
+	    outfile.close
+
+	    return output_path
+	end
+    end
+end

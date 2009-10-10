@@ -2,14 +2,17 @@
 
 =begin
 Author: Gabe Berke-Williams, 2008
+Usage:
 This is the shell script, which is a wrapper around Pidgin2Adium::LogConverter.
 Call it like so:
-<tt>pidgin2adium -i ~/in_logs/ -a me,screenname,my_pidgin_alias,other_pidgin_alias</tt>
-For <tt>-a/--aliases</tt>, there is no need to use spaces or capitalization, since spaces will be stripped out and the aliases will
-be lowercased anyway.
+<tt>pidgin2adium -i ~/in_logs/ -a "me,my_pidgin_alias,other_pidgin_alias"</tt>
+For <tt>-a/--aliases</tt>, there is no need to use spaces or capitalization,
+since spaces will be stripped out and the aliases will be lowercased anyway.
+Aliases doesn't have to include screennames, either, since these are
+automatically recognized.
 =end
 
-require 'pidgin2adium'
+require 'pidgin2adium/log_converter'
 require 'optparse'
 
 options = {}
@@ -18,14 +21,10 @@ oparser = OptionParser.new do |opts|
     opts.on('-i', '--in=IN_DIR', String, 'Specify directory where pidgin logs are stored') do |i|
 	options[:in] = i
     end
-    opts.on('-a screenname,alias1,alias2', "--aliases=screenname,alias1,alias2", Array,
+    opts.on('-a screenname,alias1,alias2', "--aliases=screenname,alias1,alias2",
 	    "A comma-separated list of your aliases and screenname(s) so this script knows which person in a chat is you.",
 	    "Whitespace and case do not matter.") do |aliases|
 	options[:aliases] = aliases
-    end
-    opts.on('-t', "--time-zone=ZONE", String,
-	    "Set time zone (example: \"EST\"). Defaults to local time zone: #{Time.now.zone}") do |tz|
-	options[:timezone] = tz
     end
     opts.on('-f', '--force', 'If this is set, then logs in the Adium log folder that have the same name as converted logs will be overwritten.') do |f|
 	options[:force] = f
@@ -54,7 +53,7 @@ end
 need_opts = false
 required_opts = [[:i, :in], [:a, :aliases]]
 required_opts.each do |short, long|
-    if options.has_key?(short) or options.has_key?(long)
+    if options.has_key?(long)
 	next
     else
 	need_opts = true
@@ -68,9 +67,6 @@ end
 
 log_converter = Pidgin2Adium::LogConverter.new(options[:in],
 					       options[:aliases],
-					       options[:timezone],
-					       options[:force]
+					       {:overwrite =>  options[:force]}
 					      )
-					      # user_temp_dir
-
 log_converter.start
