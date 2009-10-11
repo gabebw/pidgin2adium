@@ -58,9 +58,9 @@ module Pidgin2Adium
 	# * the path to the new Adium log file.
 	def write_out(overwrite = false, output_dir_base = ADIUM_LOG_DIR)
 	    # output_dir_base + "/buddyname (2009-08-04T18.38.50-0700).chatlog"
-	    output_dir = File.join(output_dir_base, "#{@service}.#{@user_SN}", partner_SN, "#{partner_SN} (#{adium_chat_time_start}).chatlog")
+	    output_dir = File.join(output_dir_base, "#{@service}.#{@user_SN}", @partner_SN, "#{@partner_SN} (#{@adium_chat_time_start}).chatlog")
 	    # output_dir + "/buddyname (2009-08-04T18.38.50-0700).chatlog/buddyname (2009-08-04T18.38.50-0700).xml"
-	    output_path = output_dir + '/' + "#{partner_SN} (#{adium_chat_time_start}).xml"
+	    output_path = output_dir + '/' + "#{@partner_SN} (#{@adium_chat_time_start}).xml"
 	    begin
 		FileUtils.mkdir_p(output_dir)
 	    rescue => bang
