@@ -388,7 +388,7 @@ module Pidgin2Adium
 	    # Remove newlines not folllowed by <br, since HTML doesn't
 	    # care about whitespace and they screw up the regex matching.
 	    text.gsub!(/\n(?!<br)/, '')
-
+	    
 	    # Fix messages that are on >1 line: replace newlines with <br/>
 	    #text.gsub!(/\n([^(<br)])+/, '\1<br/>')
 	    
@@ -435,7 +435,8 @@ module Pidgin2Adium
 		    style = styleparts.join('; ')
 		    innertext = "<span style=\"#{style};\">#{innertext}</span>"
 		end
-		before + innertext + after
+		# replace single quotes with '&apos;' but only outside <span>s.
+		before.gsub("'",'&aquot;')+innertext+after.gsub("'",'&aquot;')
 	    end
 	    # Pidgin uses <em>, Adium uses <span>
 	    if text.gsub!('<em>', '<span style="font-style: italic;">')
@@ -466,7 +467,7 @@ module Pidgin2Adium
 	def initialize(sender, time, buddy_alias, body)
 	    super(sender, time, buddy_alias)
 	    @body = body
-	    @styled_body = '<div><span style="font-family: Helvetica; font-size: 12pt;">%s</span</div>' % @body
+	    @styled_body = '<div><span style="font-family: Helvetica; font-size: 12pt;">%s</span></div>' % @body
 	    normalize_body!()
 	end
 	attr_accessor :body
@@ -499,11 +500,6 @@ module Pidgin2Adium
 	def normalize_body_entities!
 	    # Convert '&' to '&amp;' only if it's not followed by an entity.
 	    @body.gsub!(/&(?!lt|gt|amp|quot|apos)/, '&amp;')
-	    # replace single quotes with '&apos;' but only outside <span>s.
-	    @body.gsub!(/(.*?)(<span.*?>.*?<\/span>)(.*?)/) do
-		before, span, after = $1, ($2||''), $3||''
-		before.gsub("'", '&aquot;') << span << after.gsub("'", '&aquot;')
-	    end
 	end
     end
 
