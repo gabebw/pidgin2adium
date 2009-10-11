@@ -21,9 +21,9 @@ oparser = OptionParser.new do |opts|
     opts.on('-i', '--in=IN_DIR', String, 'Specify directory where pidgin logs are stored') do |i|
 	options[:in] = i
     end
-    opts.on('-a screenname,alias1,alias2', "--aliases=screenname,alias1,alias2",
-	    "A comma-separated list of your aliases and screenname(s) so this script knows which person in a chat is you.",
-	    "Whitespace and case do not matter.") do |aliases|
+    opts.on('-a alias1,alias2', "--aliases alias1,alias2",
+	    "A comma-separated list of your alias(es) so this script knows
+	    which person in a chat is you.", "Whitespace and case do not matter.") do |aliases|
 	options[:aliases] = aliases
     end
     opts.on('-f', '--force', 'If this is set, then logs in the Adium log folder that have the same name as converted logs will be overwritten.') do |f|
