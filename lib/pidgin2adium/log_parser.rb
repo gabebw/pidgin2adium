@@ -46,8 +46,6 @@ module Pidgin2Adium
 	    # sometimes a line in a chat doesn't have a full timestamp
 	    # "04:22:05 AM" => %w{04 22 05 AM}
 	    @minimal_time_regex = /(\d{1,2}):(\d{2}):(\d{2}) ?([AP]M)?/
-	    # Used in @line_regex*. Only one group: the whole timestamp.
-	    @timestamp_regex_str = '\(((?:\d{4}-\d{2}-\d{2} )?\d{1,2}:\d{1,2}:\d{1,2}(?: .{1,2})?)\)'
 
 	    # Whether or not the first line is parseable.
 	    @first_line_is_valid = true
@@ -137,7 +135,14 @@ module Pidgin2Adium
 	    return false unless @first_line_is_valid
 	    if self.class == HtmlLogParser
 		@file_content = cleanup(@file_content.join).split("\n")
+	    else
+		# HtmlLogParser.cleanup runs this too.
+		# Remove newlines unless they end a chat line.
+		@file_content = @file_content.join
+		@file_content.gsub!(/\n(?!#{@timestamp_rx})/, '')
+		@file_content = @file_content.split("\n")
 	    end
+
 	    @file_content.map! do |line|
 		next if line =~ /^\s+$/
 		line.gsub!("\r", '')
@@ -147,8 +152,8 @@ module Pidgin2Adium
 		    create_status_or_event_msg($~.captures)
 		else
 		    error "Could not parse line:"
-		    p line # returns nil which is removed by compact
-		    exit 1 if $DEBUG
+		    p line # returns nil which is then removed by compact
+		    exit 1 # if $DEBUG FIXME
 		end
 	    end.compact!
 	    return LogFile.new(@file_content, @service, @user_SN, @partner_SN, @adium_chat_time_start)
@@ -224,7 +229,7 @@ module Pidgin2Adium
 	    else
 		service = first_line_match[4]
 		# @user_SN is normalized to avoid "AIM.name" and "AIM.na me" folders
-		user_SN = first_line_match[3].downcase.gsub(' ', '')
+		user_SN = first_line_match[3].downcase.tr(' ', '')
 		partner_SN = first_line_match[1]
 		pidgin_chat_time_start = first_line_match[2]
 		basic_time_info = case first_line
@@ -327,18 +332,20 @@ module Pidgin2Adium
     class TextLogParser < BasicParser
 	def initialize(src_path, user_aliases)
 	    super(src_path, user_aliases)
+	    @timestamp_rx = '\((\d{1,2}:\d{1,2}:\d{1,2})\)'
+	    
 	    # @line_regex matches a line in a TXT log file other than the first
 	    # @line_regex matchdata:
 	    # 0: timestamp
 	    # 1: screen name or alias, if alias set
 	    # 2: "<AUTO-REPLY>" or nil
 	    # 3: message body
-	    @line_regex = /#{@timestamp_regex_str} (.*?) ?(<AUTO-REPLY>)?: (.*)/o
+	    @line_regex = /#{@timestamp_rx} (.*?) ?(<AUTO-REPLY>)?: (.*)/o
 	    # @line_regex_status matches a status line
 	    # @line_regex_status matchdata:
 	    # 0: timestamp
 	    # 1: status message
-	    @line_regex_status = /#{@timestamp_regex_str} ([^:]+)/o
+	    @line_regex_status = /#{@timestamp_rx} ([^:]+)/o
 	end
     end
 
@@ -347,6 +354,8 @@ module Pidgin2Adium
     class HtmlLogParser < BasicParser
 	def initialize(src_path, user_aliases) 
 	    super(src_path, user_aliases)
+	    @timestamp_rx = '\(((?:\d{4}-\d{2}-\d{2} )?\d{1,2}:\d{1,2}:\d{1,2}(?: .{1,2})?)\)'
+	    
 	    # @line_regex matches a line in an HTML log file other than the
 	    # first time matches on either "2008-11-17 14:12" or "14:12"
 	    # @line_regex match obj:
@@ -355,12 +364,12 @@ module Pidgin2Adium
 	    # 2: "&lt;AUTO-REPLY&gt;" or nil
 	    # 3: message body
 	    # The ":" is optional to allow for strings like "(17:12:21) <b>***Gabe B-W</b> is confused<br/>"
-	    @line_regex = /#{@timestamp_regex_str} ?<b>(.+?) ?(&lt;AUTO-REPLY&gt;)?:?<\/b> ?(.+)<br ?\/>/o
+	    @line_regex = /#{@timestamp_rx} ?<b>(.+?) ?(&lt;AUTO-REPLY&gt;)?:?<\/b> ?(.+)<br ?\/>/o
 	    # @line_regex_status matches a status line
 	    # @line_regex_status match obj:
 	    # 0: timestamp
 	    # 1: status message
-	    @line_regex_status = /#{@timestamp_regex_str} ?<b> (.+)<\/b><br ?\/>/o
+	    @line_regex_status = /#{@timestamp_rx} ?<b> (.+)<\/b><br ?\/>/o
 	end
 
 	#################
@@ -382,16 +391,13 @@ module Pidgin2Adium
 	# Since each <span> has only one style declaration, spans with these
 	# declarations are removed (but the text inside them is preserved).
 	def cleanup(text)
-	    text.gsub!("\r", '')
+	    text.tr!("\r", '')
 	    # Remove empty lines
 	    text.gsub!("\n\n", "\n")
-	    # Remove newlines not folllowed by <br, since HTML doesn't
-	    # care about whitespace and they screw up the regex matching.
-	    text.gsub!(/\n(?!<br)/, '')
 	    
-	    # Fix messages that are on >1 line: replace newlines with <br/>
-	    #text.gsub!(/\n([^(<br)])+/, '\1<br/>')
-	    
+	    # Remove newlines unless they end a chat line.
+	    text.gsub!(/\n(?!#{@timestamp_rx})/, '')
+
 	    # Pidgin and Adium both show bold using
 	    # <span style="font-weight: bold;"> except Pidgin uses single quotes
 	    # and Adium uses double quotes
