@@ -33,19 +33,20 @@ module Pidgin2Adium
 
 	    @tz_offset = get_time_zone_offset()
 	   
-	    @file = File.new(@src_path, 'r')
-	    @file_content = @file.readlines
-	    @file.close
+	    file = File.new(@src_path, 'r')
+	    @first_line = file.readline
+	    @file_content = file.read
+	    file.close
 
 	    # Time regexes must be set before pre_parse().
-	    # Possible formats for timestamps:
-	    # "2007-04-17 12:33:13" => %w{2007, 04, 17, 12, 33, 13}
-	    @time_regex_one = /(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/
 	    # "4/18/2007 11:02:00 AM" => %w{4, 18, 2007, 11, 02, 00, AM}
-	    @time_regex_two = %r{(\d{1,2})/(\d{1,2})/(\d{4}) (\d{1,2}):(\d{2}):(\d{2}) ([AP]M)}
+	    # ONLY used (if at all) in first line of chat ("Conversation with...at...")
+	    @time_regex_first_line = %r{(\d{1,2})/(\d{1,2})/(\d{4}) (\d{1,2}):(\d{2}):(\d{2}) ([AP]M)}
+	    # "2007-04-17 12:33:13" => %w{2007, 04, 17, 12, 33, 13}
+	    @time_regex = /(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/
 	    # sometimes a line in a chat doesn't have a full timestamp
 	    # "04:22:05 AM" => %w{04 22 05 AM}
-	    @minimal_time_regex = /(\d{1,2}):(\d{2}):(\d{2}) ?([AP]M)?/
+	    @minimal_time_regex = /(\d{1,2}):(\d{2}):(\d{2})( [AP]M)?/
 
 	    # Whether or not the first line is parseable.
 	    @first_line_is_valid = true
@@ -104,8 +105,9 @@ module Pidgin2Adium
 		/^Conflicting Key Received!$/,
 		/^Error in decryption- asking for resend\.\.\.$/,
 		/^Making new key pair\.\.\.$/,
-		# file transfer - these are in this (non-used) list because you can't get the alias out of matchData[1]
-		/^You canceled the transfer of .+$/,
+		# file transfer
+		/You canceled the transfer of/,
+		/(.+?) canceled the transfer of/, 
 		# sending errors
 		/^Last outgoing message not received properly- resetting$/,
 		/Resending\.\.\./,
@@ -128,24 +130,20 @@ module Pidgin2Adium
 		/You missed .+ messages from (.+) because they were too large/ => 'chat-error',
 		/User information not available/ => 'chat-error'
 	    }
+
+	    @ignore_events = [
+		# Adium ignores SN/alias changes. 
+		/^.+? is now known as .+?\.<br\/?>$/
+	    ]
 	end
 
 	# This method returns a LogFile instance, or false if an error occurred.
 	def parse
 	    return false unless @first_line_is_valid
-	    if self.class == HtmlLogParser
-		@file_content = cleanup(@file_content.join).split("\n")
-	    else
-		# HtmlLogParser.cleanup runs this too.
-		# Remove newlines unless they end a chat line.
-		@file_content = @file_content.join
-		@file_content.gsub!(/\n(?!#{@timestamp_rx})/, '')
-		@file_content = @file_content.split("\n")
-	    end
+	    @file_content = cleanup(@file_content).split("\n")
 
 	    @file_content.map! do |line|
 		next if line =~ /^\s+$/
-		line.gsub!("\r", '')
 		if line =~ @line_regex
 		    create_msg($~.captures)
 		elsif line =~ @line_regex_status
@@ -174,56 +172,54 @@ module Pidgin2Adium
 	# 2008-10-05T22.26.20-0800
 	#++
 	# Converts a pidgin datestamp to an Adium one.
-	def create_adium_time(time)
+	def create_adium_time(time, is_first_line = false)
 	    # parsed_date = [year, month, day, hour, min, sec]
-	    parsed_date = case time
-			  when @time_regex_one
-			      [$~[1].to_i, # year
-			       $~[2].to_i,  # month
-			       $~[3].to_i,  # day
-			       $~[4].to_i,  # hour
-			       $~[5].to_i,  # minute
-			       $~[6].to_i]  # seconds
-			  when @time_regex_two
-			      hours = $~[4].to_i
-			      if $~[7] == 'PM' and hours != 12
-				  hours += 12
-			      end
-			      [$~[3].to_i, # year
-			       $~[1].to_i, # month
-			       $~[2].to_i, # day
-			       hours,      # hour
-			       $~[5].to_i, # minutes
-			       $~[6].to_i] # seconds
-			  when @minimal_time_regex
-			      # "04:22:05" => %w{04 22 05}
-			      hours = $~[1].to_i
-			      if $~[4] == 'PM' and hours != 12
-				  hours += 12
-			      end
-			      @basic_time_info + # [year, month, day]
-				  [hours,        # hour
-				   $~[2].to_i,   # minutes
-				   $~[3].to_i]   # seconds
-			  else
-			      error("You have found an odd timestamp. Please report it to the developer.")
-			      log_msg("The timestamp: #{time}")
-			      log_msg("Continuing...")
-			      ParseDate.parsedate(time)
-			 end
-	    return Time.local(*parsed_date).strftime("%Y-%m-%dT%H.%M.%S#{@tz_offset}")
+	    if time =~ @time_regex
+		year, month, day, hour, min, sec = $1.to_i,
+						   $2.to_i,
+						   $3.to_i,
+						   $4.to_i,
+						   $5.to_i,
+						   $6.to_i
+	    elsif is_first_line and time =~ @time_regex_first_line
+		hour = $4.to_i
+		if $7 == 'PM' and hour != 12
+		    hour += 12
+		end
+		year, month, day, min, sec = $3.to_i, # year
+					     $1.to_i, # month
+					     $2.to_i, # day
+						        # already did hour
+					     $5.to_i, # minutes
+					     $6.to_i  # seconds
+	    elsif time =~ @minimal_time_regex
+		# "04:22:05" => %w{04 22 05}
+		hour = $1.to_i
+		if $4 == 'PM' and hour != 12
+		    hour += 12
+		end
+		year, month, day = @basic_time_info
+		min = $2.to_i
+		sec = $3.to_i
+	    else
+		error("You have found an odd timestamp. Please report it to the developer.")
+		log_msg("The timestamp: #{time}")
+		log_msg("Continuing...")
+		year,month,day,hour,min,sec = ParseDate.parsedate(time)
+	    end
+	    return Time.local(year,month,day,hour,min,sec).strftime("%Y-%m-%dT%H.%M.%S#{@tz_offset}")
 	end
 
 	# Extract required data from the file. Run by parse.
 	def pre_parse
 	    # Deal with first line.
-	    first_line = @file_content.shift
+	    
 	    # the first line is special. It tells us (in order of regex groups):
 	    # 1) who we're talking to 
 	    # 2) what time/date
 	    # 3) what SN we used
 	    # 4) what protocol (AIM, icq, jabber...)
-	    first_line_match = /Conversation with (.+?) at (.+?) on (.+?) \((.+?)\)/.match(first_line)
+	    first_line_match = /Conversation with (.+?) at (.+?) on (.+?) \((.+?)\)/.match(@first_line)
 	    if first_line_match.nil?
 		raise InvalidFirstLineError
 	    else
@@ -232,11 +228,11 @@ module Pidgin2Adium
 		user_SN = first_line_match[3].downcase.tr(' ', '')
 		partner_SN = first_line_match[1]
 		pidgin_chat_time_start = first_line_match[2]
-		basic_time_info = case first_line
-				   when @time_regex_one: [$1.to_i, $2.to_i, $3.to_i]
-				   when @time_regex_two: [$3.to_i, $1.to_i, $2.to_i]
-				   end
-		adium_chat_time_start = create_adium_time(pidgin_chat_time_start)
+		basic_time_info = case @first_line
+				  when @time_regex: [$1.to_i, $2.to_i, $3.to_i]
+				  when @time_regex_first_line: [$3.to_i, $1.to_i, $2.to_i]
+				  end
+		adium_chat_time_start = create_adium_time(pidgin_chat_time_start, true)
 		return [service,
 			user_SN,
 			partner_SN,
@@ -246,9 +242,10 @@ module Pidgin2Adium
 	end
 
 	def get_sender_by_alias(alias_name)
-	    if @user_aliases.include? alias_name.downcase.sub(/^\*{3}/,'').gsub(/\s+/, '')
+	    no_action = alias_name.sub(/^\*{3}/, '')
+	    if @user_aliases.include? no_action.downcase.gsub(/\s+/, '')
 		# Set the current alias being used of the ones in @user_aliases
-		@user_alias = alias_name.sub(/^\*{3}/, '')
+		@user_alias = no_action
 		return @user_SN
 	    else
 		return @partner_SN
@@ -288,6 +285,9 @@ module Pidgin2Adium
 	    msg = nil
 	    time = create_adium_time(matches[0])
 	    str = matches[1]
+	    # Return nil, which will get compact'ed out
+	    return nil if @ignore_events.detect{|regex| str =~ regex }
+
 	    regex, status = @status_map.detect{|regex, status| str =~ regex}
 	    if regex and status
 		# Status message
@@ -304,8 +304,8 @@ module Pidgin2Adium
 			regex, event_type = $1, $2
 		    else
 			error("Could not match string to status or event!")
-			error("matches: %p" % matches)
-			error("str: %p" % str)
+			error(sprintf("matches: %p", matches))
+			error(sprintf("str: %p", str))
 			exit 1
 		    end
 		end
@@ -347,14 +347,31 @@ module Pidgin2Adium
 	    # 1: status message
 	    @line_regex_status = /#{@timestamp_rx} ([^:]+)/o
 	end
+
+	#################
+	private
+	#################
+
+	def cleanup(text)
+	    text.tr!("\r", '')
+	    # Replace newlines with "<br/>" unless they end a chat line.
+	    text.gsub!(/\n(?!#{@timestamp_rx}|\Z)/, '<br/>')
+	    # Escape entities since this will be in XML
+	    text.gsub!('&', '&amp;') # escape '&' first
+	    text.gsub!('<', '&lt;')
+	    text.gsub!('>', '&gt;')
+	    text.gsub!('"', '&quot;')
+	    text.gsub!("'", '&apos;')
+	    return text
+	end
     end
 
-    # Please use Pidgin2Adium.parse or Pidgin2Adium.parse_and_generate instead of
-    # using this class directly.
+    # Please use Pidgin2Adium.parse or Pidgin2Adium.parse_and_generate instead
+    # of using this class directly.
     class HtmlLogParser < BasicParser
 	def initialize(src_path, user_aliases) 
 	    super(src_path, user_aliases)
-	    @timestamp_rx = '\(((?:\d{4}-\d{2}-\d{2} )?\d{1,2}:\d{1,2}:\d{1,2}(?: .{1,2})?)\)'
+	    @timestamp_rx = '\(((?:\d{4}-\d{2}-\d{2} )?\d{1,2}:\d{1,2}:\d{1,2}(?: [AP]M)?)\)'
 	    
 	    # @line_regex matches a line in an HTML log file other than the
 	    # first time matches on either "2008-11-17 14:12" or "14:12"
@@ -382,30 +399,37 @@ module Pidgin2Adium
 	# * body
 	# * font
 	# * a with no innertext, e.g. <a href="blah"></a>
-	# And the following style declarations:
+	# And removes the following style declarations:
 	# * color: #000000 (just turns text black)
 	# * font-family
 	# * font-size
 	# * background
-	# * em (though it is changed to <span style="font-style: italic;">
+	# * em (really it's changed to <span style="font-style: italic;">)
 	# Since each <span> has only one style declaration, spans with these
 	# declarations are removed (but the text inside them is preserved).
 	def cleanup(text)
-	    text.tr!("\r", '')
-	    # Remove empty lines
-	    text.gsub!("\n\n", "\n")
-	    
-	    # Remove newlines unless they end a chat line.
-	    text.gsub!(/\n(?!#{@timestamp_rx})/, '')
-
 	    # Pidgin and Adium both show bold using
 	    # <span style="font-weight: bold;"> except Pidgin uses single quotes
 	    # and Adium uses double quotes
 	    text.gsub!(/<\/?(html|body|font).*?>/, '')
+
+	    text.tr!("\r", '')
+	    # Remove empty lines
+	    text.gsub!("\n\n", "\n")
+	    
+	    # Remove newlines that end the file, since they screw up the 
+	    # newline -> <br/> conversion
+	    text.gsub!(/\n\Z/, '')
+	    
+	    # Replace newlines with "<br/>" unless they end a chat line.
+	    # This must go after we remove <font> tags.
+	    text.gsub!(/\n(?!#{@timestamp_rx})/, '<br/>')
+	    
 	    # These empty links are sometimes appended to every line in a chat,
 	    # for some weird reason. Remove them.
-	    text.gsub!(%r{<a href='.+?'>\s*?</a>}, '')
-	    text.gsub!(%r{(.*?)<span.+style='(.+?)'>(.*?)</span>(.*)}) do |s|
+	    text.gsub!(%r{<a href=('").+?\1>\s*?</a>}, '')
+	    
+	    text.gsub!(%r{(.*?)<span style='(.+?)'>(.*?)</span>([^<]*)}) do |s|
 		# before = text before match
 		# style = style declaration
 		# innertext = text inside <span>
@@ -418,10 +442,6 @@ module Pidgin2Adium
 		# Remove spans from _after_ because if there are any, then they
 		# are mismatched.
 		 
-		# FIXME: turns out to be greedy. :(
-		#if after.gsub!(/<\/?span.*?>/, '')
-		    #p after
-		#end
 		styleparts = style.split(/; ?/)
 		styleparts.map! do |p|
 		    # Short-circuit for common declaration
