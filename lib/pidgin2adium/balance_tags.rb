@@ -11,8 +11,8 @@ module Pidgin2Adium
 	stacksize = 0
 	tagqueue = ''
 	newtext = ''
-	single_tags = ['br', 'hr', 'img', 'input', 'meta'] # Known single-entity/self-closing tags
-	nestable_tags = ['blockquote', 'div', 'span'] # Tags that can be immediately nested within themselves
+	single_tags = %w{br hr img input meta} # Known single-entity/self-closing tags
+	nestable_tags = %w{blockquote div span} # Tags that can be immediately nested within themselves
 	tag_regex = /<(\/?\w*)\s*([^>]*)>/
 
 	# WP bug fix for comments - in case you REALLY meant to type '< !--'
@@ -75,7 +75,8 @@ module Pidgin2Adium
 			tagqueue = '</' << tagstack.pop << '>'
 			stacksize -= 1
 		    end
-		    stacksize = tagstack.push(tag).length
+		    tagstack.push(tag)
+		    stacksize += 1
 		end
 
 		# Attributes
