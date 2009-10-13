@@ -38,7 +38,7 @@ module Pidgin2Adium
 		    #or close to be safe tag = '/' . tag
 		    # if stacktop value = tag close value then pop
 		elsif (tagstack[stacksize - 1] == tag) # found closing tag
-		    tag = '</' << tag << '>'; # Close Tag
+		    tag = '</' << tag << '>' # Close Tag
 		    # Pop
 		    tagstack.pop
 		    stacksize -= 1
@@ -103,7 +103,7 @@ module Pidgin2Adium
 
 	# Empty Stack
 	while(x = tagstack.pop)
-	    newtext << '</' << x << '>'; # Add remaining tags to close
+	    newtext << '</' << x << '>' # Add remaining tags to close
 	end
 
 	# WP fix for the bug with HTML comments
