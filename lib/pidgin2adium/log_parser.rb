@@ -408,10 +408,12 @@ module Pidgin2Adium
 	# Since each <span> has only one style declaration, spans with these
 	# declarations are removed (but the text inside them is preserved).
 	def cleanup(text)
-	    # Pidgin and Adium both show bold using
-	    # <span style="font-weight: bold;"> except Pidgin uses single quotes
-	    # and Adium uses double quotes
-	    text.gsub!(/<\/?(html|body|font).*?>/, '')
+	    # Sometimes this is in there. I don't know why.
+	    text.gsub!(%r{&lt;/FONT HSPACE='\d'>}, '')
+	    # We can remove <font> safely since Pidgin and Adium both show bold
+	    # using <span style="font-weight: bold;"> except Pidgin uses single
+	    # quotes while Adium uses double quotes.
+	    text.gsub!(/<\/?(?:html|body|font)(?: .+?)>/, '')
 
 	    text.tr!("\r", '')
 	    # Remove empty lines
@@ -428,32 +430,53 @@ module Pidgin2Adium
 	    # These empty links are sometimes appended to every line in a chat,
 	    # for some weird reason. Remove them.
 	    text.gsub!(%r{<a href=('").+?\1>\s*?</a>}, '')
-	    
-	    text.gsub!(%r{(.*?)<span style='(.+?)'>(.*?)</span>([^<]*)}) do |s|
-		# before = text before match
+	
+	    # Replace single quotes inside tags with double quotes so we can
+	    # easily change single quotes to entities.
+	    # For spans, removes a space after the final declaration if it exists.
+	    text.gsub!(/<span style='([^']+?;) ?'>/, '<span style="\1">')
+	    text.gsub!(/([a-z]+=)'(.+?)'/, '\1"\2"')
+=begin
+	    text.gsub!(/<a href='(.+?)'>/, '<a href="\1">')
+	    text.gsub!(/<img src='([^']+?)'/, '<img src="\1"')
+	    text.gsub!(/ alt='([^']+?)'/, ' alt="\1"')
+=end
+	    text.gsub!("'", '&apos;')
+
+	    # This actually does match stuff, but doesn't group it correctly. :(
+	    # text.gsub!(%r{<span style="((?:.+?;)+)">(.*?)</span>}) do |s|
+	    text.gsub!(%r{<span style="(.+?)">(.*?)</span>}) do |s|
+		# Remove empty spans.
+		next if $2 == ''
+
 		# style = style declaration
 		# innertext = text inside <span>
-		# after = text after match
-		before, style, innertext, after = $1, $2, $3, $4
-		# Remove empty spans.
-		nil if innertext == ''
+		style, innertext = $1, $2
+		# TODO: replace double quotes with "&quot;", but only outside tags; may still be tags inside spans
+		innertext.gsub!("")
 		
-		# TODO: remove after from string then see what balance_tags does
-		# Remove spans from _after_ because if there are any, then they
-		# are mismatched.
-		 
 		styleparts = style.split(/; ?/)
 		styleparts.map! do |p|
-		    # Short-circuit for common declaration
-		    # Yes, sometimes there's a ">" before the ";".
-		    if p == 'color: #000000;' or
-			p == 'color: #000000>;'
-			nil
+		    if p =~ /^color/
+			# Regarding the bit with the ">", sometimes this happens:
+			# <span style="color: #000000>today;">today was busy</span>
+			# Then p = "color: #000000>today"
+			# Or it can end in ">;", with no text before the semicolon.
+			# So remove the ">" and anything following it.
+			
+			# Use regex instead of string, to account for funky ">" stuff
+			if p =~ /color: #000000/
+			    next
+			elsif p =~ /(color: #[0-9a-fA-F]{6})(>.*)?/
+			    # Keep the color but remove the bit after it
+			    next($1)
+			end
 		    else
+			# don't remove font-weight
 			case p
-			when /^font-family/: nil
-			when /^font-size/: nil
-			when /^background/: nil
+			when /^font-family/: next
+			when /^font-size/: next
+			when /^background/: next
 			end
 		    end
 		end.compact!
@@ -461,8 +484,7 @@ module Pidgin2Adium
 		    style = styleparts.join('; ')
 		    innertext = "<span style=\"#{style};\">#{innertext}</span>"
 		end
-		# replace single quotes with '&apos;' but only outside <span>s.
-		before.gsub("'",'&aquot;')+innertext+after.gsub("'",'&aquot;')
+		innertext
 	    end
 	    # Pidgin uses <em>, Adium uses <span>
 	    if text.gsub!('<em>', '<span style="font-style: italic;">')
