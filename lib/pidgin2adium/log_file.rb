@@ -46,7 +46,6 @@ module Pidgin2Adium
 	    return @chat_str
 	end
 	
-	# TODO: TEST ME
 	def each(&blk)
 	    @chat_lines.each{|l| yield l }
 	end
