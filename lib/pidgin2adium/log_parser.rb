@@ -413,7 +413,7 @@ module Pidgin2Adium
 	    # We can remove <font> safely since Pidgin and Adium both show bold
 	    # using <span style="font-weight: bold;"> except Pidgin uses single
 	    # quotes while Adium uses double quotes.
-	    text.gsub!(/<\/?(?:html|body|font)(?: .+?)>/, '')
+	    text.gsub!(/<\/?(?:html|body|font)(?: .+?)?>/, '') # very important!
 
 	    text.tr!("\r", '')
 	    # Remove empty lines
@@ -453,7 +453,7 @@ module Pidgin2Adium
 		# innertext = text inside <span>
 		style, innertext = $1, $2
 		# TODO: replace double quotes with "&quot;", but only outside tags; may still be tags inside spans
-		innertext.gsub!("")
+		# innertext.gsub!("")
 		
 		styleparts = style.split(/; ?/)
 		styleparts.map! do |p|
