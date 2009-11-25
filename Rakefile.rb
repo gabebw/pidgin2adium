@@ -4,8 +4,9 @@ require 'hoe'
 require 'fileutils'
 require './lib/pidgin2adium.rb'
 
+Hoe.plugin :gemcutter
 Hoe.plugin :newgem
-# Hoe.plugin :website
+Hoe.plugin :website
 # Hoe.plugin :cucumberfeatures
 
 # Generate all the Rake tasks
