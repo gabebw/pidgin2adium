@@ -25,12 +25,16 @@ the person to whom you are chatting.
 Note that aliases are lower-cased and space is removed, so providing "Gabe B-W,
 GBW" is the same as providing "gabeb-w,gbw".
 
+You do not need to provide your screenname in the alias list.
+
 ===Example (using script)
 Assuming that:
 * your Pidgin log files are in the "pidgin-logs" folder
 * your various aliases in your chats are "Gabe", "Gabe B-W", and "gbw"
-Then run:
- pidgin2adium -i pidgin-logs -a "Gabe, Gabe B-W, gbw"
+Then run (at the command line):
+ $ pidgin2adium -i pidgin-logs -a "Gabe, Gabe B-W, gbw"
+Or:
+ $ pidgin2adium -i pidgin-logs -a gabe,gabeb-w,gbw
 
 ===Example (using library)
 The library style allows you to parse a log file and get back a
