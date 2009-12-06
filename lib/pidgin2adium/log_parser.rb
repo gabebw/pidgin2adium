@@ -162,14 +162,28 @@ module Pidgin2Adium
 	#################
 
 	def get_time_zone_offset()
+	    # We must have a tz_offset or else the Adium Chat Log viewer
+	    # doesn't read the date correctly and then:
+	    # 1) the log has an empty start date column in the viewer
+	    # 2) The timestamps are all the same for the whole log
 	    tz_match = /([-\+]\d+)[A-Z]{3}\.(?:txt|htm|html)/.match(@src_path)
-	    tz_offset = tz_match[1] rescue ''
+	    if tz_match[1]
+		tz_offset = tz_match[1]
+	    else
+		zone = Time.local(Time.new.year).zone
+		# "-0500" (3d rather than 2d to allow for "+")
+		tz_offset = sprintf('+%03d00', Time.zone_offset(zone) / 3600)
+	    end
 	    return tz_offset
 	end
 
 	#--
-	# Adium time format: YYYY-MM-DD\THH.MM.SS[+-]TZ_HRS like:
+	# Adium time format: YYYY-MM-DD\THH:MM:SS[+-]TZ_HRS like:
+	# 2008-10-05T22:26:20-0800
+	# HOWEVER:
+	# If it's the first line, then return it like this (note periods):
 	# 2008-10-05T22.26.20-0800
+	# because it will be used in the filename.
 	#++
 	# Converts a pidgin datestamp to an Adium one.
 	def create_adium_time(time, is_first_line = false)
@@ -207,7 +221,12 @@ module Pidgin2Adium
 		log_msg("Continuing...")
 		year,month,day,hour,min,sec = ParseDate.parsedate(time)
 	    end
-	    return Time.local(year,month,day,hour,min,sec).strftime("%Y-%m-%dT%H.%M.%S#{@tz_offset}")
+	    if is_first_line
+		adium_time = Time.local(year,month,day,hour,min,sec).strftime("%Y-%m-%dT%H.%M.%S#{@tz_offset}")
+	    else
+		adium_time = Time.local(year,month,day,hour,min,sec).strftime("%Y-%m-%dT%H:%M:%S#{@tz_offset}")
+	    end
+	    return adium_time
 	end
 
 	# Extract required data from the file. Run by parse.
