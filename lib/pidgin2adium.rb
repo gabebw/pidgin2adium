@@ -14,7 +14,7 @@ module Pidgin2Adium
     ADIUM_LOG_DIR = File.expand_path('~/Library/Application Support/Adium 2.0/Users/Default/Logs/') << '/' 
     # These files/directories show up in Dir.entries()
     BAD_DIRS = %w{. .. .DS_Store Thumbs.db .system}
-    VERSION = "2.0.0"
+    VERSION = "2.0.1"
 
     def log_msg(str) #:nodoc
 	puts str.to_s

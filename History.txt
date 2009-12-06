@@ -1,6 +1,10 @@
+=== 2.0.1 / 2009-12-06
+* Fix timestamps so they show up in Adium chat log viewer
+
+=== 2.0.0 / 2009-11-24
+* Added documentation, available at http://pidgin2adium.rubyforge.org/rdoc/
+* Added public interface for scripting purposes
+* Removed -o and -l options. Now gem automatically outputs to Adium log dir with no intermediate folder.
+
 === 1.0.0 / 2009-09-27
-
-* 1 major enhancement
-
-  * Birthday!
-
+* Birthday!
