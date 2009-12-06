@@ -29,7 +29,8 @@ module Pidgin2Adium
     end
 
     #######################
-    private :log_msg, :oops, :error
+    #So that we can use log_msg when calling delete_search_indexes() by itself
+    module_function :log_msg, :oops, :error
     #######################
 
     # Returns a LogFile instance or false if an error occurred.
