@@ -3,6 +3,7 @@ gem 'hoe', '>= 2.1.0'
 require 'hoe'
 require 'fileutils'
 require './lib/pidgin2adium.rb'
+require 'hanna/rdoctask'
 
 Hoe.plugin :gemcutter
 Hoe.plugin :newgem
@@ -18,6 +19,8 @@ $hoe = Hoe.spec 'pidgin2adium' do
   self.rubyforge_name       = self.name # this is default value
   # self.extra_deps         = [['activesupport','>= 2.0.2']]
 end
+# Use hanna RDoc template
+$hoe.spec.rdoc_options = %w{--main README.rdoc -T hanna}
 
 require 'newgem/tasks'
 Dir['tasks/**/*.rake'].each { |t| load t }
