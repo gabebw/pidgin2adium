@@ -13,7 +13,7 @@ Hoe.plugin :website
 # Generate all the Rake tasks
 # Run 'rake -T' to see list of generated tasks (from gem root directory)
 $hoe = Hoe.spec 'pidgin2adium' do
-  self.developer('Gabe B-W', 'gbw@brandeis.edu')
+  self.developer('Gabe B-W', 'pidgin2adium@brandeis.edu')
   self.extra_rdoc_files = %w{README.rdoc}
   #self.post_install_message = 'PostInstall.txt' # TODO remove if post-install message not required
   self.rubyforge_name       = self.name # this is default value
