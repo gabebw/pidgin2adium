@@ -332,9 +332,7 @@ module Pidgin2Adium
 		    if @event_map.detect{|regex,event_type| str =~ regex}
 			regex, event_type = $1, $2
 		    else
-			error("Could not match string to status or event!")
-			error(sprintf("matches: %p", matches))
-			error(sprintf("str: %p", str))
+			error(sprintf("Error parsing status or event message, no status or event found: %p", str))
 			return false
 		    end
 		end

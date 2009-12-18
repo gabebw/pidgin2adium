@@ -92,7 +92,7 @@ module Pidgin2Adium
 	    error("Successfully parsed file, but failed to write it out. Path: #{logfile_path}.")
 	    return false
 	elsif dest_file_path == FILE_EXISTS
-	    oops("File already exists.")
+	    log_msg("File already exists.")
 	    return FILE_EXISTS
 	else
 	    log_msg("Output to: #{dest_file_path}")
