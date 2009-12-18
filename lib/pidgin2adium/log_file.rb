@@ -4,13 +4,16 @@ require 'fileutils'
 
 module Pidgin2Adium
     # A holding object for the result of LogParser.parse.  It makes the
-    # instance variable @chat_lines available, which is an array of objects
-    # which each have at least the instance variables _sender_, _time_, and
-    # _buddy_alias_ available. Some objects in @chat_lines have more variables
-    # available, specifically:
-    # * XMLMessage, AutoReplyMessage, and Event:: _body_
-    # * Event:: _event_type_
-    # * StatusMessage:: _status_
+    # instance variable @chat_lines available, which is an array of Message
+    # subclass instances (XMLMessage, Event, etc.)
+    # Here is a list of the instance variables for each class in @chat_lines:
+    # 
+    # <b>All of these variables are read/write.</b>
+    # All::		 sender, time, buddy_alias
+    # XMLMessage::	 body
+    # AutoReplyMessage:: body
+    # Event::		 body, event_type
+    # StatusMessage::	 status
     class LogFile
 	include Pidgin2Adium
 	def initialize(chat_lines, service, user_SN, partner_SN, adium_chat_time_start)

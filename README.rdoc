@@ -38,8 +38,8 @@ Or:
 
 ===Example (using library)
 The library style allows you to parse a log file and get back a
-LogFile instance for easy reading, manipulation, etc.
-You can also create log files yourself using Pidgin2Adium.parse_and_generate.
+LogFile[link:classes/Pidgin2Adium/LogFile.html] instance for easy reading, manipulation, etc.
+You can also create log files yourself using Pidgin2Adium.parse_and_generate[link:classes/Pidgin2Adium.html#M000006].
  
  require 'pidgin2adium'
  logfile = Pidgin2Adium.parse("/path/to/log/file.html", "gabe,gbw,gabeb-w")
@@ -64,12 +64,35 @@ You can also create log files yourself using Pidgin2Adium.parse_and_generate.
  	# Prints out the message in Adium log format
  	puts message.to_s
      end
+     success = logfile.write_out()
+     # To overwrite file if it exists:
+     # logfile.write_out(overwrite = true)
+     # To specify your own output dir (default = Pidgin2Adium::ADIUM_LOG_DIR):
+     # logfile.write_out(false, output_dir = my_dir)
+     # Or combine them:
+     # logfile.write_out(true, my_dir)
+     if success == false
+	 puts "An error occurred!"
+     elsif success == Pidgin2Adium::FILE_EXISTS
+	# Not returned if overwrite set to true
+	puts "File already exists."
+    else
+	puts "Successfully wrote out log file!"
+	puts "Path to output file: #{success}"
+    end
+    # This deletes search indexes to Adium re-indexes the new chat logs.
+    # Not automatically called after log_file.write_out()
+    # If you're converting >1 log, call it after converting all of them, since
+    # it takes up a tiny bit of processing power.
+    Pidgin2Adium.delete_search_indexes()
  end
 
 ===Example 2 (using library)
 If you want to output the logfile to an output dir instead of just parsing it, use Pidgin2Adium.parse_and_generate:
  
  require 'pidgin2adium'
+ # Both options are optional; without :output_dir, writes to Adium log dir
+ # (which is usually what you want anyway).
  opts = {:overwrite => true, :output_dir => "/my/output/dir"}
  path_to_converted_log = Pidgin2Adium.parse_and_generate("/path/to/log/file.html", "gabe,gbw,gabeb-w", opts)
 
