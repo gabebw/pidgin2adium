@@ -40,6 +40,7 @@ Or:
 The library style allows you to parse a log file and get back a
 LogFile[link:classes/Pidgin2Adium/LogFile.html] instance for easy reading, manipulation, etc.
 You can also create log files yourself using Pidgin2Adium.parse_and_generate[link:classes/Pidgin2Adium.html#M000006].
+For batch processing, use LogConverter.
  
  require 'pidgin2adium'
  logfile = Pidgin2Adium.parse("/path/to/log/file.html", "gabe,gbw,gabeb-w")
