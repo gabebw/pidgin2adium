@@ -1,3 +1,13 @@
+=== 2.0.2 / 2009-12-18
+* Much better documentation (more of it, and higher quality too!)
+* Allow user-provided output dir at commandline
+* Cleaner error messages
+* require 'time' for Time.zone_offset (fixes bug)
+* Gracefully handle lack of timezone info
+* Gracefully handle nonexistent output dir
+* Gracefully handle parsing errors
+* Print error messages during *and* after batch converting so they're actually seen
+
 === 2.0.1 / 2009-12-06
 * Fix timestamps so they show up in Adium chat log viewer
 
