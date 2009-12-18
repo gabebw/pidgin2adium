@@ -38,6 +38,7 @@ module Pidgin2Adium
     module_function :log_msg, :oops, :error
     #######################
 
+    # Parses the provided log.
     # Returns a LogFile instance or false if an error occurred.
     def parse(logfile_path, my_aliases)
 	logfile_path = File.expand_path(logfile_path)
@@ -54,7 +55,8 @@ module Pidgin2Adium
 
 	return parser.parse()
     end
-    
+   
+    # Parses the provided log and writes out the log in Adium format.
     # Returns the path to the converted log, false if an error occurred, or
     # Pidgin2Adium::FILE_EXISTS if file already exists AND opts[:overwrite] =
     # false.

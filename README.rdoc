@@ -37,10 +37,7 @@ Or:
  $ pidgin2adium -i pidgin-logs -a gabe,gabeb-w,gbw
 
 ===Example (using library)
-The library style allows you to parse a log file and get back a
-LogFile[link:classes/Pidgin2Adium/LogFile.html] instance for easy reading, manipulation, etc.
-You can also create log files yourself using Pidgin2Adium.parse_and_generate[link:classes/Pidgin2Adium.html#M000006].
-For batch processing, use LogConverter[link:classes/Pidgin2Adium/LogConverter.html].
+The library style allows you to parse a log file and get back a LogFile[link:classes/Pidgin2Adium/LogFile.html] instance for easy reading, manipulation, etc. If you don't need to do anything with the individual messages, use Pidgin2Adium.parse[link:classes/Pidgin2Adium.html#M000002].
  
  require 'pidgin2adium'
  logfile = Pidgin2Adium.parse("/path/to/log/file.html", "gabe,gbw,gabeb-w")
@@ -89,7 +86,9 @@ For batch processing, use LogConverter[link:classes/Pidgin2Adium/LogConverter.ht
  end
 
 ===Example 2 (using library)
-If you want to output the logfile to an output dir instead of just parsing it, use Pidgin2Adium.parse_and_generate:
+If you want to parse the file and write it out instead of just parsing it, use Pidgin2Adium.parse_and_generate.
+
+Note: For batch processing, use LogConverter[link:classes/Pidgin2Adium/LogConverter.html].
  
  require 'pidgin2adium'
  # Both options are optional; without :output_dir, writes to Adium log dir
