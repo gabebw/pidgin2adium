@@ -15,21 +15,41 @@ automatically recognized.
 require 'pidgin2adium/log_converter'
 require 'optparse'
 
+version = <<EOL
+Pidgin2Adium, version #{Pidgin2Adium::VERSION}
+Written by Gabe Berke-Williams (gbw@rubyforge.org)
+EOL
+
 options = {}
 oparser = OptionParser.new do |opts|
     opts.banner = "Usage: #{File.basename($0)} [options]"
-    opts.on('-i', '--in=IN_DIR', String, 'Specify directory where pidgin logs are stored') do |i|
+    opts.on('-i', '--in=IN_DIR', String, 'Directory where pidgin logs are stored') do |i|
 	options[:in] = i
     end
     opts.on('-a alias1,alias2', "--aliases alias1,alias2",
-	    "A comma-separated list of your alias(es) so this script knows
-	    which person in a chat is you.", "Whitespace and case do not matter.") do |aliases|
+	    "A comma-separated list of your alias(es)",
+	    "so this script knows which person in a chat",
+	    "is you. Whitespace and case do not matter.") do |aliases|
 	options[:aliases] = aliases
     end
-    opts.on('-f', '--force', 'If this is set, then logs in the Adium log folder that have the same name as converted logs will be overwritten.') do |f|
+    opts.on('-o', '--out [OUT_DIR]',
+	    'The top-level directory under which to',
+	    'store the logs (each in its own folder',
+	    'by screen name).',
+	    "Defaults  to: #{Pidgin2Adium::ADIUM_LOG_DIR}") do |out|
+	options[:output_dir] = out
+    end
+    opts.on('-f', '--force', 'If this is set, then logs in the Adium log',
+	    'folder that have the same name as converted',
+	    'logs will be overwritten.') do |f|
 	options[:force] = f
     end
+    opts.on("-v", "--version", "Show version information") do
+	puts version
+	exit
+    end
     opts.on_tail("-h", "--help", "Show this message") do
+	puts version
 	puts opts
 	exit
     end
@@ -65,8 +85,12 @@ if need_opts
     exit 1
 end
 
+extra_opts = {:overwrite => options[:force]}
+if options.has_key?(:output_dir)
+    extra_opts[:output_dir] = options[:output_dir]
+end
+
 log_converter = Pidgin2Adium::LogConverter.new(options[:in],
 					       options[:aliases],
-					       {:overwrite =>  options[:force]}
-					      )
+					       extra_opts)
 log_converter.start
