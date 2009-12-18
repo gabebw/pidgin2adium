@@ -5,6 +5,7 @@
 # Please use Pidgin2Adium.parse or Pidgin2Adium.parse_and_generate instead of
 # using these classes directly.
 require 'parsedate'
+require 'time' # for Time.zone_offset
 
 require 'pidgin2adium/balance_tags'
 require 'pidgin2adium/log_file'
@@ -156,6 +157,9 @@ module Pidgin2Adium
 	    end.compact!
 	    return LogFile.new(@file_content, @service, @user_SN, @partner_SN, @adium_chat_time_start)
 	end
+	# Prevent parse from being called directly from BasicParser, since
+	# it uses subclassing magic.
+	protected :parse
 
 	#################
 	private
@@ -167,7 +171,7 @@ module Pidgin2Adium
 	    # 1) the log has an empty start date column in the viewer
 	    # 2) The timestamps are all the same for the whole log
 	    tz_match = /([-\+]\d+)[A-Z]{3}\.(?:txt|htm|html)/.match(@src_path)
-	    if tz_match[1]
+	    if tz_match and tz_match[1]
 		tz_offset = tz_match[1]
 	    else
 		zone = Time.local(Time.new.year).zone
@@ -367,6 +371,8 @@ module Pidgin2Adium
 	    @line_regex_status = /#{@timestamp_rx} ([^:]+)/o
 	end
 
+	public :parse
+
 	#################
 	private
 	#################
@@ -407,6 +413,8 @@ module Pidgin2Adium
 	    # 1: status message
 	    @line_regex_status = /#{@timestamp_rx} ?<b> (.+)<\/b><br ?\/>/o
 	end
+	
+	public :parse
 
 	#################
 	private
@@ -520,8 +528,12 @@ module Pidgin2Adium
     # Subclasses: XMLMessage, AutoReplyMessage, StatusMessage, Event.
     class Message
 	def initialize(sender, time, buddy_alias)
+	    # The sender's screen name
 	    @sender = sender
+	    # The time the message was sent, in Adium format (e.g.
+	    # "2008-10-05T22:26:20-0800")
 	    @time = time
+	    # The receiver's alias (NOT screen name)
 	    @buddy_alias = buddy_alias
 	end
 	attr_accessor :sender, :time, :buddy_alias
