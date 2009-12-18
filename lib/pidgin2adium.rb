@@ -48,7 +48,7 @@ module Pidgin2Adium
 	elsif(ext == "txt")
 	    parser = TextLogParser.new(logfile_path, my_aliases) 
 	else
-	    error("logfile (#{logfile_path}) is not a text or html file. Doing nothing.")
+	    error("Doing nothing, logfile is not a text or html file. Path: #{logfile_path}.")
 	    return false
 	end
 
@@ -89,10 +89,10 @@ module Pidgin2Adium
 	return false if logfile_obj == false
 	dest_file_path = logfile_obj.write_out(overwrite, output_dir)
 	if dest_file_path == false
-	    error("Converting #{logfile_path} failed.") 
+	    error("Successfully parsed file, but failed to write it out. Path: #{logfile_path}.")
 	    return false
 	elsif dest_file_path == FILE_EXISTS
-	    log_msg("File already exists.")
+	    oops("File already exists.")
 	    return FILE_EXISTS
 	else
 	    log_msg("Output to: #{dest_file_path}")
@@ -119,7 +119,7 @@ module Pidgin2Adium
 		if File.writable?(f)
 		    File.delete(f)
 		else
-		    error("#{f} exists but is not writable. Please delete it yourself.")
+		    error("File exists but is not writable. Please delete it yourself: #{f}")
 		end
 	    end
 	end

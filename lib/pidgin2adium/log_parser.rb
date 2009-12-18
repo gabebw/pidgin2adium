@@ -65,7 +65,7 @@ module Pidgin2Adium
 		@adium_chat_time_start = pre_parse()
 	    rescue InvalidFirstLineError
 		@first_line_is_valid = false
-		error("Parsing of #{@src_path} failed (could not find valid first line).")
+		error("Failed to parse, invalid first line: #{@src_path}")
 		return # stop processing
 	    end
 	    
