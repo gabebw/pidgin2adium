@@ -15,16 +15,21 @@ module Pidgin2Adium
     # These files/directories show up in Dir.entries()
     BAD_DIRS = %w{. .. .DS_Store Thumbs.db .system}
     VERSION = "2.0.1"
+    # For displaying after we finish converting
+    @@oops_messages = []
+    @@error_messages = []
 
-    def log_msg(str) #:nodoc
+    def log_msg(str) #:nodoc:
 	puts str.to_s
     end
 
-    def oops(str) #:nodoc
+    def oops(str) #:nodoc:
+	@@oops_messages << str
 	warn("Oops: #{str}")
     end
 
-    def error(str) #:nodoc
+    def error(str) #:nodoc:
+	@@error_messages << str
 	warn("Error: #{str}")
     end
 
@@ -72,7 +77,12 @@ module Pidgin2Adium
 	
 	unless File.directory?(output_dir)
 	    puts "Output log directory (#{output_dir}) does not exist or is not a directory."
-	    raise Errno::ENOENT
+	    begin
+		FileUtils.mkdir_p(output_dir)
+	    rescue Errno::EACCES
+		puts "Permission denied, could not create output directory (#{output_dir})"
+		return false
+	    end
 	end
 
 	logfile_obj = parse(logfile_path, my_aliases)

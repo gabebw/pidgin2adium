@@ -53,6 +53,10 @@ module Pidgin2Adium
 	    delete_search_indexes()
 
 	    log_msg "Finished converting! Converted #{total_successes} files of #{total_files} total."
+	    puts "Minor error messages:"
+	    puts @@oops_messages.join("\n")
+	    puts "Major error messages:"
+	    puts @@error_messages.join("\n")
 	end
 
 	###########

@@ -144,17 +144,21 @@ module Pidgin2Adium
 	    @file_content = cleanup(@file_content).split("\n")
 
 	    @file_content.map! do |line|
+		# "next" returns nil which is removed by compact
 		next if line =~ /^\s+$/
 		if line =~ @line_regex
 		    create_msg($~.captures)
 		elsif line =~ @line_regex_status
-		    create_status_or_event_msg($~.captures)
+		    msg = create_status_or_event_msg($~.captures)
+		    # Error occurred while parsing
+		    return false if msg == false
 		else
 		    error "Could not parse line:"
-		    p line # returns nil which is then removed by compact
-		    exit 1 # if $DEBUG FIXME
+		    p line
+		    return false
 		end
-	    end.compact!
+	    end
+	    @file_content.compact!
 	    return LogFile.new(@file_content, @service, @user_SN, @partner_SN, @adium_chat_time_start)
 	end
 	# Prevent parse from being called directly from BasicParser, since
@@ -300,6 +304,8 @@ module Pidgin2Adium
 	#--
 	# create_status_or_event_msg takes an array of +MatchData+ captures from
 	# matching against @line_regex_status and returns an Event or Status.
+	# Returns nil if it's a message that should be ignored, or false if an
+	# error occurred.
 	#++
 	def create_status_or_event_msg(matches)
 	    # ["22:58:00", "BuddyName logged in."]
@@ -329,7 +335,7 @@ module Pidgin2Adium
 			error("Could not match string to status or event!")
 			error(sprintf("matches: %p", matches))
 			error(sprintf("str: %p", str))
-			exit 1
+			return false
 		    end
 		end
 		if regex and event_type

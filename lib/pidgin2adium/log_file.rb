@@ -1,5 +1,3 @@
-# ADD DOCUMENTATION
-
 require 'fileutils'
 
 module Pidgin2Adium
