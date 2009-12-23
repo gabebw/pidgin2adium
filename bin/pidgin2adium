@@ -32,7 +32,7 @@ oparser = OptionParser.new do |opts|
 	    "is you. Whitespace and case do not matter.") do |aliases|
 	options[:aliases] = aliases
     end
-    opts.on('-o', '--out [OUT_DIR]',
+    opts.on('-o', '--out OUT_DIR',
 	    'The top-level directory under which to',
 	    'store the logs (each in its own folder',
 	    'by screen name).',
