@@ -78,10 +78,10 @@ The library style allows you to parse a log file and get back a LogFile[link:cla
 	puts "Successfully wrote out log file!"
 	puts "Path to output file: #{success}"
     end
-    # This deletes search indexes to Adium re-indexes the new chat logs.
-    # Not automatically called after log_file.write_out()
-    # If you're converting >1 log, call it after converting all of them, since
-    # it takes up a tiny bit of processing power.
+    # This deletes search indexes so Adium re-indexes the new chat logs.
+    # It is not automatically called after log_file.write_out()
+    # Call it after converting all the logs, since it takes up a bit of
+    # processing power.
     Pidgin2Adium.delete_search_indexes()
  end
 
