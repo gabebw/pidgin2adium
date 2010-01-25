@@ -26,12 +26,12 @@ module Pidgin2Adium
 	    # key is for Pidgin, value is for Adium
 	    # Just used for <service>.<screenname> in directory structure
 	    service_name_map = {'aim' => 'AIM',
-		'jabber' =>'jabber',
+		'jabber' =>'Jabber',
 		'gtalk'=> 'GTalk',
 		'icq' => 'ICQ',
 		'qq' => 'QQ',
 		'msn' => 'MSN',
-		'yahoo' => 'Yahoo'}
+		'yahoo' => 'Yahoo!'}
 	    
 	    @service = service_name_map[service.downcase]
 	end
