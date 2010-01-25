@@ -178,9 +178,8 @@ module Pidgin2Adium
 	    if tz_match and tz_match[1]
 		tz_offset = tz_match[1]
 	    else
-		zone = Time.local(Time.new.year).zone
 		# "-0500" (3d rather than 2d to allow for "+")
-		tz_offset = sprintf('+%03d00', Time.zone_offset(zone) / 3600)
+		tz_offset = sprintf('%+03d00', Time.zone_offset(Time.now.zone) / 3600)
 	    end
 	    return tz_offset
 	end
