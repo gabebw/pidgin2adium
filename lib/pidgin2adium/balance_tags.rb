@@ -8,7 +8,7 @@ module Pidgin2Adium
     # Author:: Leonard Lin <leonard@acm.org>
     # License:: GPL v2.0
     # Copyright:: November 4, 2001
-    def balance_tags( text )
+    def Pidgin2Adium.balance_tags( text )
 	tagstack = []
 	stacksize = 0
 	tagqueue = ''
