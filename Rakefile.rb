@@ -18,6 +18,8 @@ $hoe = Hoe.spec 'pidgin2adium' do
   #self.post_install_message = 'PostInstall.txt' # TODO remove if post-install message not required
   self.rubyforge_name       = self.name # this is default value
   # self.extra_deps         = [['activesupport','>= 2.0.2']]
+  
+  self.spec_extras[:extensions]  = "ext/balance_tags_c/extconf.rb"
 end
 # Use hanna RDoc template
 $hoe.spec.rdoc_options = %w{--main README.rdoc -T hanna}

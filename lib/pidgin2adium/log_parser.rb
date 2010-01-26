@@ -7,7 +7,7 @@
 require 'parsedate'
 require 'time' # for Time.zone_offset
 
-require 'pidgin2adium/balance_tags'
+require 'balance_tags_c'
 require 'pidgin2adium/log_file'
 
 module Pidgin2Adium
@@ -545,7 +545,6 @@ module Pidgin2Adium
     # Basic message with body text (as opposed to pure status messages, which
     # have no body).
     class XMLMessage < Message
-	include Pidgin2Adium
 	def initialize(sender, time, buddy_alias, body)
 	    super(sender, time, buddy_alias)
 	    @body = body
@@ -570,7 +569,7 @@ module Pidgin2Adium
 	    normalize_body_entities!()
 	    # Fix mismatched tags. Yes, it's faster to do it per-message
 	    # than all at once.
-	    @body = balance_tags(@body)
+	    @body = Pidgin2Adium.balance_tags_c(@body)
 	    if @buddy_alias[0,3] == '***'
 		# "***<alias>" is what pidgin sets as the alias for a /me action
 		@buddy_alias.slice!(0,3)
