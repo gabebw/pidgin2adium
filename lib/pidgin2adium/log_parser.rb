@@ -42,12 +42,12 @@ module Pidgin2Adium
 	    # Time regexes must be set before pre_parse().
 	    # "4/18/2007 11:02:00 AM" => %w{4, 18, 2007, 11, 02, 00, AM}
 	    # ONLY used (if at all) in first line of chat ("Conversation with...at...")
-	    @time_regex_first_line = %r{(\d{1,2})/(\d{1,2})/(\d{4}) (\d{1,2}):(\d{2}):(\d{2}) ([AP]M)}
+	    @time_regex_first_line = %r{^(\d{1,2})/(\d{1,2})/(\d{4}) (\d{1,2}):(\d{2}):(\d{2}) ([AP]M)$}
 	    # "2007-04-17 12:33:13" => %w{2007, 04, 17, 12, 33, 13}
-	    @time_regex = /(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/
+	    @time_regex = /^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})$/
 	    # sometimes a line in a chat doesn't have a full timestamp
 	    # "04:22:05 AM" => %w{04 22 05 AM}
-	    @minimal_time_regex = /(\d{1,2}):(\d{2}):(\d{2})( [AP]M)?/
+	    @minimal_time_regex = /^(\d{1,2}):(\d{2}):(\d{2})( [AP]M)?$/
 
 	    # Whether or not the first line is parseable.
 	    @first_line_is_valid = true
@@ -251,7 +251,7 @@ module Pidgin2Adium
 		user_SN = first_line_match[3].downcase.tr(' ', '')
 		partner_SN = first_line_match[1]
 		pidgin_chat_time_start = first_line_match[2]
-		basic_time_info = case @first_line
+		basic_time_info = case pidgin_chat_time_start
 				  when @time_regex: [$1.to_i, $2.to_i, $3.to_i]
 				  when @time_regex_first_line: [$3.to_i, $1.to_i, $2.to_i]
 				  end
