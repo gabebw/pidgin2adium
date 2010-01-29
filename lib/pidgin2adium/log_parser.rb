@@ -484,18 +484,15 @@ module Pidgin2Adium
 		
 		styleparts = style.split(/; ?/)
 		styleparts.map! do |p|
-		    if p =~ /^color/
-			# Regarding the bit with the ">", sometimes this happens:
-			# <span style="color: #000000>today;">today was busy</span>
-			# Then p = "color: #000000>today"
-			# Or it can end in ">;", with no text before the semicolon.
-			# So remove the ">" and anything following it.
-			
-			# Use regex instead of string, to account for funky ">" stuff
-			if p =~ /color: #000000/
+		    if p[0,5] == 'color'
+			if p.include?('color: #000000')
 			    next
 			elsif p =~ /(color: #[0-9a-fA-F]{6})(>.*)?/
-			    # Keep the color but remove the bit after it
+			    # Regarding the bit with the ">", sometimes this happens:
+			    # <span style="color: #000000>today;">today was busy</span>
+			    # Then p = "color: #000000>today"
+			    # Or it can end in ">;", with no text before the semicolon.
+			    # So keep the color but remove the ">" and anything following it.
 			    next($1)
 			end
 		    else
