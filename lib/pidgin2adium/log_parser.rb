@@ -90,10 +90,10 @@ module Pidgin2Adium
 		/(.+) is offering to send file/,
 		/^Transfer of file .+ complete$/,
 		/Error reading|writing|accessing .+: .+/,
-		/You cancelled the transfer of/,
+		/You cancell?ed the transfer of/,
 		/File transfer cancelled/,
-		/(.+) cancelled the transfer of/,
-		/(.+) cancelled the file transfer/,
+		/(.+?) cancell?ed the transfer of/,
+		/(.+?) cancelled the file transfer/,
 		# Direct IM - actual (dis)connect events are their own types
 		/^Attempting to connect to (.+) at .+ for Direct IM\./,
 		/^Asking (.+) to connect to us at .+ for Direct IM\./,
@@ -106,9 +106,6 @@ module Pidgin2Adium
 		/^Conflicting Key Received!$/,
 		/^Error in decryption- asking for resend\.\.\.$/,
 		/^Making new key pair\.\.\.$/,
-		# file transfer
-		/You canceled the transfer of/,
-		/(.+?) canceled the transfer of/, 
 		# sending errors
 		/^Last outgoing message not received properly- resetting$/,
 		/Resending\.\.\./,
