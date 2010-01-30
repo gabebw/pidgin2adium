@@ -1,30 +1,30 @@
+/*
+ * Balances tags of string using a modified stack. Returns a balanced string.
+ * 
+ * From Wordpress's formatting.php and rewritten in C by
+ * Gabe Berke-Williams, 2010.
+ * 
+ * Original Author:: Leonard Lin <leonard@acm.org>
+ * License:: GPL v2.0
+ * Copyright:: November 4, 2001
+ */
+
 #include <ruby.h>
 
-#ifndef RARRAY_LEN
-#define RARRAY_LEN(arr)  RARRAY(arr)->len
+#ifndef RARRAY_PTR
 #define RARRAY_PTR(arr)  RARRAY(arr)->ptr
+#endif
+
+#ifndef RSTRING_LEN
 #define RSTRING_LEN(str) RSTRING(str)->len
-//#define RSTRING_PTR(str) RSTRING(str)->ptr
 #endif
 
 VALUE balance_tags_c(VALUE, VALUE);
 static VALUE mP2A;
 
-/*
-    # Balances tags of string using a modified stack. Returns a balanced
-    # string, but also affects the text passed into it!
-    # Use text = balance_tags(text).
-    
-    # From Wordpress's formatting.php; rewritten in Ruby by Gabe
-    # Berke-Williams, 2009.
-    # Author:: Leonard Lin <leonard@acm.org>
-    # License:: GPL v2.0
-    # Copyright:: November 4, 2001
-*/
-
 VALUE balance_tags_c(VALUE mod, VALUE text){
     if( TYPE(text) != T_STRING ){
-	rb_raise(rb_eArgError, "bad argument to balance_tags, String only please.");
+	rb_raise(rb_eArgError, "bad argument to balance_tags_c, String only please.");
     }
     VALUE tagstack = rb_ary_new2(1);
     int stacksize = 0;
@@ -47,7 +47,6 @@ VALUE balance_tags_c(VALUE mod, VALUE text){
 	    rb_str_new2("font"));
     // 1: tagname, with possible leading "/"
     // 2: attributes
-    //tag_regex = /<(\/?\w*)\s*([^>]*)>/
     VALUE tag_regex = rb_reg_regcomp(rb_str_new2("<(\\/?\\w*)\\s*([^>]*)>"));
     VALUE pos;  // position in text
     VALUE match;
@@ -70,9 +69,8 @@ VALUE balance_tags_c(VALUE mod, VALUE text){
 
     pos = rb_funcall(text, rb_intern("=~"), 1, tag_regex);
     done = (pos == Qnil);
-    //rb_io_puts(1, &pos, rb_defout);
     while ( ! done ){
-	rb_str_concat(newtext, tagqueue); // newtext << tagqueue
+	rb_str_concat(newtext, tagqueue);
 	match = rb_funcall(text, rb_intern("match"), 1, tag_regex);
 	tag = rb_funcall(rb_reg_nth_match(1, match), rb_intern("downcase"), 0);
 	attributes = rb_reg_nth_match(2, match);
@@ -91,7 +89,6 @@ VALUE balance_tags_c(VALUE mod, VALUE text){
 	    } else if (0 == rb_str_cmp(RARRAY_PTR(tagstack)[stacksize - 1], tag)){
 		// found closing tag
 		// if stacktop value == tag close value then pop
-		// tag = '</' << tag << '>' # Close Tag
 		// Close Tag
 		tag = rb_str_append(rb_str_new2("</"), tag);
 		rb_str_concat(tag, rb_str_new2(">")); 
@@ -103,7 +100,6 @@ VALUE balance_tags_c(VALUE mod, VALUE text){
 			if(0 == rb_str_cmp(RARRAY_PTR(tagstack)[j], tag) ){
 			    // add tag to tagqueue
 			    for(k = stacksize-1;k>=j;k--){
-				//tagqueue << '</' << tagstack.pop << '>';
 				rb_str_concat(tagqueue, rb_str_new2("</"));
 				rb_str_concat(tagqueue, rb_ary_pop(tagstack));
 				rb_str_concat(tagqueue, rb_str_new2(">"));
@@ -133,7 +129,6 @@ VALUE balance_tags_c(VALUE mod, VALUE text){
 		    if ( (stacksize > 0) &&
 			(Qfalse == rb_ary_includes(nestable_tags, tag)) &&
 			(0 == rb_str_cmp(rb_ary_entry(tagstack, stacksize - 1), tag))){
-			//tagqueue = '</' << tagstack.pop << '>'
 			tagqueue = rb_str_new2("</");
 			rb_str_concat(tagqueue, rb_ary_pop(tagstack));
 			rb_str_concat(tagqueue, rb_str_new2(">"));
@@ -147,22 +142,17 @@ VALUE balance_tags_c(VALUE mod, VALUE text){
 		if( 0 != rb_str_cmp(attributes, rb_str_new2("")) ){
 		    attributes = rb_str_plus(rb_str_new2(" "), attributes);
 		}
-		//tag = '<' << tag << attributes << '>'
 		tag = rb_str_plus(rb_str_new2("<"), tag);
 		rb_str_concat(tag, attributes);
 		rb_str_concat(tag, rb_str_new2(">"));
 		//If already queuing a close tag, then put this tag on, too
-		//if( tagqueue)
 		if( RSTRING_LEN(tagqueue) > 0 ){
 		    rb_str_concat(tagqueue, tag);
 		    tag = rb_str_new2("");
 		}
 	    }
-	    //newtext << text[0,pos] << tag
 	    rb_str_concat(newtext,
-		    //rb_str_plus(rb_str_substr(text, 0, pos), tag));
 		    rb_str_plus(rb_str_substr(text, 0, pos-1), tag));
-	    //text = text[pos+matchlen, text.length - (pos+matchlen)]
 	    text = rb_str_substr(text,
 		    NUM2INT(pos)+matchlen,
 		    RSTRING_LEN(text) - (NUM2INT(pos)+matchlen));
@@ -187,11 +177,9 @@ VALUE balance_tags_c(VALUE mod, VALUE text){
 	}
 
 	// WP fix for the bug with HTML comments
-	//newtext.gsub!("< !--", "<!--")
 	rb_funcall(newtext, rb_intern("gsub!"), 2,
 		rb_str_new2("< !--"),
 		rb_str_new2("<!--"));
-	//newtext.gsub!("<    !--", "< !--")
 	rb_funcall(newtext, rb_intern("gsub!"), 2,
 		rb_str_new2("<    !--"),
 		rb_str_new2("< !--"));
