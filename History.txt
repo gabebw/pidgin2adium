@@ -1,3 +1,11 @@
+=== 2.0.3 / 2010-01-30
+* balance_tags.rb is now a C extension (Pidgin2Adium.balance_tags_c)
+* Better handling of command-line arguments
+* Format time zones offsets correctly (e.g. "+0500", not "+-0500")
+* Write Yahoo! and Jabber logs to correct directories (#27710)
+* Better matching of regexes against time strings
+* Better documentation
+
 === 2.0.2 / 2009-12-18
 * Much better documentation (more of it, and higher quality too!)
 * Allow user-provided output dir at commandline
