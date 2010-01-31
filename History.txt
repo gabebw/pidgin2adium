@@ -1,5 +1,6 @@
-=== 2.0.3 / 2010-01-30
+=== 3.0.0 / 2010-01-30
 * balance_tags.rb is now a C extension (Pidgin2Adium.balance_tags_c)
+  - the pure-ruby mixin balance_tags (without the trailing "_c") is gone
 * Better handling of command-line arguments
 * Format time zones offsets correctly (e.g. "+0500", not "+-0500")
 * Write Yahoo! and Jabber logs to correct directories (#27710)
