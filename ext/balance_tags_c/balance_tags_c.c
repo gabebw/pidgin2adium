@@ -22,6 +22,11 @@
 VALUE balance_tags_c(VALUE, VALUE);
 static VALUE mP2A;
 
+/*
+ * call-seq: Pidgin2Adium.balance_tags_c(text) => text with balanced HTML tags
+ *
+ * Balances tags of _text_. Returns modified text.
+ */
 VALUE balance_tags_c(VALUE mod, VALUE text){
     if( TYPE(text) != T_STRING ){
 	rb_raise(rb_eArgError, "bad argument to balance_tags_c, String only please.");
