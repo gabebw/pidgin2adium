@@ -21,11 +21,20 @@ $hoe = Hoe.spec 'pidgin2adium' do
   
   self.spec_extras[:extensions]  = "ext/balance_tags_c/extconf.rb"
 end
-# Use hanna RDoc template
-$hoe.spec.rdoc_options = %w{--main README.rdoc -T hanna}
+
+$hoe.spec.rdoc_options = %w{--main README.rdoc}
+
+# Use hanna RDoc template, if available
+begin
+    gem "hanna"
+    $hoe.spec.rdoc_options << '-T hanna'
+rescue GEM::LoadError
+    # hanna not installed, continue
+end
 
 require 'newgem/tasks'
 Dir['tasks/**/*.rake'].each { |t| load t }
+task :postrelease => [:publish_docs, :announce]
 
 # TODO - want other tests/tasks run by default? Add them to the list
 # remove_task :default
