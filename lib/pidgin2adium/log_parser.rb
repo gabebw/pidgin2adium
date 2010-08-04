@@ -1,6 +1,6 @@
 # Contains the class BasicParser and its subclasses, HtmlLogParser and
 # TextFileParser, which parse the file passed into it and return a LogFile
-# object. 
+# object.
 #
 # Please use Pidgin2Adium.parse or Pidgin2Adium.parse_and_generate instead of
 # using these classes directly.
@@ -33,7 +33,7 @@ module Pidgin2Adium
 	    @user_alias = user_aliases.split(',')[0]
 
 	    @tz_offset = get_time_zone_offset()
-	   
+
 	    file = File.new(@src_path, 'r')
 	    @first_line = file.readline
 	    @file_content = file.read
@@ -68,7 +68,7 @@ module Pidgin2Adium
 		error("Failed to parse, invalid first line: #{@src_path}")
 		return # stop processing
 	    end
-	    
+
 	    # @status_map, @lib_purple_events, and @events are used in
 	    # create_status_or_event_msg
 	    @status_map = {
@@ -130,7 +130,7 @@ module Pidgin2Adium
 	    }
 
 	    @ignore_events = [
-		# Adium ignores SN/alias changes. 
+		# Adium ignores SN/alias changes.
 		/^.+? is now known as .+?\.<br\/?>$/
 	    ]
 	end
@@ -236,9 +236,9 @@ module Pidgin2Adium
 	# Extract required data from the file. Run by parse.
 	def pre_parse
 	    # Deal with first line.
-	    
+
 	    # the first line is special. It tells us (in order of regex groups):
-	    # 1) who we're talking to 
+	    # 1) who we're talking to
 	    # 2) what time/date
 	    # 3) what SN we used
 	    # 4) what protocol (AIM, icq, jabber...)
@@ -252,8 +252,8 @@ module Pidgin2Adium
 		partner_SN = first_line_match[1]
 		pidgin_chat_time_start = first_line_match[2]
 		basic_time_info = case pidgin_chat_time_start
-				  when @time_regex: [$1.to_i, $2.to_i, $3.to_i]
-				  when @time_regex_first_line: [$3.to_i, $1.to_i, $2.to_i]
+				  when @time_regex then [$1.to_i, $2.to_i, $3.to_i]
+				  when @time_regex_first_line then [$3.to_i, $1.to_i, $2.to_i]
 				  end
 		adium_chat_time_start = create_adium_time(pidgin_chat_time_start, true)
 		return [service,
@@ -356,7 +356,7 @@ module Pidgin2Adium
 	def initialize(src_path, user_aliases)
 	    super(src_path, user_aliases)
 	    @timestamp_rx = '\((\d{1,2}:\d{1,2}:\d{1,2})\)'
-	    
+
 	    # @line_regex matches a line in a TXT log file other than the first
 	    # @line_regex matchdata:
 	    # 0: timestamp
@@ -394,10 +394,10 @@ module Pidgin2Adium
     # Please use Pidgin2Adium.parse or Pidgin2Adium.parse_and_generate instead
     # of using this class directly.
     class HtmlLogParser < BasicParser
-	def initialize(src_path, user_aliases) 
+	def initialize(src_path, user_aliases)
 	    super(src_path, user_aliases)
 	    @timestamp_rx = '\(((?:\d{4}-\d{2}-\d{2} )?\d{1,2}:\d{1,2}:\d{1,2}(?: [AP]M)?)\)'
-	    
+
 	    # @line_regex matches a line in an HTML log file other than the
 	    # first time matches on either "2008-11-17 14:12" or "14:12"
 	    # @line_regex match obj:
@@ -413,7 +413,7 @@ module Pidgin2Adium
 	    # 1: status message
 	    @line_regex_status = /#{@timestamp_rx} ?<b> (.+)<\/b><br ?\/>/o
 	end
-	
+
 	public :parse
 
 	#################
@@ -445,19 +445,19 @@ module Pidgin2Adium
 	    text.tr!("\r", '')
 	    # Remove empty lines
 	    text.gsub!("\n\n", "\n")
-	    
-	    # Remove newlines that end the file, since they screw up the 
+
+	    # Remove newlines that end the file, since they screw up the
 	    # newline -> <br/> conversion
 	    text.gsub!(/\n\Z/, '')
-	    
+
 	    # Replace newlines with "<br/>" unless they end a chat line.
 	    # This must go after we remove <font> tags.
 	    text.gsub!(/\n(?!#{@timestamp_rx})/, '<br/>')
-	    
+
 	    # These empty links are sometimes appended to every line in a chat,
 	    # for some weird reason. Remove them.
 	    text.gsub!(%r{<a href=('").+?\1>\s*?</a>}, '')
-	
+
 	    # Replace single quotes inside tags with double quotes so we can
 	    # easily change single quotes to entities.
 	    # For spans, removes a space after the final declaration if it exists.
@@ -481,7 +481,7 @@ module Pidgin2Adium
 		style, innertext = $1, $2
 		# TODO: replace double quotes with "&quot;", but only outside tags; may still be tags inside spans
 		# innertext.gsub!("")
-		
+
 		styleparts = style.split(/; ?/)
 		styleparts.map! do |p|
 		    if p[0,5] == 'color'
@@ -498,9 +498,9 @@ module Pidgin2Adium
 		    else
 			# don't remove font-weight
 			case p
-			when /^font-family/: next
-			when /^font-size/: next
-			when /^background/: next
+			when /^font-family/ then next
+			when /^font-size/ then next
+			when /^background/ then next
 			end
 		    end
 		end.compact!
@@ -535,7 +535,7 @@ module Pidgin2Adium
 	end
 	attr_accessor :sender, :time, :buddy_alias
     end
-   
+
     # Basic message with body text (as opposed to pure status messages, which
     # have no body).
     class XMLMessage < Message
@@ -589,7 +589,7 @@ module Pidgin2Adium
     # A message saying e.g. "Blahblah has gone away."
     class StatusMessage < Message
 	def initialize(sender, time, buddy_alias, status)
-	    super(sender, time, buddy_alias) 
+	    super(sender, time, buddy_alias)
 	    @status = status
 	end
 	attr_accessor :status
@@ -598,7 +598,7 @@ module Pidgin2Adium
 	    return sprintf('<status type="%s" sender="%s" time="%s" alias="%s"/>' << "\n", @status, @sender, @time, @buddy_alias)
 	end
     end
-  
+
     # Pidgin does not have Events, but Adium does. Pidgin mostly uses system
     # messages to display what Adium calls events. These include sending a file,
     # starting a Direct IM connection, or an error in chat.
