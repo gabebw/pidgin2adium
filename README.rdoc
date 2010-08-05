@@ -1,5 +1,6 @@
-== pidgin2adium
-* http://rubyforge.org/projects/pidgin2adium/
+= pidgin2adium
+* http://github.com/gabebw/pidgin2adium
+* http://rubygems.org/gems/pidgin2adium
 
 == DESCRIPTION:
 Pidgin2Adium is a fast, easy way to convert Pidgin (formerly gaim) logs to the
@@ -38,7 +39,7 @@ Or:
 
 ===Example (using library)
 The library style allows you to parse a log file and get back a LogFile[link:classes/Pidgin2Adium/LogFile.html] instance for easy reading, manipulation, etc. If you don't need to do anything with the individual messages, use Pidgin2Adium.parse[link:classes/Pidgin2Adium.html#M000002].
- 
+
  require 'pidgin2adium'
  logfile = Pidgin2Adium.parse("/path/to/log/file.html", "gabe,gbw,gabeb-w")
  if logfile == false
@@ -89,7 +90,7 @@ The library style allows you to parse a log file and get back a LogFile[link:cla
 If you want to parse the file and write it out instead of just parsing it, use Pidgin2Adium.parse_and_generate.
 
 Note: For batch processing, use LogConverter[link:classes/Pidgin2Adium/LogConverter.html].
- 
+
  require 'pidgin2adium'
  # Both options are optional; without :output_dir, writes to Adium log dir
  # (which is usually what you want anyway).
@@ -107,27 +108,16 @@ With thanks to Li Ma, whose blog post at
 http://li-ma.blogspot.com/2008/10/pidgin-log-file-to-adium-log-converter.html
 helped tremendously.
 
-== LICENSE:
+== Note on Patches/Pull Requests
 
-(The MIT License)
+* Fork the project.
+* Make your feature addition or bug fix.
+* Add tests for it. This is important so I don't break it in a
+  future version unintentionally.
+* Commit, do not mess with rakefile, version, or history.
+  (if you want to have your own version, that is fine but bump version in a commit by itself I can ignore when I pull)
+* Send me a pull request. Bonus points for topic branches.
 
-Copyright (c) 2009 Gabriel Berke-Williams
+== Copyright
 
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-'Software'), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+Copyright (c) 2010 Gabe Berke-Williams. See LICENSE for details.
