@@ -2,8 +2,6 @@ require 'rubygems'
 gem 'hoe', '>= 2.1.0'
 require 'hoe'
 require 'fileutils'
-require './lib/pidgin2adium.rb'
-require 'hanna/rdoctask'
 
 Hoe.plugin :gemcutter
 Hoe.plugin :newgem
@@ -18,7 +16,7 @@ $hoe = Hoe.spec 'pidgin2adium' do
   #self.post_install_message = 'PostInstall.txt' # TODO remove if post-install message not required
   self.rubyforge_name       = self.name # this is default value
   # self.extra_deps         = [['activesupport','>= 2.0.2']]
-  
+
   self.spec_extras[:extensions]  = "ext/balance_tags_c/extconf.rb"
 end
 
@@ -27,8 +25,9 @@ $hoe.spec.rdoc_options = %w{--main README.rdoc}
 # Use hanna RDoc template, if available
 begin
     gem "hanna"
+    require 'hanna/rdoctask'
     $hoe.spec.rdoc_options << '-T hanna'
-rescue GEM::LoadError
+rescue Gem::LoadError
     # hanna not installed, continue
 end
 
