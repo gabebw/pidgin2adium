@@ -1,9 +1,9 @@
 /*
  * Balances tags of string using a modified stack. Returns a balanced string.
- * 
+ *
  * From Wordpress's formatting.php and rewritten in C by
  * Gabe Berke-Williams, 2010.
- * 
+ *
  * Original Author:: Leonard Lin <leonard@acm.org>
  * License:: GPL v2.0
  * Copyright:: November 4, 2001
@@ -52,7 +52,7 @@ VALUE balance_tags_c(VALUE mod, VALUE text){
 	    rb_str_new2("font"));
     // 1: tagname, with possible leading "/"
     // 2: attributes
-    VALUE tag_regex = rb_reg_regcomp(rb_str_new2("<(\\/?\\w*)\\s*([^>]*)>"));
+    VALUE tag_regex = rb_eval_string("/<(\\/?\\w*)\\s*([^>]*)>/");
     VALUE pos;  // position in text
     VALUE match;
     VALUE tag;
@@ -68,8 +68,8 @@ VALUE balance_tags_c(VALUE mod, VALUE text){
 	    rb_str_new2("<    !--"));
 
     // WP bug fix for LOVE <3 (and other situations with '<' before a number)
-    rb_funcall(text, rb_intern("gsub!"), 2,
-	    rb_reg_regcomp(rb_str_new2("<([0-9]{1})")),
+    rb_funcall(text,rb_intern("gsub!"), 2,
+            rb_eval_string("/<([0-9]{1})/"),
 	    rb_str_new2("&lt;\\1"));
 
     pos = rb_funcall(text, rb_intern("=~"), 1, tag_regex);
@@ -96,7 +96,7 @@ VALUE balance_tags_c(VALUE mod, VALUE text){
 		// if stacktop value == tag close value then pop
 		// Close Tag
 		tag = rb_str_append(rb_str_new2("</"), tag);
-		rb_str_concat(tag, rb_str_new2(">")); 
+		rb_str_concat(tag, rb_str_new2(">"));
 		// Pop
 		rb_ary_pop(tagstack);
 		stacksize--;
@@ -137,7 +137,7 @@ VALUE balance_tags_c(VALUE mod, VALUE text){
 			tagqueue = rb_str_new2("</");
 			rb_str_concat(tagqueue, rb_ary_pop(tagstack));
 			rb_str_concat(tagqueue, rb_str_new2(">"));
-			stacksize--; 
+			stacksize--;
 		    }
 		    rb_ary_push(tagstack, tag);
 		    stacksize++;
