@@ -8,4 +8,5 @@ group :development do
   gem "bundler", ">= 0.9.26"
   gem "jeweler"
   gem "rspec", ">= 1.2.9"
+  gem "faker"
 end
