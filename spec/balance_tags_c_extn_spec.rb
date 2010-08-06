@@ -18,7 +18,7 @@ describe "BalanceTagsCExtension" do
 
     # Make sure it doesn't segfault
     it "should be balanced correctly when run many times" do
-      5_000.times do
+      2_000.times do
         text = Faker::Lorem.paragraphs(3)
         Pidgin2Adium.balance_tags_c("<p><b>#{text}").should == "<p><b>#{text}</b></p>"
       end
