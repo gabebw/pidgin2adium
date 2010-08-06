@@ -69,5 +69,41 @@ describe "Pidgin2Adium" do
         end
       end # when search indices exist
     end # delete_search_indexes
-  end
+  end # utility methods
+
+  describe "parse" do
+    before(:each) do
+      @aliases = %w{gabebw gabeb-w gbw me}.join(',')
+    end
+
+    describe "failure" do
+      before(:each) do
+        @weird_logfile_path = './logfile.foobar'
+      end
+      it "should give an error when file is not text or html" do
+        Pidgin2Adium.should_receive(:error).with(/Doing nothing, logfile is not a text or html file/)
+        Pidgin2Adium.parse(@weird_logfile_path, @aliases).should be_false
+      end
+
+      it "should gracefully handle nonexistent files" do
+        Pidgin2Adium.parse("i_do_not_exist.html", @aliases).should be_false
+        Pidgin2Adium.parse("i_do_not_exist.txt", @aliases).should be_false
+      end
+    end # failure
+
+    describe "html" do
+      before(:each) do
+        @htm_logfile_path = './logfiles/2008-01-15.071445-0500PST.htm'
+        @html_logfile_path = './logfiles/2008-01-15.071445-0500PST.html'
+      end
+
+      it "should return a LogFile instance for an htm file" do
+        Pidgin2Adium.parse(@htm_logfile_path, @aliases).should be_instance_of(Pidgin2Adium::LogFile)
+      end
+
+      it "should return a LogFile instance for an html file" do
+        Pidgin2Adium.parse(@html_logfile_path, @aliases).should be_instance_of(Pidgin2Adium::LogFile)
+      end
+    end # html
+  end # parse
 end
