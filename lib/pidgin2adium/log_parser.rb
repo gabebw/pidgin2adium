@@ -34,10 +34,17 @@ module Pidgin2Adium
 
 	    @tz_offset = get_time_zone_offset()
 
-	    file = File.new(@src_path, 'r')
-	    @first_line = file.readline
-	    @file_content = file.read
-	    file.close
+	    @log_file_is_valid = true
+            begin
+              file = File.new(@src_path, 'r')
+              @first_line = file.readline
+              @file_content = file.read
+              file.close
+            rescue Errno::ENOENT
+              puts "#{@src_path} doesn't exist! Continuing..."
+              @log_file_is_valid = false
+              return nil
+            end
 
 	    # Time regexes must be set before pre_parse().
 	    # "4/18/2007 11:02:00 AM" => %w{4, 18, 2007, 11, 02, 00, AM}
@@ -49,8 +56,6 @@ module Pidgin2Adium
 	    # "04:22:05 AM" => %w{04 22 05 AM}
 	    @minimal_time_regex = /^(\d{1,2}):(\d{2}):(\d{2})( [AP]M)?$/
 
-	    # Whether or not the first line is parseable.
-	    @first_line_is_valid = true
 	    begin
 		@service,
 		@user_SN,
@@ -64,7 +69,8 @@ module Pidgin2Adium
 		# When the chat started, in Adium's format
 		@adium_chat_time_start = pre_parse()
 	    rescue InvalidFirstLineError
-		@first_line_is_valid = false
+		# The first line isn't parseable
+		@log_file_is_valid = false
 		error("Failed to parse, invalid first line: #{@src_path}")
 		return # stop processing
 	    end
@@ -137,7 +143,7 @@ module Pidgin2Adium
 
 	# This method returns a LogFile instance, or false if an error occurred.
 	def parse
-	    return false unless @first_line_is_valid
+	    return false unless @log_file_is_valid
 	    @file_content = cleanup(@file_content).split("\n")
 
 	    @file_content.map! do |line|
