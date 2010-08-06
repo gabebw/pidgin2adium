@@ -91,10 +91,15 @@ describe "Pidgin2Adium" do
       end
     end # failure
 
-    describe "html" do
+    describe "success" do
       before(:each) do
+        @text_logfile_path = './logfiles/2006-12-21.223606.txt'
         @htm_logfile_path = './logfiles/2008-01-15.071445-0500PST.htm'
         @html_logfile_path = './logfiles/2008-01-15.071445-0500PST.html'
+      end
+
+      it "should return a LogFile instance for a text file" do
+        Pidgin2Adium.parse(@text_logfile_path, @aliases).should be_instance_of(Pidgin2Adium::LogFile)
       end
 
       it "should return a LogFile instance for an htm file" do
@@ -104,6 +109,6 @@ describe "Pidgin2Adium" do
       it "should return a LogFile instance for an html file" do
         Pidgin2Adium.parse(@html_logfile_path, @aliases).should be_instance_of(Pidgin2Adium::LogFile)
       end
-    end # html
+    end # success
   end # parse
 end
