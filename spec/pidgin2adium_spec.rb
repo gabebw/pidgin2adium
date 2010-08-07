@@ -1,6 +1,22 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
 describe "Pidgin2Adium" do
+  before(:each) do
+    @current_dir = File.dirname(__FILE__)
+
+    @aliases = %w{gabebw gabeb-w gbw me}.join(',')
+
+    @nonexistent_logfile_path = "./nonexistent_logfile_path/"
+    @logfile_path = File.join(@current_dir, "logfiles/") + '/'
+
+    @text_logfile_path = "#{@logfile_path}2006-12-21.223606.txt"
+    @htm_logfile_path = "#{@logfile_path}2008-01-15.071445-0500PST.htm"
+    @html_logfile_path = "#{@logfile_path}2008-01-15.071445-0500PST.html"
+
+    # "Kernel gets mixed in to an object, so you need to stub [its methods] on the object
+    # itself." - http://www.ruby-forum.com/topic/128619
+    Pidgin2Adium.stub!(:puts).and_return(nil)
+  end
   describe "constants" do
     it "should set ADIUM_LOG_DIR correctly" do
       Pidgin2Adium::ADIUM_LOG_DIR.should == File.expand_path('~/Library/Application Support/Adium 2.0/Users/Default/Logs/') + '/'
@@ -18,7 +34,6 @@ describe "Pidgin2Adium" do
 
     describe "oops" do
       it "should add a message to @@oops_messages" do
-        #Kernel.should_receive(:warn)
         message = "Oops! I messed up!"
         Pidgin2Adium.oops(message)
         Pidgin2Adium.send(:class_variable_get, :@@oops_messages).should == [message]
@@ -27,7 +42,6 @@ describe "Pidgin2Adium" do
 
     describe "error" do
       it "should add a message to @@error_messages" do
-        #Kernel.should_receive(:warn)
         err_message = "Error! I *really* messed up!"
         Pidgin2Adium.error(err_message)
         Pidgin2Adium.send(:class_variable_get, :@@error_messages).should == [err_message]
@@ -72,13 +86,9 @@ describe "Pidgin2Adium" do
   end # utility methods
 
   describe "parse" do
-    before(:each) do
-      @aliases = %w{gabebw gabeb-w gbw me}.join(',')
-    end
-
     describe "failure" do
       before(:each) do
-        @weird_logfile_path = './logfile.foobar'
+        @weird_logfile_path = File.join(@current_dir, 'logfile.foobar')
       end
       it "should give an error when file is not text or html" do
         Pidgin2Adium.should_receive(:error).with(/Doing nothing, logfile is not a text or html file/)
@@ -92,22 +102,14 @@ describe "Pidgin2Adium" do
     end # failure
 
     describe "success" do
-      before(:each) do
-        @text_logfile_path = './logfiles/2006-12-21.223606.txt'
-        @htm_logfile_path = './logfiles/2008-01-15.071445-0500PST.htm'
-        @html_logfile_path = './logfiles/2008-01-15.071445-0500PST.html'
+      context "for a text file" do
+        specify { Pidgin2Adium.parse(@text_logfile_path, @aliases).should be_instance_of(Pidgin2Adium::LogFile) }
       end
-
-      it "should return a LogFile instance for a text file" do
-        Pidgin2Adium.parse(@text_logfile_path, @aliases).should be_instance_of(Pidgin2Adium::LogFile)
+      context "for an htm file" do
+        specify { Pidgin2Adium.parse(@htm_logfile_path, @aliases).should be_instance_of(Pidgin2Adium::LogFile) }
       end
-
-      it "should return a LogFile instance for an htm file" do
-        Pidgin2Adium.parse(@htm_logfile_path, @aliases).should be_instance_of(Pidgin2Adium::LogFile)
-      end
-
-      it "should return a LogFile instance for an html file" do
-        Pidgin2Adium.parse(@html_logfile_path, @aliases).should be_instance_of(Pidgin2Adium::LogFile)
+      context "for an html file" do
+        specify { Pidgin2Adium.parse(@html_logfile_path, @aliases).should be_instance_of(Pidgin2Adium::LogFile) }
       end
     end # success
   end # parse
