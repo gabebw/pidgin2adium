@@ -1,4 +1,5 @@
-require "spec_helper"
+$:.unshift File.dirname(__FILE__) # required, for some reason.
+require 'spec_helper'
 
 $:.unshift File.dirname(__FILE__) + "/../ext/balance_tags_c"
 require "balance_tags_c.so"
