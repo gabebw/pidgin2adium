@@ -1,3 +1,11 @@
+=== 3.0.1 / 2010-08-07
+Bugfix release:
+* balance_tags_c.c: Use rb_eval_string instead of rb_reg_regcomp to avoid
+  segfaults (commit #733ce88b0836256e14f0, fixes #27811)
+Non-user-facing stuff:
+* Switched to Jeweler, RSpec, and Bundler
+* Rakefile now doesn't choke if Hanna gem isn't installed
+
 === 3.0.0 / 2010-01-31
 * balance_tags.rb is now a C extension (Pidgin2Adium.balance_tags_c)
   - the pure-ruby mixin balance_tags (without the trailing "_c") is gone
