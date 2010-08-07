@@ -23,4 +23,4 @@ pkg
 ext/balance_tags_c/Makefile
 ext/balance_tags_c/balance_tags_c.bundle
 ext/balance_tags_c/balance_tags_c.o
-
+.rvmrc
