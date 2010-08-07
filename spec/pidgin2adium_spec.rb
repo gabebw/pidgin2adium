@@ -113,4 +113,46 @@ describe "Pidgin2Adium" do
       end
     end # success
   end # parse
+
+  describe "parse_and_generate" do
+    before(:each) do
+      @nonexistent_output_dir = File.join(@current_dir, "nonexistent_output_dir/")
+      @output_dir = File.join(@current_dir, "output-dir/")
+    end
+    after(:each) do
+      FileUtils.rm_r(@nonexistent_output_dir, :force => true)
+    end
+    describe "failure" do
+      describe "when output dir does not exist" do
+        before(:each) do
+          @opts = { :output_dir => @nonexistent_output_dir }
+        end
+
+        it "should return false when it can't create the output dir" do
+          `chmod -w .`
+          Pidgin2Adium.parse_and_generate(@logfile_path,
+                                          @aliases,
+                                          @opts).should be_false
+          `chmod +w .`
+        end
+      end
+
+      describe "when output dir does exist" do
+        before(:each) do
+          @opts = { :output_dir => @output_dir }
+        end
+
+        describe "when :force is not set" do
+          it "should return FILE_EXISTS if file already exists" do
+            File.new(File.join(@logfile_path, "blah.txt"), 'w').close # create file
+            Pidgin2Adium.parse_and_generate(@logfile_path,
+                                            @aliases,
+                                            opts).should be_false
+            Pidgin2Adium.parse_and_generate(@logfile_path,
+                                            @output_dir).should be_false
+          end
+        end # :force is not set
+      end # output dir does exist
+    end # failure
+  end # parse_and_generate
 end
