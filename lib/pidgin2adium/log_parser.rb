@@ -41,7 +41,7 @@ module Pidgin2Adium
         @file_content = file.read
         file.close
       rescue Errno::ENOENT
-        puts "#{@src_path} doesn't exist! Continuing..."
+        oops("#{@src_path} doesn't exist! Continuing...")
         @log_file_is_valid = false
         return nil
       end
