@@ -143,16 +143,16 @@ describe "Pidgin2Adium" do
         end
 
         after(:each) do
-          # Just in case it fails
-          `chmod +w .`
+          # In case the test fails
+          `chmod +w #{@current_dir}`
         end
 
         it "should return false when it can't create the output dir" do
-          `chmod -w .`
+          `chmod -w #{@current_dir}` # prevent creation of output_dir
           Pidgin2Adium.parse_and_generate(@text_logfile_path,
                                           @aliases,
                                           @opts).should be_false
-          `chmod +w .`
+          `chmod +w #{@current_dir}`
         end
       end
 
