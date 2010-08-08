@@ -198,9 +198,43 @@ describe "Pidgin2Adium" do
                                                 @opts).should == Pidgin2Adium::FILE_EXISTS
               end
             end
-          end # :force is not set
-        end # output_dir does exist
-      end # failure
-    end # parse_and_generate
-  end
+          end
+        end
+      end
+    end # failure
+
+    describe "success" do
+      describe "when output_dir does not exist" do
+        before(:each) do
+          @opts = { :output_dir => @nonexistent_output_dir }
+          FileUtils.rm_r(@nonexistent_output_dir, :force => true)
+        end
+
+        context "for a text file" do
+          specify { Pidgin2Adium.parse_and_generate(@text_logfile_path, @aliases, @opts).should be_true }
+        end
+        context "for an htm file" do
+          specify { Pidgin2Adium.parse_and_generate(@htm_logfile_path, @aliases, @opts).should be_true }
+        end
+        context "for an html file" do
+          specify { Pidgin2Adium.parse_and_generate(@html_logfile_path, @aliases, @opts).should be_true }
+        end
+      end
+
+      describe "when output_dir does exist" do
+        before(:each) do
+          @opts = { :output_dir => @output_dir }
+        end
+        context "for a text file" do
+          specify { Pidgin2Adium.parse_and_generate(@text_logfile_path, @aliases, @opts).should be_true }
+        end
+        context "for an htm file" do
+          specify { Pidgin2Adium.parse_and_generate(@htm_logfile_path, @aliases, @opts).should be_true }
+        end
+        context "for an html file" do
+          specify { Pidgin2Adium.parse_and_generate(@html_logfile_path, @aliases, @opts).should be_true }
+        end
+      end
+    end # success
+  end # parse_and_generate
 end
