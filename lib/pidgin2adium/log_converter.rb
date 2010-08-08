@@ -59,10 +59,6 @@ module Pidgin2Adium
       puts @@error_messages.join("\n")
     end
 
-    ###########
-    private
-    ###########
-
     def get_all_chat_files(dir)
       return [] if File.basename(dir) == ".system"
       # recurse into each subdir

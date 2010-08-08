@@ -143,6 +143,12 @@ module Pidgin2Adium
 
     # This method returns a LogFile instance, or false if an error occurred.
     def parse
+      # Prevent parse from being called directly from BasicParser, since
+      # it uses subclassing magic.
+      if self.class == BasicParser
+        oops("Please don't call parse directly from BasicParser. Use a subclass :)")
+        return false
+      end
       return false unless @log_file_is_valid
       @file_content = cleanup(@file_content).split("\n")
 
@@ -164,13 +170,6 @@ module Pidgin2Adium
       @file_content.compact!
       return LogFile.new(@file_content, @service, @user_SN, @partner_SN, @adium_chat_time_start)
     end
-    # Prevent parse from being called directly from BasicParser, since
-    # it uses subclassing magic.
-    protected :parse
-
-    #################
-    private
-    #################
 
     def get_time_zone_offset()
       # We must have a tz_offset or else the Adium Chat Log viewer
@@ -377,12 +376,6 @@ module Pidgin2Adium
       @line_regex_status = /#{@timestamp_rx} ([^:]+)/o
     end
 
-    public :parse
-
-    #################
-    private
-    #################
-
     def cleanup(text)
       text.tr!("\r", '')
       # Replace newlines with "<br/>" unless they end a chat line.
@@ -419,12 +412,6 @@ module Pidgin2Adium
       # 1: status message
       @line_regex_status = /#{@timestamp_rx} ?<b> (.+)<\/b><br ?\/>/o
     end
-
-    public :parse
-
-    #################
-    private
-    #################
 
     # Returns a cleaned string.
     # Removes the following tags from _text_:
@@ -557,10 +544,6 @@ module Pidgin2Adium
       return sprintf('<message sender="%s" time="%s" alias="%s">%s</message>' << "\n",
                      @sender, @time, @buddy_alias, @styled_body)
     end
-
-    #################
-    private
-    #################
 
     # Balances mismatched tags, normalizes body style, and fixes actions
     # so they are in Adium style (Pidgin uses "***Buddy waves at you", Adium uses
