@@ -147,9 +147,10 @@ describe "Pidgin2Adium" do
             File.new(File.join(@logfile_path, "blah.txt"), 'w').close # create file
             Pidgin2Adium.parse_and_generate(@logfile_path,
                                             @aliases,
-                                            opts).should be_false
+                                            @opts).should be_false
             Pidgin2Adium.parse_and_generate(@logfile_path,
-                                            @output_dir).should be_false
+                                            @output_dir,
+                                            @opts).should be_false
           end
         end # :force is not set
       end # output dir does exist
