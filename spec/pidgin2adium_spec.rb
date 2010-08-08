@@ -86,7 +86,7 @@ describe "Pidgin2Adium" do
     end # delete_search_indexes
   end # utility methods
 
-  describe "parse" do
+  describe "#parse" do
     describe "failure" do
       before(:each) do
         @weird_logfile_path = File.join(@current_dir, 'logfile.foobar')
@@ -115,7 +115,7 @@ describe "Pidgin2Adium" do
     end # success
   end # parse
 
-  describe "parse_and_generate" do
+  describe "#parse_and_generate" do
     before(:each) do
       @nonexistent_output_dir = File.join(@current_dir, "nonexistent_output_dir/")
       @output_dir = File.join(@current_dir, "output-dir/")
@@ -186,7 +186,6 @@ describe "Pidgin2Adium" do
                                                 @opts).should == Pidgin2Adium::FILE_EXISTS
               end
             end
-
 
             context "for an HTML file" do
               before(:each) do
