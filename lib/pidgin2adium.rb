@@ -57,9 +57,11 @@ module Pidgin2Adium
     end
 
     # Parses the provided log and writes out the log in Adium format.
-    # Returns the path to the converted log, false if an error occurred, or
-    # Pidgin2Adium::FILE_EXISTS if file already exists AND opts[:overwrite] =
-    # false.
+    # Returns:
+    #  * true if it successfully converted and wrote out the log,
+    #  * false if an error occurred, or
+    #  * Pidgin2Adium::FILE_EXISTS if file already exists AND
+    #    opts[:overwrite] = false.
     #
     # You can add options using the _opts_ hash, which can have the following
     # keys, all of which are optional:
