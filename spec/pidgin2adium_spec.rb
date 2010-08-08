@@ -2,22 +2,22 @@ require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 require 'fileutils'
 
 describe "Pidgin2Adium" do
-  before(:each) do
+  before(:all) do
     @current_dir = File.dirname(__FILE__)
-
     @aliases = %w{gabebw gabeb-w gbw me}.join(',')
 
     @nonexistent_logfile_path = "./nonexistent_logfile_path/"
-    @logfile_path = File.join(@current_dir, "logfiles/") + '/'
+    @logfile_path = File.join(@current_dir, "logfiles/")
 
-    @text_logfile_path = "#{@logfile_path}2006-12-21.223606.txt"
-    @htm_logfile_path = "#{@logfile_path}2008-01-15.071445-0500PST.htm"
-    @html_logfile_path = "#{@logfile_path}2008-01-15.071445-0500PST.html"
+    @text_logfile_path = "#{@logfile_path}/2006-12-21.223606.txt"
+    @htm_logfile_path = "#{@logfile_path}/2008-01-15.071445-0500PST.htm"
+    @html_logfile_path = "#{@logfile_path}/2008-01-15.071445-0500PST.html"
 
     # "Kernel gets mixed in to an object, so you need to stub [its methods] on the object
     # itself." - http://www.ruby-forum.com/topic/128619
     Pidgin2Adium.stub!(:puts).and_return(nil)
   end
+
   describe "constants" do
     it "should set ADIUM_LOG_DIR correctly" do
       Pidgin2Adium::ADIUM_LOG_DIR.should == File.expand_path('~/Library/Application Support/Adium 2.0/Users/Default/Logs/') + '/'
