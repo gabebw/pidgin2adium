@@ -153,4 +153,61 @@ describe "BasicParser" do
       @bp.create_msg(@matches).should be_nil
     end
   end
+
+  describe "#create_status_or_event_msg" do
+    before(:each) do
+      # not yet converted to Adium format
+      @time = "2007-08-20 12:33:13"
+      @alias = "Gabe B-W"
+      @status_map = {
+        "#{@alias} logged in." => 'online',
+        "#{@alias} logged out." => 'offline',
+        "#{@alias} has signed on." => 'online',
+        "#{@alias} has signed off." => 'offline',
+        "#{@alias} has gone away." => 'away',
+        "#{@alias} is no longer away." => 'available',
+        "#{@alias} has become idle." => 'idle',
+        "#{@alias} is no longer idle." => 'available'
+      }
+
+      # Small subset of all events
+      @libpurple_event_msg = "Starting transfer of cute kitties.jpg from Gabe B-W"
+      @event_msg =  "You missed 8 messages from Gabe B-W because they were too large"
+      @event_type = 'chat-error'
+
+      @ignored_event_msg = "Gabe B-W is now known as gbw.<br/>"
+
+      @bp = Pidgin2Adium::BasicParser.new(@html_logfile_path,
+                                          @alias)
+    end
+
+    it "should map statuses correctly" do
+      @status_map.each do |message, status|
+        return_value = @bp.create_status_or_event_msg([@time,
+                                                     message])
+        return_value.should be_instance_of(Pidgin2Adium::StatusMessage)
+        return_value.status.should == status
+      end
+    end
+
+    it "should map libpurple events correctly" do
+      return_val = @bp.create_status_or_event_msg([@time,
+                                                  @libpurple_event_msg])
+      return_val.should be_instance_of(Pidgin2Adium::Event)
+      return_val.event_type.should == 'libpurpleEvent'
+    end
+
+    it "should map non-libpurple events correctly" do
+      return_val = @bp.create_status_or_event_msg([@time,
+                                                  @event_msg])
+      return_val.should be_instance_of(Pidgin2Adium::Event)
+      return_val.event_type.should == @event_type
+    end
+
+    it "should return nil for ignored events" do
+      return_val = @bp.create_status_or_event_msg([@time,
+                                                  @ignored_event_msg])
+      return_val.should be_nil
+    end
+  end
 end
