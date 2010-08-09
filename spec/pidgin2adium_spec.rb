@@ -33,7 +33,7 @@ describe "Pidgin2Adium" do
       Pidgin2Adium.stub!(:log_msg).and_return(nil)
     end
 
-    describe "oops" do
+    describe "::oops()" do
       it "should add a message to @@oops_messages" do
         message = "Oops! I messed up!"
         Pidgin2Adium.oops(message)
@@ -41,7 +41,7 @@ describe "Pidgin2Adium" do
       end
     end
 
-    describe "error" do
+    describe "::error()" do
       it "should add a message to @@error_messages" do
         err_message = "Error! I *really* messed up!"
         Pidgin2Adium.error(err_message)
@@ -49,7 +49,7 @@ describe "Pidgin2Adium" do
       end
     end
 
-    describe "delete_search_indexes" do
+    describe "#delete_search_indexes" do
       before(:each) do
         @dirty_file = File.expand_path("~/Library/Caches/Adium/Default/DirtyLogs.plist")
         @log_index_file = File.expand_path("~/Library/Caches/Adium/Default/Logs.index")
