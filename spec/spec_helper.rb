@@ -36,7 +36,7 @@ begin
     # This code will be run each time you run your specs.
   end
 rescue LoadError
-  puts 'To make the tests run faster, run "sudo install spork" then run "spork"'
+  puts 'To make the tests run faster, run "sudo gem install spork" then run "spork"'
   puts 'from the base pidgin2adium directory.'
   # Spork isn't installed.
   prefork_block.call
