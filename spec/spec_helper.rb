@@ -25,6 +25,12 @@ prefork_block = lambda do
   end
 
    constant.configure do |config|
+     config.before(:all) do
+       @current_dir = File.dirname(__FILE__)
+       @aliases = %w{gabebw gabeb-w gbw me}.join(',')
+
+       @logfile_path = File.join(@current_dir, "logfiles/")
+     end
    end
 end
 
