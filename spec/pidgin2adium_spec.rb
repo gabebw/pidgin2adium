@@ -36,7 +36,7 @@ describe "Pidgin2Adium" do
       it "should add a message to @@oops_messages" do
         message = "Oops! I messed up!"
         Pidgin2Adium.oops(message)
-        Pidgin2Adium.send(:class_variable_get, :@@oops_messages).should == [message]
+        Pidgin2Adium.send(:class_variable_get, :@@oops_messages).include?(message).should be_true
       end
     end
 
@@ -44,7 +44,7 @@ describe "Pidgin2Adium" do
       it "should add a message to @@error_messages" do
         err_message = "Error! I *really* messed up!"
         Pidgin2Adium.error(err_message)
-        Pidgin2Adium.send(:class_variable_get, :@@error_messages).should == [err_message]
+        Pidgin2Adium.send(:class_variable_get, :@@error_messages).include?(err_message).should be_true
       end
     end
 
