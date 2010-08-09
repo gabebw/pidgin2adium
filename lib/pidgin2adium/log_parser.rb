@@ -195,6 +195,8 @@ module Pidgin2Adium
     # because it will be used in the filename.
     #++
     # Converts a pidgin datestamp to an Adium one.
+    # Returns a string representation of _time_ or
+    # nil if it couldn't parse the provided _time_.
     def create_adium_time(time, is_first_line = false)
       # parsed_date = [year, month, day, hour, min, sec]
       if time =~ @time_regex
@@ -229,6 +231,10 @@ module Pidgin2Adium
         log_msg("The timestamp: #{time}")
         log_msg("Continuing...")
         year,month,day,hour,min,sec = ParseDate.parsedate(time)
+        if [year,month,day,hour,min,sec].include?(nil)
+          # Failed to parse the time
+          return nil
+        end
       end
       if is_first_line
         adium_time = Time.local(year,month,day,hour,min,sec).strftime("%Y-%m-%dT%H.%M.%S#{@tz_offset}")
@@ -290,6 +296,7 @@ module Pidgin2Adium
       msg = nil
       # Either a regular message line or an auto-reply/away message.
       time = create_adium_time(matches[0])
+      return nil if time.nil?
       buddy_alias = matches[1]
       sender = get_sender_by_alias(buddy_alias)
       body = matches[3]
@@ -314,6 +321,7 @@ module Pidgin2Adium
       # 1: status message or event
       msg = nil
       time = create_adium_time(matches[0])
+      return nil if time.nil?
       str = matches[1]
       # Return nil, which will get compact'ed out
       return nil if @ignore_events.detect{|regex| str =~ regex }
