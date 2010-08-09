@@ -230,7 +230,7 @@ module Pidgin2Adium
         error("You have found an odd timestamp. Please report it to the developer.")
         log_msg("The timestamp: #{time}")
         log_msg("Continuing...")
-        year,month,day,hour,min,sec = ParseDate.parsedate(time)
+        year,month,day,hour,min,sec = ParseDate.parsedate(time.to_s)
         if [year,month,day,hour,min,sec].include?(nil)
           # Failed to parse the time
           return nil
@@ -290,7 +290,7 @@ module Pidgin2Adium
     # create_msg takes an array of captures from matching against
     # @line_regex and returns a Message object or one of its subclasses.
     # It can be used for TextLogParser and HtmlLogParser because both of
-    # them return data in the same indexes in the matches array.
+    # they return data in the same indexes in the matches array.
     #++
     def create_msg(matches)
       msg = nil
