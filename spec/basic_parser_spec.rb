@@ -6,8 +6,13 @@ describe "BasicParser" do
     Pidgin2Adium::BasicParser.included_modules.include?(Pidgin2Adium).should be_true
   end
 
-  # can't test BasicParser#parse because parse() can't be called from a
-  # BasicParser instance.
+  describe "#parse" do
+    it "should return false" do
+      bp = Pidgin2Adium::BasicParser.new(@text_logfile_path,
+                                         @aliases)
+      bp.parse().should be_false
+    end
+  end
 
   describe "#get_time_zone_offset" do
     context "with no timezone available" do
