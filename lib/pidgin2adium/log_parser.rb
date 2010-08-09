@@ -386,14 +386,16 @@ module Pidgin2Adium
 
     def cleanup(text)
       text.tr!("\r", '')
-      # Replace newlines with "<br/>" unless they end a chat line.
-      text.gsub!(/\n(?!#{@timestamp_rx}|\Z)/, '<br/>')
       # Escape entities since this will be in XML
       text.gsub!('&', '&amp;') # escape '&' first
       text.gsub!('<', '&lt;')
       text.gsub!('>', '&gt;')
       text.gsub!('"', '&quot;')
       text.gsub!("'", '&apos;')
+      # Replace newlines with "<br/>" unless they end a chat line.
+      # Add the <br/> after converting to &lt; etc so we
+      # don't escape the tag.
+      text.gsub!(/\n(?!(#{@timestamp_rx}|\Z))/, '<br/>')
       return text
     end
   end # END TextLogParser class
