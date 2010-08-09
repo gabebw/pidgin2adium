@@ -9,10 +9,6 @@ $-w=nil
 describe "Pidgin2Adium" do
   before(:all) do
     @nonexistent_logfile_path = "./nonexistent_logfile_path/"
-
-    @text_logfile_path = "#{@logfile_path}/2006-12-21.223606.txt"
-    @htm_logfile_path = "#{@logfile_path}/2008-01-15.071445-0500PST.htm"
-    @html_logfile_path = "#{@logfile_path}/2008-01-15.071445-0500PST.html"
   end
 
   before(:each) do
