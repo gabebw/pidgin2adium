@@ -155,17 +155,17 @@ module Pidgin2Adium
       @file_content.map! do |line|
         # "next" returns nil which is removed by compact
         next if line =~ /^\s+$/
-          if line =~ @line_regex
-            create_msg($~.captures)
-          elsif line =~ @line_regex_status
-            msg = create_status_or_event_msg($~.captures)
-            # Error occurred while parsing
-            return false if msg == false
-          else
-            error "Could not parse line:"
-            p line
-            return false
-          end
+        if line =~ @line_regex
+          create_msg($~.captures)
+        elsif line =~ @line_regex_status
+          msg = create_status_or_event_msg($~.captures)
+          # Error occurred while parsing
+          return false if msg == false
+        else
+          error "Could not parse line:"
+          p line
+          return false
+        end
       end
       @file_content.compact!
       return LogFile.new(@file_content, @service, @user_SN, @partner_SN, @adium_chat_time_start)
