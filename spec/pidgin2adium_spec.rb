@@ -1,6 +1,11 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 require 'fileutils'
 
+# Pidgin2Adium.oops and Pidgin2Adium.warn both use warn() to output errors.
+# Setting $-w (the warning level) to nil suppresses them, which makes for
+# much prettier test output.
+$-w=nil
+
 describe "Pidgin2Adium" do
   before(:all) do
     @current_dir = File.dirname(__FILE__)
@@ -12,10 +17,12 @@ describe "Pidgin2Adium" do
     @text_logfile_path = "#{@logfile_path}/2006-12-21.223606.txt"
     @htm_logfile_path = "#{@logfile_path}/2008-01-15.071445-0500PST.htm"
     @html_logfile_path = "#{@logfile_path}/2008-01-15.071445-0500PST.html"
+  end
 
+  before(:each) do
     # "Kernel gets mixed in to an object, so you need to stub [its methods] on the object
     # itself." - http://www.ruby-forum.com/topic/128619
-    Pidgin2Adium.stub!(:puts).and_return(nil)
+    Pidgin2Adium.stub!(:puts).and_return(nil) # Doesn't work in the before(:all) block
   end
 
   describe "constants" do
