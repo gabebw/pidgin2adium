@@ -31,28 +31,28 @@ prefork_block = lambda do
     constant = Spec::Runner
   end
 
-   constant.configure do |config|
-     config.before(:all) do
-       @current_dir = File.dirname(__FILE__)
-       @aliases = %w{gabebw gabeb-w gbw me}.join(',')
+  constant.configure do |config|
+    config.before(:all) do
+      @current_dir = File.dirname(__FILE__)
+      @aliases = %w{gabebw gabeb-w gbw me}.join(',')
 
-       @logfile_path = File.join(@current_dir, "logfiles/")
-       @text_logfile_path = "#{@logfile_path}/2006-12-21.223606.txt"
-       @htm_logfile_path = "#{@logfile_path}/2008-01-15.071445-0500PST.htm"
-       @html_logfile_path = "#{@logfile_path}/2008-01-15.071445-0500PST.html"
+      @logfile_path = File.join(@current_dir, "logfiles/")
+      @text_logfile_path = "#{@logfile_path}/2006-12-21.223606.txt"
+      @htm_logfile_path = "#{@logfile_path}/2008-01-15.071445-0500PST.htm"
+      @html_logfile_path = "#{@logfile_path}/2008-01-15.071445-0500PST.html"
 
-       @nonexistent_output_dir = File.join(@current_dir, "nonexistent_output_dir/")
-       @output_dir = File.join(@current_dir, "output-dir/")
-       FileUtils.rm_r(@nonexistent_output_dir, :force => true)
-     end
+      @nonexistent_output_dir = File.join(@current_dir, "nonexistent_output_dir/")
+      @output_dir = File.join(@current_dir, "output-dir/")
+      FileUtils.rm_r(@nonexistent_output_dir, :force => true)
+    end
 
-     config.after(:all) do
-       # Clean up.
-       FileUtils.rm_r(@nonexistent_output_dir, :force => true)
-       FileUtils.rm_r(@output_dir, :force => true)
-     end
+    config.after(:all) do
+      # Clean up.
+      FileUtils.rm_r(@nonexistent_output_dir, :force => true)
+      FileUtils.rm_r(@output_dir, :force => true)
+    end
 
-   end
+  end
 end
 
 begin
