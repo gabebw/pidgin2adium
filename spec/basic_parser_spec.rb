@@ -1,5 +1,5 @@
 require 'spec_helper'
-require 'active_support' # for Time.zone_offset
+require 'time' # for Time.zone_offset
 
 describe "BasicParser" do
   it "should include Pidgin2Adium" do
