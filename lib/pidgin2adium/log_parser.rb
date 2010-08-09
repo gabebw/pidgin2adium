@@ -338,13 +338,13 @@ module Pidgin2Adium
         event_type = 'libpurpleEvent' if regex
         unless regex and event_type
           # not a libpurple event, try others
-          if @event_map.detect{|regex,event_type| str =~ regex}
-            regex, event_type = $1, $2
-          else
+          regex, event_type = @event_map.detect{|regex,event_type| str =~ regex}
+          unless regex and event_type
             error(sprintf("Error parsing status or event message, no status or event found: %p", str))
             return false
           end
         end
+
         if regex and event_type
           regex_matches = regex.match(str)
           # Event message
