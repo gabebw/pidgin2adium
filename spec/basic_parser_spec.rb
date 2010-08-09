@@ -63,7 +63,58 @@ describe "BasicParser" do
 
     it "should return an array of nils for an invalid time" do
       time = @bp.create_adium_time(@invalid_time)
-      time.should == [nil] * 8
+      time.should be_nil
+    end
+  end
+
+  describe "#pre_parse" do
+    it "should raise an error for an invalid first line" do
+      bp =  Pidgin2Adium::BasicParser.new(
+              File.join(@current_dir,
+                        "logfiles",
+                        "invalid-first-line.txt"),
+              @aliases)
+      lambda do
+        bp.pre_parse()
+      end.should raise_error(Pidgin2Adium::InvalidFirstLineError)
+    end
+
+    it "should return correct info for an valid first line" do
+      bp =  Pidgin2Adium::BasicParser.new(@html_logfile_path,
+                                          @aliases)
+      results = bp.pre_parse()
+      results.should be_instance_of(Array)
+      results.should == ['aim', # service
+                         'othersn', # my SN
+                         'aolsystemmsg', # other person's SN
+                         [2008, 1, 15], # basic time info
+                         '2008-01-15T07.14.45-0500' # chat start time
+                        ]
+    end
+  end
+
+  describe "#get_sender_by_alias" do
+    before(:each) do
+      @my_alias = "Gabe B-W"
+      @my_SN =  "awesomesn" # normalized from "awesome SN"
+
+      @partner_alias = "Leola Farber III"
+      @partner_SN = "BUDDY_PERSON" # not normalized
+      # Use text logfile since it has aliases set up.
+      @bp = Pidgin2Adium::BasicParser.new(@text_logfile_path,
+                                          @my_alias)
+    end
+
+    it "should return my SN when passed my alias" do
+      @bp.get_sender_by_alias(@my_alias).should == @my_SN
+    end
+
+    it "should return my SN when passed my alias with an action" do
+      @bp.get_sender_by_alias("***#{@my_alias}").should == @my_SN
+    end
+
+    it "should return partner's SN when passed partner's alias" do
+      @bp.get_sender_by_alias(@partner_alias).should == @partner_SN
     end
   end
 end
