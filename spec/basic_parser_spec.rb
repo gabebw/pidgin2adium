@@ -117,4 +117,40 @@ describe "BasicParser" do
       @bp.get_sender_by_alias(@partner_alias).should == @partner_SN
     end
   end
+
+  describe "#create_msg" do
+    before(:each) do
+      body = "Your screen name (otherSN) is now signed into " +
+        "AOL(R) Instant Messenger (TM) in 2 locations. " +
+        "To sign off the other location(s), reply to this message " + "with the number 1. Click " +
+        "<a href='http://www.aim.com/password/routing.adp'>here</a> " +
+        "for more information."
+      @matches = ['2008-01-15T07.14.45-0500', # time
+                  'AOL System Msg', # alias
+                  nil, # not an auto-reply
+                  body # message body
+                 ]
+      @auto_reply_matches = @matches.dup
+      @auto_reply_matches[2] = '<AUTO-REPLY>'
+
+      @bp = Pidgin2Adium::BasicParser.new(@text_logfile_path,
+                                          "Gabe B-W")
+    end
+
+
+    it "should return XMLMessage class for a normal message" do
+      @bp.create_msg(@matches).should
+        be_instance_of(Pidgin2Adium::XMLMessage)
+    end
+
+    it "should return AutoReplyMessage class for an auto reply" do
+      @bp.create_msg(@auto_reply_matches).should
+        be_instance_of(Pidgin2Adium::AutoReplyMessage)
+    end
+
+    it "should return nil if the time is nil" do
+      @matches[0] = nil
+      @bp.create_msg(@matches).should be_nil
+    end
+  end
 end
