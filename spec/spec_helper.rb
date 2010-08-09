@@ -1,3 +1,10 @@
+require 'fileutils'
+
+# Pidgin2Adium.oops and Pidgin2Adium.warn both use warn() to output errors.
+# Setting $-w (the warning level) to nil suppresses them, which makes for
+# much prettier test output.
+$-w=nil # OMGHAX
+
 # Wrap it in a lambda so that we can pass it to Spork.prefork, if spork is installed.
 prefork_block = lambda do
   # Loading more in this block will cause your tests to run faster. However,
@@ -33,7 +40,18 @@ prefork_block = lambda do
        @text_logfile_path = "#{@logfile_path}/2006-12-21.223606.txt"
        @htm_logfile_path = "#{@logfile_path}/2008-01-15.071445-0500PST.htm"
        @html_logfile_path = "#{@logfile_path}/2008-01-15.071445-0500PST.html"
+
+       @nonexistent_output_dir = File.join(@current_dir, "nonexistent_output_dir/")
+       @output_dir = File.join(@current_dir, "output-dir/")
+       FileUtils.rm_r(@nonexistent_output_dir, :force => true)
      end
+
+     config.after(:all) do
+       # Clean up.
+       FileUtils.rm_r(@nonexistent_output_dir, :force => true)
+       FileUtils.rm_r(@output_dir, :force => true)
+     end
+
    end
 end
 

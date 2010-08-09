@@ -1,10 +1,4 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
-require 'fileutils'
-
-# Pidgin2Adium.oops and Pidgin2Adium.warn both use warn() to output errors.
-# Setting $-w (the warning level) to nil suppresses them, which makes for
-# much prettier test output.
-$-w=nil
 
 describe "Pidgin2Adium" do
   before(:all) do
@@ -116,9 +110,6 @@ describe "Pidgin2Adium" do
 
   describe "#parse_and_generate" do
     before(:each) do
-      @nonexistent_output_dir = File.join(@current_dir, "nonexistent_output_dir/")
-      @output_dir = File.join(@current_dir, "output-dir/")
-
       # text logfile has screenname awesomeSN,
       # and html logfiles have screenname otherSN
       @text_output_file_path = File.join(@output_dir,
