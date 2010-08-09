@@ -18,20 +18,7 @@ prefork_block = lambda do
   require 'pidgin2adium'
   require 'faker'
 
-  begin
-    # RSpec 2
-    gem 'rspec', '>= 2.0.0.beta.18'
-    require 'rspec'
-    constant = RSpec
-  rescue Gem::LoadError
-    # RSpec 1
-    gem 'rspec', '~> 1.3'
-    require 'spec'
-    require 'spec/autorun'
-    constant = Spec::Runner
-  end
-
-  constant.configure do |config|
+  rspec_configure_block = lambda do |config|
     config.before(:all) do
       @current_dir = File.dirname(__FILE__)
       @aliases = %w{gabebw gabeb-w gbw me}.join(',')
@@ -51,7 +38,19 @@ prefork_block = lambda do
       FileUtils.rm_r(@nonexistent_output_dir, :force => true)
       FileUtils.rm_r(@output_dir, :force => true)
     end
+  end
 
+  begin
+    # RSpec 2
+    gem 'rspec', '>= 2.0.0.beta.18'
+    require 'rspec'
+    RSpec.configure(&rspec_configure_block)
+  rescue Gem::LoadError
+    # RSpec 1
+    gem 'rspec', '~> 1.3'
+    require 'spec'
+    require 'spec/autorun'
+    Spec::Runner.configure(&rspec_configure_block)
   end
 end
 
