@@ -157,7 +157,7 @@ VALUE balance_tags_c(VALUE mod, VALUE text){
       }
     }
     rb_str_concat(newtext,
-        rb_str_plus(rb_str_substr(text, 0, pos-1), tag));
+        rb_str_plus(rb_str_substr(text, 0, NUM2INT(pos)), tag));
     text = rb_str_substr(text,
         NUM2INT(pos)+matchlen,
         RSTRING_LEN(text) - (NUM2INT(pos)+matchlen));
