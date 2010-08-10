@@ -459,7 +459,7 @@ module Pidgin2Adium
 
       # These empty links are sometimes appended to every line in a chat,
       # for some weird reason. Remove them.
-      text.gsub!(%r{<a href=('").+?\1>\s*?</a>}, '')
+      text.gsub!(%r{<a href=['"].+?['"]>\s*?</a>}, '')
 
       # Replace single quotes inside tags with double quotes so we can
       # easily change single quotes to entities.
