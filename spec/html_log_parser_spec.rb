@@ -99,31 +99,47 @@ describe "HtmlLogParser" do
     end
   end
 
-=begin
   describe "#parse" do
+    before(:each) do
+      @logfile = @hlp.parse()
+    end
     it "should return a LogFile instance" do
-      @hlp.parse().should be_instance_of(Pidgin2Adium::LogFile)
+      @logfile.should be_instance_of(Pidgin2Adium::LogFile)
     end
 
     it "should return a LogFile with the correct number of chat_lines" do
-      logfile = @hlp.parse
-      logfile.chat_lines.size.should == 1
+      @logfile.chat_lines.size.should == 3
     end
 
     it "should return a LogFile with the correct message type" do
-      logfile = @hlp.parse
-      logfile.chat_lines[0].should be_instance_of(Pidgin2Adium::XMLMessage)
+      @logfile.chat_lines.map{|x| x.class }.should == [Pidgin2Adium::XMLMessage] * 3
     end
 
     it "should return a LogFile with the correct data" do
-      logfile = @hlp.parse
-      msg = logfile.chat_lines[0]
-      msg.sender.should == "awesomesn"
-      msg.body.should == "what are you doing tomorrow?"
-      msg.buddy_alias.should == "Gabe B-W"
+      first_msg = @logfile.chat_lines[0]
+      second_msg = @logfile.chat_lines[1]
+      third_msg = @logfile.chat_lines[2]
+
+      first_msg.sender.should == "aolsystemmsg"
+      first_msg.buddy_alias.should == "AOL System Msg"
       # Use regex to ignore time zone
-      msg.time.should =~ /^2006-12-21T22:36:11[-+]\d{2}00$/
+      first_msg.time.should =~ /^2008-01-15T07:14:45[-+]\d{2}00$/
+      # This fails due to balance_tags_c().
+      good_body = %Q{Your screen name (otherSN) is now signed into AOL(R) Instant Messenger (TM) in 2 locations.} + " " +
+        %Q{To sign off the other location(s), reply to this message with the number 1.} + " " +
+        %Q{Click <a href="http://www.aim.com/password/routing.adp">here</a> for more information.}
+      first_msg.body.should == good_body
+
+      second_msg.sender.should == "othersn"
+      second_msg.buddy_alias.should == "Gabe B-W"
+      second_msg.time.should =~ /^2008-01-15T07:14:48[-+]\d{2}00$/
+      second_msg.body.should == "1"
+
+      third_msg.sender.should == "aolsystemmsg"
+      third_msg.buddy_alias.should == "AOL System Msg"
+      # Use regex to ignore time zone
+      third_msg.time.should =~ /^2008-01-15T07:14:48[-+]\d{2}00$/
+      third_msg.body.should == "Your other AIM sessions have been signed-off.  You are now signed-on from 1 location(s)."
     end
   end
-=end
 end
