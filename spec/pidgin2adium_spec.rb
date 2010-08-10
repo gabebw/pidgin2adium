@@ -53,6 +53,13 @@ describe "Pidgin2Adium" do
           `touch #{@dirty_file}`
           `touch #{@log_index_file}`
         end
+
+        after(:each) do
+          [@dirty_file, @log_index_file].each do |f|
+            `chmod +w #{f}` # make writeable
+          end
+        end
+
         it "should delete the search indices when they are writeable" do
           [@dirty_file, @log_index_file].each do |f|
             `chmod +w #{f}` # make writeable
