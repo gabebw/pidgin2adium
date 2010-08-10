@@ -14,6 +14,11 @@ describe "HtmlLogParser" do
     @clean = "clean"
   end
 
+  it "should have Pidgin2Adium.balance_tags_c available" do
+    p Pidgin2Adium.balance_tags_c
+    Pidgin2Adium.should respond_to(:balance_tags_c)
+  end
+
   describe "#cleanup" do
     it "should remove html, body, and font tags" do
       dirty_text = %Q{<html><body type="ichat"><font color="red">#{@clean}</font></body></html>}
@@ -103,6 +108,7 @@ describe "HtmlLogParser" do
     before(:each) do
       @logfile = @hlp.parse()
     end
+
     it "should return a LogFile instance" do
       @logfile.should be_instance_of(Pidgin2Adium::LogFile)
     end
