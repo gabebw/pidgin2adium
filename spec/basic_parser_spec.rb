@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'time' # for Time.zone_offset
 
 describe "BasicParser" do
   it "should include Pidgin2Adium" do
@@ -17,11 +16,9 @@ describe "BasicParser" do
   describe "#get_time_zone_offset" do
     context "with no timezone available" do
       it "should return the local time zone" do
-        tz_offset = sprintf('%+03d00',
-                            Time.zone_offset(Time.now.zone) / 3600)
         bp = Pidgin2Adium::BasicParser.new(@text_logfile_path,
                                            @aliases)
-        bp.get_time_zone_offset.should == tz_offset
+        bp.get_time_zone_offset.should == @current_tz_offset
       end
     end
 
@@ -42,6 +39,8 @@ describe "BasicParser" do
       @minimal_time_2 = "04:22:05"
       @invalid_time = "Hammer time!"
 
+      # Use HTML logfile because it has an explicit timezone (-0500), so we
+      # don't have to calculate it out.
       @bp = Pidgin2Adium::BasicParser.new(@html_logfile_path,
                                           @aliases)
     end
