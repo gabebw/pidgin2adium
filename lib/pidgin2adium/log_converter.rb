@@ -59,14 +59,10 @@ module Pidgin2Adium
       puts @@error_messages.join("\n")
     end
 
-    ###########
-    private
-    ###########
-
     def get_all_chat_files(dir)
       return [] if File.basename(dir) == ".system"
       # recurse into each subdir
       return (Dir.glob("#{@pidgin_log_dir}/**/*.{htm,html,txt}") - BAD_DIRS)
     end
-  end # END LogConverter class
+  end
 end

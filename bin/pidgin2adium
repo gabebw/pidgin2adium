@@ -21,76 +21,85 @@ Written by Gabe Berke-Williams (gbw@rubyforge.org)
 EOL
 
 options = {}
+
 oparser = OptionParser.new do |opts|
-    opts.banner = "Usage: #{File.basename($0)} [options]"
-    opts.on('-i', '--in=IN_DIR', String, 'Directory where pidgin logs are stored') do |i|
-	options[:in] = i
-    end
-    opts.on('-a alias1,alias2', "--aliases alias1,alias2",
-	    "A comma-separated list of your alias(es)",
-	    "so this script knows which person in a chat",
-	    "is you. Whitespace and case do not matter.") do |aliases|
-	options[:aliases] = aliases
-    end
-    opts.on('-o', '--out OUT_DIR',
-	    'The top-level directory under which to',
-	    'store the logs (each in its own folder',
-	    'by screen name).',
-	    "Defaults  to: #{Pidgin2Adium::ADIUM_LOG_DIR}") do |out|
-	options[:output_dir] = out
-    end
-    opts.on('-f', '--force', 'If this is set, then logs in the Adium log',
-	    'folder that have the same name as converted',
-	    'logs will be overwritten.') do |f|
-	options[:force] = f
-    end
-    opts.on("-v", "--version", "Show version information") do
-	puts version
-	exit
-    end
-    opts.on_tail("-h", "--help", "Show this message") do
-	puts version
-	puts opts
-	exit
-    end
+  opts.banner = "Usage: #{File.basename($0)} [options]"
+  opts.on('-i', '--in=IN_DIR', String, 'Directory where pidgin logs are stored') do |i|
+    options[:in] = i
+  end
+
+  opts.on('-a alias1,alias2', "--aliases alias1,alias2",
+          "A comma-separated list of your alias(es)",
+          "so this script knows which person in a chat",
+          "is you. Whitespace and case do not matter.") do |aliases|
+    options[:aliases] = aliases
+  end
+
+  opts.on('-o', '--out OUT_DIR',
+          'The top-level directory under which to',
+          'store the logs (each in its own folder',
+          'by screen name).',
+          "Defaults  to: #{Pidgin2Adium::ADIUM_LOG_DIR}") do |out|
+    options[:output_dir] = out
+  end
+
+  opts.on('-f', '--force', 'If this is set, then logs in the Adium log',
+          'folder that have the same name as converted',
+          'logs will be overwritten.') do |f|
+    options[:force] = f
+  end
+
+  opts.on("-v", "--version", "Show version information") do
+    puts version
+    exit
+  end
+
+  opts.on_tail("-h", "--help", "Show this message") do
+    puts version
+    puts opts
+    exit
+  end
 end
+
 begin
-    oparser.parse!
+  oparser.parse!
 rescue => bang
-    if bang.class == OptionParser::MissingArgument 
-	# No argument provided for a switch that requires an argument.
-	puts '"%s" requires an argument.' % bang.args[0]
-	exit 1
-    elsif bang.class == OptionParser::InvalidOption 
-	# Provided a switch that we don't handle.
-	puts '"%s" is not a valid switch.' % bang.args[0]
-    elsif bang.class == OptionParser::NeedlessArgument
-	# Raised when argument provided for a switch that doesn't take an argument.
-	puts bang.message
-    end
+  if bang.class == OptionParser::MissingArgument
+    # No argument provided for a switch that requires an argument.
+    puts '"%s" requires an argument.' % bang.args[0]
+    exit 1
+  elsif bang.class == OptionParser::InvalidOption
+    # Provided a switch that we don't handle.
+    puts '"%s" is not a valid switch.' % bang.args[0]
+  elsif bang.class == OptionParser::NeedlessArgument
+    # Raised when argument provided for a switch that doesn't take an argument.
+    puts bang.message
+  end
 end
 
 need_opts = false
 required_opts = [[:i, :in], [:a, :aliases]]
+
 required_opts.each do |short, long|
-    if options.has_key?(long)
-	next
-    else
-	need_opts = true
-	puts "Required option -#{short}/--#{long} missing."
-    end
+  if options.has_key?(long)
+    next
+  else
+    need_opts = true
+    puts "Required option -#{short}/--#{long} missing."
+  end
 end
+
 if need_opts
-    puts oparser.to_s
-    exit 1
+  puts oparser.to_s
+  exit 1
 end
 
 extra_opts = {:overwrite => options[:force]}
 if options.has_key?(:output_dir)
-    extra_opts[:output_dir] = options[:output_dir]
+  extra_opts[:output_dir] = options[:output_dir]
 end
 
 log_converter = Pidgin2Adium::LogConverter.new(options[:in],
-					       options[:aliases],
-					       extra_opts)
+                                               options[:aliases],
+                                               extra_opts)
 log_converter.start

@@ -1,4 +1,27 @@
+require 'autotest/growl'
+require 'autotest/fsevent'
+
 Autotest.add_hook :initialize do |at|
+  # Modifying ext/balance_tags_c.c triggers spec/balance_tags_c_extn_spec.rb
+  at.add_mapping(/ext\/.*\/(.*)\.[ch]/) do |_, m|
+    ["spec/#{m[1]}_extn_spec.rb"]
+  end
+
+  at.add_mapping(%r{lib/pidgin2adium.rb}) do |_, m|
+    ["spec/pidgin2adium_spec.rb"]
+  end
+
+  at.add_mapping(%r{lib/pidgin2adium/log_parser.rb}) do |_, m|
+    # will add more files as I create the specs
+    ["spec/basic_parser_spec.rb"]
+  end
+
+  # Re-run spec files when they change
+  at.add_mapping(%r{^spec/.+_spec.rb$}) do |filename, _|
+    filename
+  end
+
+  at.libs = %w{. lib spec}
 end
 
 Autotest.add_hook :run_command do |at|

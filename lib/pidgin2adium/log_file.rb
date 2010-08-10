@@ -98,5 +98,5 @@ module Pidgin2Adium
 
       return output_path
     end
-  end # END LogFile class
+  end
 end

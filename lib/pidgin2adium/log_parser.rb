@@ -34,10 +34,17 @@ module Pidgin2Adium
 
       @tz_offset = get_time_zone_offset()
 
-      file = File.new(@src_path, 'r')
-      @first_line = file.readline
-      @file_content = file.read
-      file.close
+      @log_file_is_valid = true
+      begin
+        file = File.new(@src_path, 'r')
+        @first_line = file.readline
+        @file_content = file.read
+        file.close
+      rescue Errno::ENOENT
+        oops("#{@src_path} doesn't exist! Continuing...")
+        @log_file_is_valid = false
+        return nil
+      end
 
       # Time regexes must be set before pre_parse().
       # "4/18/2007 11:02:00 AM" => %w{4, 18, 2007, 11, 02, 00, AM}
@@ -49,22 +56,21 @@ module Pidgin2Adium
       # "04:22:05 AM" => %w{04 22 05 AM}
       @minimal_time_regex = /^(\d{1,2}):(\d{2}):(\d{2})( [AP]M)?$/
 
-      # Whether or not the first line is parseable.
-      @first_line_is_valid = true
       begin
         @service,
-        @user_SN,
-        @partner_SN,
-        # @basic_time_info is for files that only have the full
-        # timestamp at the top; we can use it to fill in the minimal
-        # per-line timestamps. It has only 3 elements (year, month,
-        # dayofmonth) because you should be able to fill everything
-        # else in. If you can't, something's wrong.
-        @basic_time_info,
-        # When the chat started, in Adium's format
-        @adium_chat_time_start = pre_parse()
+          @user_SN,
+          @partner_SN,
+          # @basic_time_info is for files that only have the full
+          # timestamp at the top; we can use it to fill in the minimal
+          # per-line timestamps. It has only 3 elements (year, month,
+          # dayofmonth) because you should be able to fill everything
+          # else in. If you can't, something's wrong.
+          @basic_time_info,
+          # When the chat started, in Adium's format
+          @adium_chat_time_start = pre_parse()
       rescue InvalidFirstLineError
-        @first_line_is_valid = false
+        # The first line isn't parseable
+        @log_file_is_valid = false
         error("Failed to parse, invalid first line: #{@src_path}")
         return # stop processing
       end
@@ -137,7 +143,13 @@ module Pidgin2Adium
 
     # This method returns a LogFile instance, or false if an error occurred.
     def parse
-      return false unless @first_line_is_valid
+      # Prevent parse from being called directly from BasicParser, since
+      # it uses subclassing magic.
+      if self.class == BasicParser
+        oops("Please don't call parse directly from BasicParser. Use a subclass :)")
+        return false
+      end
+      return false unless @log_file_is_valid
       @file_content = cleanup(@file_content).split("\n")
 
       @file_content.map! do |line|
@@ -158,13 +170,6 @@ module Pidgin2Adium
       @file_content.compact!
       return LogFile.new(@file_content, @service, @user_SN, @partner_SN, @adium_chat_time_start)
     end
-    # Prevent parse from being called directly from BasicParser, since
-    # it uses subclassing magic.
-    protected :parse
-
-    #################
-    private
-    #################
 
     def get_time_zone_offset()
       # We must have a tz_offset or else the Adium Chat Log viewer
@@ -190,6 +195,8 @@ module Pidgin2Adium
     # because it will be used in the filename.
     #++
     # Converts a pidgin datestamp to an Adium one.
+    # Returns a string representation of _time_ or
+    # nil if it couldn't parse the provided _time_.
     def create_adium_time(time, is_first_line = false)
       # parsed_date = [year, month, day, hour, min, sec]
       if time =~ @time_regex
@@ -223,7 +230,11 @@ module Pidgin2Adium
         error("You have found an odd timestamp. Please report it to the developer.")
         log_msg("The timestamp: #{time}")
         log_msg("Continuing...")
-        year,month,day,hour,min,sec = ParseDate.parsedate(time)
+        year,month,day,hour,min,sec = ParseDate.parsedate(time.to_s)
+        if [year,month,day,hour,min,sec].include?(nil)
+          # Failed to parse the time
+          return nil
+        end
       end
       if is_first_line
         adium_time = Time.local(year,month,day,hour,min,sec).strftime("%Y-%m-%dT%H.%M.%S#{@tz_offset}")
@@ -279,12 +290,13 @@ module Pidgin2Adium
     # create_msg takes an array of captures from matching against
     # @line_regex and returns a Message object or one of its subclasses.
     # It can be used for TextLogParser and HtmlLogParser because both of
-    # them return data in the same indexes in the matches array.
+    # they return data in the same indexes in the matches array.
     #++
     def create_msg(matches)
       msg = nil
       # Either a regular message line or an auto-reply/away message.
       time = create_adium_time(matches[0])
+      return nil if time.nil?
       buddy_alias = matches[1]
       sender = get_sender_by_alias(buddy_alias)
       body = matches[3]
@@ -309,6 +321,7 @@ module Pidgin2Adium
       # 1: status message or event
       msg = nil
       time = create_adium_time(matches[0])
+      return nil if time.nil?
       str = matches[1]
       # Return nil, which will get compact'ed out
       return nil if @ignore_events.detect{|regex| str =~ regex }
@@ -325,13 +338,13 @@ module Pidgin2Adium
         event_type = 'libpurpleEvent' if regex
         unless regex and event_type
           # not a libpurple event, try others
-          if @event_map.detect{|regex,event_type| str =~ regex}
-            regex, event_type = $1, $2
-          else
+          regex, event_type = @event_map.detect{|regex,event_type| str =~ regex}
+          unless regex and event_type
             error(sprintf("Error parsing status or event message, no status or event found: %p", str))
             return false
           end
         end
+
         if regex and event_type
           regex_matches = regex.match(str)
           # Event message
@@ -364,7 +377,6 @@ module Pidgin2Adium
       # 2: "<AUTO-REPLY>" or nil
       # 3: message body
       @line_regex = /#{@timestamp_rx} (.*?) ?(<AUTO-REPLY>)?: (.*)/o
-
       # @line_regex_status matches a status line
       # @line_regex_status matchdata:
       # 0: timestamp
@@ -372,25 +384,21 @@ module Pidgin2Adium
       @line_regex_status = /#{@timestamp_rx} ([^:]+)/o
     end
 
-    public :parse
-
-    #################
-    private
-    #################
-
     def cleanup(text)
       text.tr!("\r", '')
-      # Replace newlines with "<br/>" unless they end a chat line.
-      text.gsub!(/\n(?!#{@timestamp_rx}|\Z)/, '<br/>')
       # Escape entities since this will be in XML
       text.gsub!('&', '&amp;') # escape '&' first
       text.gsub!('<', '&lt;')
       text.gsub!('>', '&gt;')
       text.gsub!('"', '&quot;')
       text.gsub!("'", '&apos;')
+      # Replace newlines with "<br/>" unless they end a chat line.
+      # Add the <br/> after converting to &lt; etc so we
+      # don't escape the tag.
+      text.gsub!(/\n(?!(#{@timestamp_rx}|\Z))/, '<br/>')
       return text
     end
-  end
+  end # END TextLogParser class
 
   # Please use Pidgin2Adium.parse or Pidgin2Adium.parse_and_generate instead
   # of using this class directly.
@@ -408,18 +416,12 @@ module Pidgin2Adium
       # 3: message body
       # The ":" is optional to allow for strings like "(17:12:21) <b>***Gabe B-W</b> is confused<br/>"
       @line_regex = /#{@timestamp_rx} ?<b>(.+?) ?(&lt;AUTO-REPLY&gt;)?:?<\/b> ?(.+)<br ?\/>/o
-        # @line_regex_status matches a status line
-        # @line_regex_status match obj:
-        # 0: timestamp
-        # 1: status message
-        @line_regex_status = /#{@timestamp_rx} ?<b> (.+)<\/b><br ?\/>/o
+      # @line_regex_status matches a status line
+      # @line_regex_status match obj:
+      # 0: timestamp
+      # 1: status message
+      @line_regex_status = /#{@timestamp_rx} ?<b> (.+)<\/b><br ?\/>/o
     end
-
-    public :parse
-
-    #################
-    private
-    #################
 
     # Returns a cleaned string.
     # Removes the following tags from _text_:
@@ -457,7 +459,7 @@ module Pidgin2Adium
 
       # These empty links are sometimes appended to every line in a chat,
       # for some weird reason. Remove them.
-      text.gsub!(%r{<a href=('").+?\1>\s*?</a>}, '')
+      text.gsub!(%r{<a href=['"].+?['"]>\s*?</a>}, '')
 
       # Replace single quotes inside tags with double quotes so we can
       # easily change single quotes to entities.
@@ -553,10 +555,6 @@ module Pidgin2Adium
                      @sender, @time, @buddy_alias, @styled_body)
     end
 
-    #################
-    private
-    #################
-
     # Balances mismatched tags, normalizes body style, and fixes actions
     # so they are in Adium style (Pidgin uses "***Buddy waves at you", Adium uses
     # "*Buddy waves at you*").
@@ -577,7 +575,7 @@ module Pidgin2Adium
       # Convert '&' to '&amp;' only if it's not followed by an entity.
       @body.gsub!(/&(?!lt|gt|amp|quot|apos)/, '&amp;')
     end
-  end # END XMLMessage
+  end # END XMLMessage class
 
   # An auto reply message.
   class AutoReplyMessage < XMLMessage
@@ -585,7 +583,7 @@ module Pidgin2Adium
       return sprintf('<message sender="%s" time="%s" auto="true" alias="%s">%s</message>' << "\n",
                      @sender, @time, @buddy_alias, @styled_body)
     end
-  end
+  end # END AutoReplyMessage class
 
   # A message saying e.g. "Blahblah has gone away."
   class StatusMessage < Message
@@ -598,7 +596,7 @@ module Pidgin2Adium
     def to_s
       return sprintf('<status type="%s" sender="%s" time="%s" alias="%s"/>' << "\n", @status, @sender, @time, @buddy_alias)
     end
-  end
+  end # END StatusMessage class
 
   # Pidgin does not have Events, but Adium does. Pidgin mostly uses system
   # messages to display what Adium calls events. These include sending a file,
@@ -614,5 +612,5 @@ module Pidgin2Adium
       return sprintf('<event type="%s" sender="%s" time="%s" alias="%s">%s</event>',
                      @event_type, @sender, @time, @buddy_alias, @styled_body)
     end
-  end
+  end # END Event class
 end # end module

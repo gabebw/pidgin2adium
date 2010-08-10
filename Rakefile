@@ -52,6 +52,7 @@ rescue Gem::LoadError
 end
 
 task :spec => :check_dependencies
+task :spec => "extconf:compile"
 
 task :default => :spec
 

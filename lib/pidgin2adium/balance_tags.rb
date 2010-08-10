@@ -20,8 +20,8 @@ module Pidgin2Adium
     # 2: attributes
     tag_regex = /<(\/?\w*)\s*([^>]*)>/
 
-      # WP bug fix for comments - in case you REALLY meant to type '< !--'
-      text.gsub!('< !--', '<    !--')
+    # WP bug fix for comments - in case you REALLY meant to type '< !--'
+    text.gsub!('< !--', '<    !--')
 
     # WP bug fix for LOVE <3 (and other situations with '<' before a number)
     text.gsub!(/<([0-9]{1})/, '&lt;\1')
