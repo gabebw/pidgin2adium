@@ -55,6 +55,9 @@ describe "Pidgin2Adium" do
         end
 
         after(:each) do
+          # Recreate search indices
+          `touch #{@dirty_file}`
+          `touch #{@log_index_file}`
           [@dirty_file, @log_index_file].each do |f|
             `chmod +w #{f}` # make writeable
           end
