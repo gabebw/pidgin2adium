@@ -9,4 +9,5 @@ group :development do
   gem "jeweler"
   gem "rspec", ">= 1.2.9"
   gem "faker"
+  gem "pidgin2adium", :require => File.join(File.dirname(__FILE__), 'lib', 'pidgin2adium')
 end

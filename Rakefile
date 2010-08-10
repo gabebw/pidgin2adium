@@ -1,6 +1,8 @@
 require 'rubygems'
-require 'rake'
 require 'bundler'
+Bundler.setup
+
+require 'rake'
 
 begin
   require 'jeweler'
