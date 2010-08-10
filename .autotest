@@ -11,9 +11,8 @@ Autotest.add_hook :initialize do |at|
     ["spec/pidgin2adium_spec.rb"]
   end
 
-  at.add_mapping(%r{lib/pidgin2adium/log_parser.rb}) do |_, m|
-    # will add more files as I create the specs
-    ["spec/basic_parser_spec.rb"]
+  at.add_mapping(%r{lib/pidgin2adium/(.+_log_parser).rb}) do |_, m|
+    ["spec/#{m[1]}_spec.rb"]
   end
 
   # Re-run spec files when they change
