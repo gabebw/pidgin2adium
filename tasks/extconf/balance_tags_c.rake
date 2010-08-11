@@ -1,3 +1,5 @@
+require 'rbconfig'
+
 namespace :extconf do
   extension = File.basename(__FILE__, '.rake')
 
@@ -12,6 +14,8 @@ namespace :extconf do
     # "lib"
   ]
 
+  is_windows = Config::CONFIG['host_os'] =~ /mswin|mingw/
+  make_command = is_windows ? 'nmake' : 'make'
 
   task :compile => extension do
     if Dir.glob("**/#{extension}.{o,so,dll}").length == 0
@@ -32,7 +36,7 @@ namespace :extconf do
 
   file ext_so => ext_files do
     Dir.chdir(ext) do
-      sh(PLATFORM =~ /win32/ ? 'nmake' : 'make') do |ok, res|
+      sh(make_command) do |ok, res|
         if !ok
           require "fileutils"
           FileUtils.rm Dir.glob('*.{so,o,dll,bundle}')
