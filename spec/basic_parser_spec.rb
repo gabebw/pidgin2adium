@@ -91,7 +91,7 @@ describe "BasicParser" do
       results.should == ['aim', # service
                          'othersn', # my SN
                          'aolsystemmsg', # other person's SN
-                         [2008, 1, 15], # basic time info
+                         {:year=>2008, :mon=>1, :mday=>15}, # basic time info
                          '2008-01-15T07.14.45-0500' # chat start time
                         ]
     end

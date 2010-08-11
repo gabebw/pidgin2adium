@@ -5,8 +5,9 @@
 #
 # Please use Pidgin2Adium.parse or Pidgin2Adium.parse_and_generate instead of
 # using these classes directly.
-require 'parsedate'
-require 'time' # for Time.zone_offset
+
+require 'date'
+require 'time'
 
 require 'pidgin2adium/log_file'
 require 'pidgin2adium/message'
@@ -53,9 +54,6 @@ module Pidgin2Adium
       @time_regex_first_line = %r{^(\d{1,2})/(\d{1,2})/(\d{4}) (\d{1,2}):(\d{2}):(\d{2}) ([AP]M)$}
       # "2007-04-17 12:33:13" => %w{2007, 04, 17, 12, 33, 13}
       @time_regex = /^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})$/
-      # sometimes a line in a chat doesn't have a full timestamp
-      # "04:22:05 AM" => %w{04 22 05 AM}
-      @minimal_time_regex = /^(\d{1,2}):(\d{2}):(\d{2})( [AP]M)?$/
 
       begin
         @service,
@@ -63,9 +61,12 @@ module Pidgin2Adium
           @partner_SN,
           # @basic_time_info is for files that only have the full
           # timestamp at the top; we can use it to fill in the minimal
-          # per-line timestamps. It has only 3 elements (year, month,
-          # dayofmonth) because you should be able to fill everything
-          # else in. If you can't, something's wrong.
+          # per-line timestamps. It is a hash with 3 keys:
+          # * :year
+          # * :mon
+          # * :mday (day of month)
+          # You should be able to fill everything else in. If you can't,
+          # something's wrong.
           @basic_time_info,
           # When the chat started, in Adium's format
           @adium_chat_time_start = pre_parse()
@@ -187,6 +188,71 @@ module Pidgin2Adium
       return tz_offset
     end
 
+    def try_to_parse_first_line_time(first_line_time)
+      formats = [
+        "%m/%d/%Y %I:%M:%S %P", # 01/22/2008 03:01:45 PM
+        "%Y-%m-%d %H:%M:%S"     # 2008-01-22 23:08:24
+      ]
+      parsed = nil
+      formats.each do |format|
+        begin
+          parsed = Time.strptime(first_line_time, format)
+          break
+        rescue ArgumentError
+        end
+      end
+      parsed
+    end
+
+    def try_to_parse_time(time)
+      formats = [
+        "%Y/%m/%d %H:%M:%S", # 2008/01/22 04:01:45
+        "%Y-%m-%d %H:%M:%S"  # 2008-01-22 04:01:45
+      ]
+      parsed = nil
+      formats.each do |format|
+        begin
+          parsed = Time.strptime(time, format)
+          break
+        rescue ArgumentError
+        end
+      end
+      parsed
+    end
+
+    def try_to_parse_minimal_time(minimal_time)
+      # 04:01:45 AM
+      minimal_format_with_ampm = "%I:%M:%S %P"
+      # 23:01:45
+      minimal_format_without_ampm = "%H:%M:%S"
+
+      time_hash = nil
+
+      # Use Date._strptime to allow filling in the blanks on minimal
+      # timestamps
+      if minimal_time =~ /[AP]M$/
+        time_hash = Date._strptime(minimal_time, minimal_format_with_ampm)
+      else
+        time_hash = Date._strptime(minimal_time, minimal_format_without_ampm)
+      end
+      if time_hash.nil?
+        # Date._strptime returns nil on failure
+        return nil
+      end
+      # Fill in the blanks
+      time_hash[:year] = @basic_time_info[:year]
+      time_hash[:mon] = @basic_time_info[:mon]
+      time_hash[:mday] = @basic_time_info[:mday]
+      new_time = Time.local(time_hash[:year],
+                            time_hash[:mon],
+                            time_hash[:mday],
+                            time_hash[:hour],
+                            time_hash[:min],
+                            time_hash[:sec])
+      new_time
+    end
+
+
     #--
     # Adium time format: YYYY-MM-DD\THH:MM:SS[+-]TZ_HRS like:
     # 2008-10-05T22:26:20-0800
@@ -199,50 +265,24 @@ module Pidgin2Adium
     # Returns a string representation of _time_ or
     # nil if it couldn't parse the provided _time_.
     def create_adium_time(time, is_first_line = false)
-      # parsed_date = [year, month, day, hour, min, sec]
-      if time =~ @time_regex
-        year, month, day, hour, min, sec = $1.to_i,
-                                           $2.to_i,
-                                           $3.to_i,
-                                           $4.to_i,
-                                           $5.to_i,
-                                           $6.to_i
-      elsif is_first_line and time =~ @time_regex_first_line
-        hour = $4.to_i
-        if $7 == 'PM' and hour != 12
-          hour += 12
-        end
-        year, month, day, min, sec = $3.to_i, # year
-                                     $1.to_i, # month
-                                     $2.to_i, # day
-                                     # already did hour
-                                     $5.to_i, # minutes
-                                     $6.to_i  # seconds
-      elsif time =~ @minimal_time_regex
-        # "04:22:05" => %w{04 22 05}
-        hour = $1.to_i
-        if $4 == 'PM' and hour != 12
-          hour += 12
-        end
-        year, month, day = @basic_time_info
-        min = $2.to_i
-        sec = $3.to_i
-      else
-        error("You have found an odd timestamp. Please report it to the developer.")
-        log_msg("The timestamp: #{time}")
-        log_msg("Continuing...")
-        year,month,day,hour,min,sec = ParseDate.parsedate(time.to_s)
-        if [year,month,day,hour,min,sec].include?(nil)
-          # Failed to parse the time
-          return nil
-        end
-      end
+      return nil if time.nil?
       if is_first_line
-        adium_time = Time.local(year,month,day,hour,min,sec).strftime("%Y-%m-%dT%H.%M.%S#{@tz_offset}")
+        new_time = try_to_parse_first_line_time(time)
       else
-        adium_time = Time.local(year,month,day,hour,min,sec).strftime("%Y-%m-%dT%H:%M:%S#{@tz_offset}")
+        new_time = try_to_parse_time(time)
+        if new_time.nil?
+          new_time = try_to_parse_minimal_time(time)
+        end
       end
-      return adium_time
+
+      return nil if new_time.nil?
+
+      if is_first_line
+        adium_time = new_time.strftime("%Y-%m-%dT%H.%M.%S#{@tz_offset}")
+      else
+        adium_time = new_time.strftime("%Y-%m-%dT%H:%M:%S#{@tz_offset}")
+      end
+      adium_time
     end
 
     # Extract required data from the file. Run by parse.
@@ -264,8 +304,14 @@ module Pidgin2Adium
         partner_SN = first_line_match[1]
         pidgin_chat_time_start = first_line_match[2]
         basic_time_info = case pidgin_chat_time_start
-                          when @time_regex then [$1.to_i, $2.to_i, $3.to_i]
-                          when @time_regex_first_line then [$3.to_i, $1.to_i, $2.to_i]
+                          when @time_regex
+                            {:year => $1.to_i,
+                             :mon => $2.to_i,
+                             :mday => $3.to_i}
+                          when @time_regex_first_line
+                            {:year => $3.to_i,
+                             :mon => $1.to_i,
+                             :mday => $2.to_i}
                           end
         adium_chat_time_start = create_adium_time(pidgin_chat_time_start, true)
         return [service,
