@@ -1,7 +1,4 @@
 require 'rubygems'
-require 'bundler'
-Bundler.setup
-
 require 'rake'
 
 begin
@@ -14,7 +11,10 @@ begin
     gem.homepage = "http://github.com/gabebw/pidgin2adium"
     gem.authors = ["Gabe Berke-Williams"]
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
-    gem.add_bundler_dependencies
+    gem.add_development_dependency(%q<bundler>, [">= 0.9.26"])
+    gem.add_development_dependency(%q<jeweler>, [">= 0"])
+    gem.add_development_dependency(%q<rspec>, [">= 1.2.9"])
+    gem.add_development_dependency(%q<faker>, [">= 0"])
   end
   Jeweler::GemcutterTasks.new
 rescue LoadError
