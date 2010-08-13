@@ -20,8 +20,12 @@ module Pidgin2Adium
       @my_aliases = aliases
 
       unless File.directory?(@pidgin_log_dir)
-        puts "Source directory #{@pidgin_log_dir} does not exist or is not a directory."
-        raise Errno::ENOENT
+        msg = "Source directory #{@pidgin_log_dir} does not exist or is not a directory."
+        error(msg)
+
+        # ENOENT automatically prepends "No such file or directory - " to
+        # its initializer's arguments
+        raise Errno::ENOENT.new("source directory #{@pidgin_log_dir}")
       end
     end
 
@@ -31,11 +35,11 @@ module Pidgin2Adium
     def start
       log_msg "Begin converting."
       begin
-        files_path = get_all_chat_files(@pidgin_log_dir)
+        files_path = get_all_chat_files()
       rescue Errno::EACCES => bang
         error("Sorry, permission denied for getting Pidgin chat files from #{@pidgin_log_dir}.")
         error("Details: #{bang.message}")
-        raise Errno::EACCES
+        raise bang
       end
 
       total_files = files_path.size
@@ -52,17 +56,16 @@ module Pidgin2Adium
 
       delete_search_indexes()
 
-      log_msg "Finished converting! Converted #{total_successes} files of #{total_files} total."
+      Pidgin2Adium.log_msg "Finished converting! Converted #{total_successes} files of #{total_files} total."
       puts "Minor error messages:"
       puts @@oops_messages.join("\n")
       puts "Major error messages:"
       puts @@error_messages.join("\n")
     end
 
-    def get_all_chat_files(dir)
-      return [] if File.basename(dir) == ".system"
+    def get_all_chat_files
       # recurse into each subdir
-      return (Dir.glob("#{@pidgin_log_dir}/**/*.{htm,html,txt}") - BAD_DIRS)
+      Dir.glob("#{@pidgin_log_dir}/**/*.{htm,html,txt}") - BAD_DIRS
     end
   end
 end
