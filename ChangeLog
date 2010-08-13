@@ -1,3 +1,14 @@
+=== 3.1.0 / 2010-08-13
+* Compatible with Ruby 1.9!
+  - removed dependency on "parsedate" library, which 1.9 doesn't have
+* log_parser.rb has been split into separate files (1 per class, more or less)
+  - "require pidgin2adium/log_parser" will still pull in all of the split-up
+    classes
+* balance_tags_c extension really does work now
+* Cleans up more junk from Pidgin logfiles when parsing
+* Bugfixes and more graceful handling of error states
+* Fully tested (except bin/pidgin2adium, which remains tricky)
+
 === 3.0.1 / 2010-08-07
 Bugfix release:
 * balance_tags_c.c: Use rb_eval_string instead of rb_reg_regcomp to avoid
