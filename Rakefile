@@ -14,7 +14,6 @@ begin
     gem.add_development_dependency(%q<bundler>, [">= 0.9.26"])
     gem.add_development_dependency(%q<jeweler>, [">= 0"])
     gem.add_development_dependency(%q<rspec>, [">= 1.2.9"])
-    gem.add_development_dependency(%q<faker>, [">= 0"])
   end
   Jeweler::GemcutterTasks.new
 rescue LoadError
