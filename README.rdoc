@@ -43,47 +43,46 @@ The library style allows you to parse a log file and get back a LogFile[link:cla
  require 'pidgin2adium'
  logfile = Pidgin2Adium.parse("/path/to/log/file.html", "gabe,gbw,gabeb-w")
  if logfile == false
-     puts "Oh no! Could not parse!"
+   puts "Oh no! Could not parse!"
  else
-     logfile.each do |message|
-	# Every message has these properties
-	puts "Sender's screen name: #{message.sender}"
- 	puts "Time message was sent: #{message.time}"
- 	puts "Sender's alias: #{message.buddy_alias}"
- 	if [Pidgin2Adium::XMLMessage, Pidgin2Adium::AutoReplyMessage, Pidgin2Adium::Event].include?(message.class)
- 	    # All of these have a body
- 	    puts "Message body: #{message.body}"
- 	    if message.class == Pidgin2Adium::Event
- 		puts "Event type: #{message.event_type}"
- 	    end
- 	elsif message.class == Pidgin2Adium::StatusMessage
-	    # Only StatusMessage has status
- 	    puts "Status: #{message.status}"
- 	end
- 	# Prints out the message in Adium log format
- 	puts message.to_s
+   logfile.each do |message|
+     # Every Message subclass has sender, time, and buddy_alias
+     puts "Sender's screen name: #{message.sender}"
+     puts "Time message was sent: #{message.time}"
+     puts "Sender's alias: #{message.buddy_alias}"
+     if message.respond_to?(:body)
+       puts "Message body: #{message.body}"
+       if message.respond_to?(:event) # Pidgin2Adium::Event class
+         puts "Event type: #{message.event_type}"
+       end
+     elsif message.respond_to?(:status) # Pidgin2Adium::StatusMessage
+       puts "Status: #{message.status}"
      end
-     success = logfile.write_out()
-     # To overwrite file if it exists:
-     # logfile.write_out(overwrite = true)
-     # To specify your own output dir (default = Pidgin2Adium::ADIUM_LOG_DIR):
-     # logfile.write_out(false, output_dir = my_dir)
-     # Or combine them:
-     # logfile.write_out(true, my_dir)
-     if success == false
-	 puts "An error occurred!"
-     elsif success == Pidgin2Adium::FILE_EXISTS
-	# Not returned if overwrite set to true
-	puts "File already exists."
-    else
-	puts "Successfully wrote out log file!"
-	puts "Path to output file: #{success}"
-    end
-    # This deletes search indexes so Adium re-indexes the new chat logs.
-    # It is not automatically called after log_file.write_out()
-    # Call it after converting all the logs, since it takes up a bit of
-    # processing power.
-    Pidgin2Adium.delete_search_indexes()
+     # Prints out the message in Adium log format
+     puts message.to_s
+   end
+
+   success = logfile.write_out()
+   # To overwrite file if it exists:
+   # logfile.write_out(overwrite = true)
+   # To specify your own output dir (default = Pidgin2Adium::ADIUM_LOG_DIR):
+   # logfile.write_out(false, output_dir = my_dir)
+   # Or combine them:
+   # logfile.write_out(true, my_dir)
+   if success == false
+     puts "An error occurred!"
+   elsif success == Pidgin2Adium::FILE_EXISTS
+     # Not returned if overwrite set to true
+     puts "File already exists."
+   else
+     puts "Successfully wrote out log file!"
+     puts "Path to output file: #{success}"
+   end
+   # This deletes search indexes so Adium re-indexes the new chat logs.
+   # It is not automatically called after log_file.write_out()
+   # Call it after converting all the logs, since it takes up a bit of
+   # processing power.
+   Pidgin2Adium.delete_search_indexes()
  end
 
 ===Example 2 (using library)
