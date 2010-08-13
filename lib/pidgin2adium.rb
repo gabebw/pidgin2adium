@@ -3,8 +3,6 @@
 # A ruby program to convert Pidgin log files to Adium log files, then place
 # them in the Adium log directory.
 
-$:.unshift(File.dirname(__FILE__)) unless $:.include?(File.dirname(__FILE__)) || $:.include?(File.expand_path(File.dirname(__FILE__)))
-
 require 'fileutils'
 require 'pidgin2adium/log_parser'
 
