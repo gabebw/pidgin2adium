@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{pidgin2adium}
-  s.version = "3.1.0"
+  s.version = "3.1.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gabe Berke-Williams"]
@@ -36,14 +36,20 @@ Gem::Specification.new do |s|
      "ext/balance_tags_c/balance_tags_c.c",
      "ext/balance_tags_c/extconf.rb",
      "lib/pidgin2adium.rb",
-     "lib/pidgin2adium/balance_tags.rb",
-     "lib/pidgin2adium/basic_parser.rb",
-     "lib/pidgin2adium/html_log_parser.rb",
      "lib/pidgin2adium/log_converter.rb",
      "lib/pidgin2adium/log_file.rb",
      "lib/pidgin2adium/log_parser.rb",
      "lib/pidgin2adium/message.rb",
-     "lib/pidgin2adium/text_log_parser.rb",
+     "lib/pidgin2adium/messages/all.rb",
+     "lib/pidgin2adium/messages/auto_reply_message.rb",
+     "lib/pidgin2adium/messages/event.rb",
+     "lib/pidgin2adium/messages/message.rb",
+     "lib/pidgin2adium/messages/status_message.rb",
+     "lib/pidgin2adium/messages/xml_message.rb",
+     "lib/pidgin2adium/parsers/all.rb",
+     "lib/pidgin2adium/parsers/basic_parser.rb",
+     "lib/pidgin2adium/parsers/html_log_parser.rb",
+     "lib/pidgin2adium/parsers/text_log_parser.rb",
      "pidgin2adium.gemspec",
      "spec/balance_tags_c_extn_spec.rb",
      "spec/basic_parser_spec.rb",
