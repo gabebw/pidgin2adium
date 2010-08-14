@@ -73,6 +73,18 @@ describe "LogFile" do
         end
       end
     end
+
+    describe "#max" do
+      it "should return the most recent message" do
+        @logfile.max.should == @messages.last
+      end
+    end
+
+    describe "#min" do
+      it "should return the oldest message" do
+        @logfile.min.should == @messages.first
+      end
+    end
   end
 
   describe "#write_out" do
