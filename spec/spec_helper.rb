@@ -16,7 +16,6 @@ prefork_block = lambda do
   $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'ext', 'balance_tags_c'))
 
   require 'pidgin2adium'
-  require 'faker'
   require 'time' # for Time.zone_offset
 
   rspec_configure_block = lambda do |config|
