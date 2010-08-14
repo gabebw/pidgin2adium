@@ -1,3 +1,10 @@
+=== 3.1.1 / 2010-08-13
+* Moved BasicParser and its subclasses into parsers/ subdir
+  - You can now do "require 'pidgin2adium/parsers/all'",
+    though the old "require 'pidgin2adium/log_parser" will still work
+* Moved Message and its subclasses into messages/ subdir
+  - You can now do "require 'pidgin2adium/messages/all'",
+    though the old "require 'pidgin2adium/message" will still work
 === 3.1.0 / 2010-08-13
 * Compatible with Ruby 1.9!
   - removed dependency on "parsedate" library, which 1.9 doesn't have
