@@ -14,30 +14,21 @@ describe "LogFile" do
              "2010-08-10T22:55:17-0500",
              "2010-08-10T22:55:22-0500"]
 
-    @messages = [
-      Pidgin2Adium::XMLMessage.new(@user_SN,
-                                   @start_time,
-                                   @user_alias,
-                                   "Hello!"),
-      Pidgin2Adium::StatusMessage.new(@partner_SN,
-                                      times[1],
-                                      @partner_alias,
-                                      "Matz has gone away"),
-      Pidgin2Adium::Event.new(@user_SN,
-                              times[2],
-                              @user_alias,
-                              "gabebw logged in.",
-                              'online'),
-      Pidgin2Adium::AutoReplyMessage.new(@partner_SN,
-                                         times[3],
-                                         @partner_alias,
-                                         "This is an away message")
-    ]
-    @logfile = Pidgin2Adium::LogFile.new(@messages,
-                                         'aim',
-                                         @user_SN,
-                                         @partner_SN,
-                                         @start_time)
+    message_1 = Pidgin2Adium::XMLMessage.new(@user_SN, @start_time,
+                                             @user_alias, "Hello!")
+    message_2 = Pidgin2Adium::StatusMessage.new(@partner_SN, times[1],
+                                                @partner_alias, "Matz has gone away")
+
+    message_3 = Pidgin2Adium::Event.new(@user_SN, times[2], @user_alias,
+                                        "gabebw logged in.", 'online')
+
+    message_4 = Pidgin2Adium::AutoReplyMessage.new(@partner_SN, times[3],
+                                                   @partner_alias,
+                                                   "This is an away message")
+
+    @messages = [message_1, message_2, message_3, message_4]
+    @logfile = Pidgin2Adium::LogFile.new(@messages, 'aim', @user_SN,
+                                         @partner_SN, @start_time)
   end
 
   describe "attributes" do
@@ -69,12 +60,17 @@ describe "LogFile" do
     end
   end
 
-  describe "#each" do
-    it "should yield the messages" do
-      n = 0
-      @logfile.each do |x|
-        x.should == @messages[n]
-        n += 1
+
+  describe "enumerable methods" do
+    it "should include Enumerable" do
+      Pidgin2Adium::LogFile.included_modules.include?(Enumerable).should be_true
+    end
+
+    describe "#each_with_index" do
+      it "should yield the correct messages" do
+        @logfile.each_with_index do |msg, n|
+          msg.should == @messages[n]
+        end
       end
     end
   end
