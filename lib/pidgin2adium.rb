@@ -5,7 +5,7 @@
 
 require 'fileutils'
 require 'time'
-require 'pidgin2adium/log_parser'
+require 'pidgin2adium/parsers/all'
 
 module Pidgin2Adium
   # Returned by LogFile.write_out if the output logfile already exists.
