@@ -1,0 +1,5 @@
+require 'pidgin2adium/messages/message.rb'
+require 'pidgin2adium/messages/xml_message.rb'
+require 'pidgin2adium/messages/auto_reply_message.rb'
+require 'pidgin2adium/messages/event.rb'
+require 'pidgin2adium/messages/status_message.rb'

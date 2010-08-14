@@ -10,7 +10,7 @@ require 'date'
 require 'time'
 
 require 'pidgin2adium/log_file'
-require 'pidgin2adium/message'
+require 'pidgin2adium/messages/all'
 
 module Pidgin2Adium
   # Empty class. Raise'd by LogParser if the first line of a log is not
