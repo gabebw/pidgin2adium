@@ -182,8 +182,7 @@ module Pidgin2Adium
       if tz_match and tz_match[1]
         tz_offset = tz_match[1]
       else
-        # "-0500" (3d rather than 2d to allow for "+")
-        tz_offset = sprintf('%+03d00', Time.zone_offset(Time.now.zone) / 3600)
+        tz_offset = Pidgin2Adium::DEFAULT_TZ_OFFSET
       end
       return tz_offset
     end
