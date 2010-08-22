@@ -22,6 +22,9 @@ module Pidgin2Adium
     attr_accessor :sender, :time, :buddy_alias
 
     # Compare this Message to +other_message+, based on their timestamps.
+    # Returns a number < 0 if this message was sent before +other_message+,
+    # 0 if they were sent at the same time, and a number > 0 if this message
+    # was sent after +other_message+.
     def <=>(other_message)
       return @time_object - other_message.time_object
     end
