@@ -47,11 +47,11 @@ module Pidgin2Adium
       end
 
       # Time regexes must be set before pre_parse().
-      # "4/18/2007 11:02:00 AM" => %w{4, 18, 2007, 11, 02, 00, AM}
+      # "4/18/2007 11:02:00 AM" => %w{4, 18, 2007}
       # ONLY used (if at all) in first line of chat ("Conversation with...at...")
-      @time_regex_first_line = %r{^(\d{1,2})/(\d{1,2})/(\d{4}) (\d{1,2}):(\d{2}):(\d{2}) ([AP]M)$}
-      # "2007-04-17 12:33:13" => %w{2007, 04, 17, 12, 33, 13}
-      @time_regex = /^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})$/
+      @time_regex_first_line = %r{^(\d{1,2})/(\d{1,2})/(\d{4}) \d{1,2}:\d{2}:\d{2} [AP]M$}
+      # "2007-04-17 12:33:13" => %w{2007, 04, 17}
+      @time_regex = /^(\d{4})-(\d{2})-(\d{2}) \d{2}:\d{2}:\d{2}$/
 
       begin
         @service,
