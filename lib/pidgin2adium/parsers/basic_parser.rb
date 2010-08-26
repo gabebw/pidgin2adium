@@ -220,7 +220,8 @@ module Pidgin2Adium
         "%m/%d/%Y %I:%M:%S %P", # 01/22/2008 03:01:45 PM
         "%Y-%m-%d %H:%M:%S",    # 2008-01-22 23:08:24
         "%Y/%m/%d %H:%M:%S", # 2008/01/22 04:01:45
-        "%Y-%m-%d %H:%M:%S"  # 2008-01-22 04:01:45
+        "%Y-%m-%d %H:%M:%S",  # 2008-01-22 04:01:45
+        '%a %d %b %Y %H:%M:%S %p %Z' # "Sat 18 Apr 2009 10:43:35 AM PDT"
       ]
       try_to_parse_time_with_formats(time, formats)
     end
