@@ -128,7 +128,7 @@ describe "HtmlLogParser" do
       first_msg.sender.should == "aolsystemmsg"
       first_msg.buddy_alias.should == "AOL System Msg"
       # Use regex to ignore time zone
-      first_msg.time.should =~ /^2008-01-15T07:14:45[-+]\d{2}00$/
+      first_msg.time.should =~ /^2008-01-15T07:14:45[-+]\d{2}:00$/
       # This fails due to balance_tags_c().
       good_body = %Q{Your screen name (otherSN) is now signed into AOL(R) Instant Messenger (TM) in 2 locations.} + " " +
         %Q{To sign off the other location(s), reply to this message with the number 1.} + " " +
@@ -137,13 +137,13 @@ describe "HtmlLogParser" do
 
       second_msg.sender.should == "othersn"
       second_msg.buddy_alias.should == "Gabe B-W"
-      second_msg.time.should =~ /^2008-01-15T07:14:48[-+]\d{2}00$/
+      second_msg.time.should =~ /^2008-01-15T07:14:48[-+]\d{2}:00$/
       second_msg.body.should == "1"
 
       third_msg.sender.should == "aolsystemmsg"
       third_msg.buddy_alias.should == "AOL System Msg"
       # Use regex to ignore time zone
-      third_msg.time.should =~ /^2008-01-15T07:14:48[-+]\d{2}00$/
+      third_msg.time.should =~ /^2008-01-15T07:14:48[-+]\d{2}:00$/
       third_msg.body.should == "Your other AIM sessions have been signed-off.  You are now signed-on from 1 location(s)."
     end
   end

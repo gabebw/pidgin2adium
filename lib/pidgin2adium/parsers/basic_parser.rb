@@ -34,8 +34,6 @@ module Pidgin2Adium
       # us an alias.
       @user_alias = user_aliases.split(',')[0]
 
-      @tz_offset = get_time_zone_offset()
-
       @log_file_is_valid = true
       begin
         file = File.new(@src_path, 'r')
@@ -173,20 +171,6 @@ module Pidgin2Adium
       return LogFile.new(@file_content, @service, @user_SN, @partner_SN, @adium_chat_time_start)
     end
 
-    def get_time_zone_offset()
-      # We must have a tz_offset or else the Adium Chat Log viewer
-      # doesn't read the date correctly and then:
-      # 1) the log has an empty start date column in the viewer
-      # 2) The timestamps are all the same for the whole log
-      tz_match = /([-\+]\d+)[A-Z]{3}\.(?:txt|htm|html)/.match(@src_path)
-      if tz_match and tz_match[1]
-        tz_offset = tz_match[1]
-      else
-        tz_offset = Pidgin2Adium::DEFAULT_TZ_OFFSET
-      end
-      return tz_offset
-    end
-
     # Returns a Time object, or nil if the format string doesn't match the
     # time string.
     def strptime(time, format)
@@ -237,18 +221,10 @@ module Pidgin2Adium
       try_to_parse_time_with_formats(minimal_time, formats)
     end
 
-    #--
-    # Adium time format: YYYY-MM-DD\THH:MM:SS[+-]TZ_HRS like:
-    # 2008-10-05T22:26:20-0800
-    # HOWEVER:
-    # If it's the first line, then return it like this (note periods):
-    # 2008-10-05T22.26.20-0800
-    # because it will be used in the filename.
-    #++
     # Converts a pidgin datestamp to an Adium one.
     # Returns a string representation of _time_ or
     # nil if it couldn't parse the provided _time_.
-    def create_adium_time(time, is_first_line = false)
+    def create_adium_time(time)
       return nil if time.nil?
       new_time = try_to_parse_time(time)
       if new_time.nil?
@@ -257,12 +233,7 @@ module Pidgin2Adium
 
       return nil if new_time.nil?
 
-      if is_first_line
-        adium_time = new_time.strftime("%Y-%m-%dT%H.%M.%S#{@tz_offset}")
-      else
-        adium_time = new_time.strftime("%Y-%m-%dT%H:%M:%S#{@tz_offset}")
-      end
-      adium_time
+      new_time.xmlschema
     end
 
     # Extract required data from the file. Run by parse.
@@ -293,7 +264,7 @@ module Pidgin2Adium
                              :mon => $1.to_i,
                              :mday => $2.to_i}
                           end
-        adium_chat_time_start = create_adium_time(pidgin_chat_time_start, true)
+        adium_chat_time_start = create_adium_time(pidgin_chat_time_start)
         return [service,
           user_SN,
           partner_SN,

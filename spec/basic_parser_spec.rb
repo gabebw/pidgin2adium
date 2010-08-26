@@ -13,24 +13,6 @@ describe "BasicParser" do
     end
   end
 
-  describe "#get_time_zone_offset" do
-    context "with no timezone available" do
-      it "should return the local time zone" do
-        bp = Pidgin2Adium::BasicParser.new(@text_logfile_path,
-                                           @aliases)
-        bp.get_time_zone_offset.should == @current_tz_offset
-      end
-    end
-
-    context "with a time zone available" do
-      it "should return the logfiles's time zone" do
-        bp = Pidgin2Adium::BasicParser.new(@html_logfile_path,
-                                           @aliases)
-        bp.get_time_zone_offset.should == "-0500"
-      end
-    end
-  end
-
   describe "#create_adium_time" do
     before(:each) do
       @first_line_time = "4/18/2007 11:02:00 AM"
@@ -46,23 +28,23 @@ describe "BasicParser" do
     end
 
     it "should parse a first line time correctly" do
-      time = @bp.create_adium_time(@first_line_time, true)
-      time.should == "2007-04-18T11.02.00-0500"
+      time = @bp.create_adium_time(@first_line_time)
+      time.should =~ /2007-04-18T11:02:00-\d{2}:00/
     end
 
     it "should parse a normal time correctly" do
       time = @bp.create_adium_time(@time)
-      time.should == "2007-08-20T12:33:13-0500"
+      time.should =~ /2007-08-20T12:33:13-\d{2}:00/
     end
 
     it "should parse a minimal time correctly" do
       time = @bp.create_adium_time(@minimal_time)
-      time.should == "2008-01-15T04:22:05-0500"
+      time.should =~ /2008-01-15T04:22:05-\d{2}:00/
     end
 
     it "should parse a minimal time without AM/PM correctly" do
       time = @bp.create_adium_time(@minimal_time_2)
-      time.should == "2008-01-15T04:22:05-0500"
+      time.should =~ /2008-01-15T04:22:05-\d{2}:00/
     end
 
     it "should return an array of nils for an invalid time" do
@@ -92,7 +74,7 @@ describe "BasicParser" do
                          'othersn', # my SN
                          'aolsystemmsg', # other person's SN
                          {:year=>2008, :mon=>1, :mday=>15}, # basic time info
-                         '2008-01-15T07.14.45-0500' # chat start time
+                         '2008-01-15T07:14:45-05:00' # chat start time
                         ]
     end
   end
@@ -129,7 +111,7 @@ describe "BasicParser" do
         "To sign off the other location(s), reply to this message " + "with the number 1. Click " +
         "<a href='http://www.aim.com/password/routing.adp'>here</a> " +
         "for more information."
-      @matches = ['2008-01-15T07.14.45-0500', # time
+      @matches = ['2008-01-15T07.14.45-05:00', # time
                   'AOL System Msg', # alias
                   nil, # not an auto-reply
                   body # message body

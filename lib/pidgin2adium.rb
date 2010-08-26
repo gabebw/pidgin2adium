@@ -14,8 +14,6 @@ module Pidgin2Adium
   # These files/directories show up in Dir.entries()
   BAD_DIRS = %w{. .. .DS_Store Thumbs.db .system}
   VERSION = "3.1.0"
-  # "-0500" (3d rather than 2d to allow for "+")
-  DEFAULT_TZ_OFFSET = sprintf('%+03d00', Time.zone_offset(Time.now.zone) / 3600)
   # For displaying after we finish converting
   @@oops_messages = []
   @@error_messages = []
