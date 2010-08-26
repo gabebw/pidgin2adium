@@ -13,7 +13,7 @@ module Pidgin2Adium
   ADIUM_LOG_DIR = File.expand_path('~/Library/Application Support/Adium 2.0/Users/Default/Logs/') << '/'
   # These files/directories show up in Dir.entries()
   BAD_DIRS = %w{. .. .DS_Store Thumbs.db .system}
-  VERSION = "3.1.0"
+  VERSION = "3.1.1"
   # For displaying after we finish converting
   @@oops_messages = []
   @@error_messages = []
