@@ -187,20 +187,40 @@ module Pidgin2Adium
       return tz_offset
     end
 
+    # Returns a Time object, or nil if the format string doesn't match the
+    # time string.
+    def strptime(time, format)
+      date_hash = Date._strptime(time, format)
+      return nil if date_hash.nil?
+      # Fill in the blanks using @basic_time_info
+      [:year, :mon, :mday].each do |key|
+        date_hash[key] = @basic_time_info[key] unless date_hash.key?(key)
+      end
+      time = Time.local(date_hash[:year], date_hash[:mon], date_hash[:mday],
+                        date_hash[:hour], date_hash[:min], date_hash[:sec],
+                        date_hash[:sec_fraction], date_hash[:zone])
+      time
+    end
+
+    # Tries to parse _time_ (a string) according to the formats in _formats_, which
+    # should be an array of strings. For more on acceptable format strings,
+    # see the official documentation for Time.strptime. Returns a Time
+    # object or nil (if no formats matched).
+    def try_to_parse_time_with_formats(time, formats)
+      parsed = nil
+      formats.each do |format|
+        parsed = strptime(time, format)
+        break unless parsed.nil?
+      end
+      parsed
+    end
+
     def try_to_parse_first_line_time(first_line_time)
       formats = [
         "%m/%d/%Y %I:%M:%S %P", # 01/22/2008 03:01:45 PM
         "%Y-%m-%d %H:%M:%S"     # 2008-01-22 23:08:24
       ]
-      parsed = nil
-      formats.each do |format|
-        begin
-          parsed = Time.strptime(first_line_time, format)
-          break
-        rescue ArgumentError
-        end
-      end
-      parsed
+      try_to_parse_time_with_formats(first_line_time, formats)
     end
 
     def try_to_parse_time(time)
@@ -208,49 +228,17 @@ module Pidgin2Adium
         "%Y/%m/%d %H:%M:%S", # 2008/01/22 04:01:45
         "%Y-%m-%d %H:%M:%S"  # 2008-01-22 04:01:45
       ]
-      parsed = nil
-      formats.each do |format|
-        begin
-          parsed = Time.strptime(time, format)
-          break
-        rescue ArgumentError
-        end
-      end
-      parsed
+      try_to_parse_time_with_formats(time, formats)
     end
 
     def try_to_parse_minimal_time(minimal_time)
-      # 04:01:45 AM
-      minimal_format_with_ampm = "%I:%M:%S %P"
-      # 23:01:45
-      minimal_format_without_ampm = "%H:%M:%S"
+      formats = [
+        "%I:%M:%S %P", # 04:01:45 AM
+        "%H:%M:%S" # 23:01:45
+      ]
 
-      time_hash = nil
-
-      # Use Date._strptime to allow filling in the blanks on minimal
-      # timestamps
-      if minimal_time =~ /[AP]M$/
-        time_hash = Date._strptime(minimal_time, minimal_format_with_ampm)
-      else
-        time_hash = Date._strptime(minimal_time, minimal_format_without_ampm)
-      end
-      if time_hash.nil?
-        # Date._strptime returns nil on failure
-        return nil
-      end
-      # Fill in the blanks
-      time_hash[:year] = @basic_time_info[:year]
-      time_hash[:mon] = @basic_time_info[:mon]
-      time_hash[:mday] = @basic_time_info[:mday]
-      new_time = Time.local(time_hash[:year],
-                            time_hash[:mon],
-                            time_hash[:mday],
-                            time_hash[:hour],
-                            time_hash[:min],
-                            time_hash[:sec])
-      new_time
+      try_to_parse_time_with_formats(minimal_time, formats)
     end
-
 
     #--
     # Adium time format: YYYY-MM-DD\THH:MM:SS[+-]TZ_HRS like:
