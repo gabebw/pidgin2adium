@@ -5,6 +5,7 @@ begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
     gem.name = "pidgin2adium"
+    gem.version = Pidgin2Adium::VERSION
     gem.summary = %Q{Pidgin2Adium is a fast, easy way to convert Pidgin (formerly gaim) logs to the Adium format}
     gem.description = %Q{Pidgin2Adium is a fast, easy way to convert Pidgin (formerly gaim) logs to the Adium format.}
     gem.email = "gbw@brandeis.edu"
