@@ -215,16 +215,10 @@ module Pidgin2Adium
       parsed
     end
 
-    def try_to_parse_first_line_time(first_line_time)
-      formats = [
-        "%m/%d/%Y %I:%M:%S %P", # 01/22/2008 03:01:45 PM
-        "%Y-%m-%d %H:%M:%S"     # 2008-01-22 23:08:24
-      ]
-      try_to_parse_time_with_formats(first_line_time, formats)
-    end
-
     def try_to_parse_time(time)
       formats = [
+        "%m/%d/%Y %I:%M:%S %P", # 01/22/2008 03:01:45 PM
+        "%Y-%m-%d %H:%M:%S",    # 2008-01-22 23:08:24
         "%Y/%m/%d %H:%M:%S", # 2008/01/22 04:01:45
         "%Y-%m-%d %H:%M:%S"  # 2008-01-22 04:01:45
       ]
@@ -253,13 +247,9 @@ module Pidgin2Adium
     # nil if it couldn't parse the provided _time_.
     def create_adium_time(time, is_first_line = false)
       return nil if time.nil?
-      if is_first_line
-        new_time = try_to_parse_first_line_time(time)
-      else
-        new_time = try_to_parse_time(time)
-        if new_time.nil?
-          new_time = try_to_parse_minimal_time(time)
-        end
+      new_time = try_to_parse_time(time)
+      if new_time.nil?
+        new_time = try_to_parse_minimal_time(time)
       end
 
       return nil if new_time.nil?
