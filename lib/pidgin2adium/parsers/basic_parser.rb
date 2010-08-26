@@ -212,6 +212,8 @@ module Pidgin2Adium
         parsed = strptime(time, format)
         break unless parsed.nil?
       end
+      # Last-ditch effort
+      parsed = Time.parse(time) if parsed.nil?
       parsed
     end
 
