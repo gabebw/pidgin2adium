@@ -41,11 +41,8 @@ module Pidgin2Adium
 
     # Returns contents of log file
     def to_s
-      if @chat_str.nil?
-        # Faster than inject() or each()
-        @chat_str = @chat_lines.map{|l| l.to_s }.join
-      end
-      return @chat_str
+      # Faster than inject() or each()
+      @chat_str ||= @chat_lines.map{|l| l.to_s }.join
     end
 
     def each(&blk)
