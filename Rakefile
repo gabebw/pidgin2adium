@@ -1,5 +1,6 @@
 require 'rubygems'
 require 'rake'
+require './lib/version.rb'
 
 begin
   require 'jeweler'
