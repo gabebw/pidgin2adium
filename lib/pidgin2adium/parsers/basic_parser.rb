@@ -46,7 +46,7 @@ module Pidgin2Adium
         return nil
       end
 
-      # Time regexes must be set before pre_parse().
+      # Time regexes must be set before pre_parse!().
       # "4/18/2007 11:02:00 AM" => %w{4, 18, 2007}
       # ONLY used (if at all) in first line of chat ("Conversation with...at...")
       @time_regex_first_line = %r{^(\d{1,2})/(\d{1,2})/(\d{4}) \d{1,2}:\d{2}:\d{2} [AP]M$}
@@ -54,20 +54,12 @@ module Pidgin2Adium
       @time_regex = /^(\d{4})-(\d{2})-(\d{2}) \d{2}:\d{2}:\d{2}$/
 
       begin
-        @service,
-          @user_SN,
-          @partner_SN,
-          # @basic_time_info is for files that only have the full
-          # timestamp at the top; we can use it to fill in the minimal
-          # per-line timestamps. It is a hash with 3 keys:
-          # * :year
-          # * :mon
-          # * :mday (day of month)
-          # You should be able to fill everything else in. If you can't,
-          # something's wrong.
-          @basic_time_info,
-          # When the chat started, in Adium's format
-          @adium_chat_time_start = pre_parse()
+        successfully_set_variables = pre_parse!
+        if not successfully_set_variables
+          error("Failed to set some key variables: #{@src_path}")
+          @log_file_is_valid = false
+          return
+        end
       rescue InvalidFirstLineError
         # The first line isn't parseable
         @log_file_is_valid = false
@@ -234,8 +226,15 @@ module Pidgin2Adium
       new_time.xmlschema
     end
 
-    # Extract required data from the file. Run by parse.
-    def pre_parse
+    # Extract required data from the file. Run by parse. Sets these
+    # variables:
+    # * @service
+    # * @user_SN
+    # * @partner_SN
+    # * @basic_time_info
+    # * @adium_chat_time_start
+    # Returns true if none of these variables are false or nil.
+    def pre_parse!
       # Deal with first line.
 
       # the first line is special. It tells us (in order of regex groups):
@@ -247,27 +246,43 @@ module Pidgin2Adium
       if first_line_match.nil?
         raise InvalidFirstLineError
       else
-        service = first_line_match[4]
+        # first_line_match is like so:
+        # ["Conversation with BUDDY_PERSON at 2006-12-21 22:36:06 on awesome SN (aim)",
+        #  "BUDDY_PERSON",
+        #  "2006-12-21 22:36:06",
+        #  "awesome SN",
+        #  "aim"]
+        @service = first_line_match[4]
         # @user_SN is normalized to avoid "AIM.name" and "AIM.na me" folders
-        user_SN = first_line_match[3].downcase.tr(' ', '')
-        partner_SN = first_line_match[1]
+        @user_SN = first_line_match[3].downcase.tr(' ', '')
+        @partner_SN = first_line_match[1]
         pidgin_chat_time_start = first_line_match[2]
-        basic_time_info = case pidgin_chat_time_start
-                          when @time_regex
-                            {:year => $1.to_i,
-                             :mon => $2.to_i,
-                             :mday => $3.to_i}
-                          when @time_regex_first_line
-                            {:year => $3.to_i,
-                             :mon => $1.to_i,
-                             :mday => $2.to_i}
-                          end
-        adium_chat_time_start = create_adium_time(pidgin_chat_time_start)
-        return [service,
-          user_SN,
-          partner_SN,
-          basic_time_info,
-          adium_chat_time_start]
+        # @basic_time_info is for files that only have the full
+        # timestamp at the top; we can use it to fill in the minimal
+        # per-line timestamps. It is a hash with 3 keys:
+        # * :year
+        # * :mon
+        # * :mday (day of month)
+        # You should be able to fill everything else in. If you can't,
+        # something's wrong.
+        @basic_time_info = case pidgin_chat_time_start
+                           when @time_regex
+                             {:year => $1.to_i,
+                              :mon => $2.to_i,
+                              :mday => $3.to_i}
+                           when @time_regex_first_line
+                             {:year => $3.to_i,
+                              :mon => $1.to_i,
+                              :mday => $2.to_i}
+                           end
+        # Need @basic_time_info set for create_adium_time
+        # When the chat started, in Adium's format
+        @adium_chat_time_start = create_adium_time(pidgin_chat_time_start)
+        [@service,
+          @user_SN,
+          @partner_SN,
+          @basic_time_info,
+          @adium_chat_time_start].all?
       end
     end
 
