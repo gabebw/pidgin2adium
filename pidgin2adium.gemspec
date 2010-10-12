@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{pidgin2adium}
-  s.version = "3.1.1"
+  s.version = "3.2.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gabe Berke-Williams"]
-  s.date = %q{2010-08-13}
+  s.date = %q{2010-10-12}
   s.default_executable = %q{pidgin2adium}
   s.description = %q{Pidgin2Adium is a fast, easy way to convert Pidgin (formerly gaim) logs to the Adium format.}
   s.email = %q{gbw@brandeis.edu}
@@ -30,7 +30,6 @@ Gem::Specification.new do |s|
      "Manifest.txt",
      "README.rdoc",
      "Rakefile",
-     "VERSION",
      "bin/pidgin2adium",
      "config/website.yml",
      "ext/balance_tags_c/balance_tags_c.c",
@@ -50,6 +49,7 @@ Gem::Specification.new do |s|
      "lib/pidgin2adium/parsers/basic_parser.rb",
      "lib/pidgin2adium/parsers/html_log_parser.rb",
      "lib/pidgin2adium/parsers/text_log_parser.rb",
+     "lib/version.rb",
      "pidgin2adium.gemspec",
      "spec/balance_tags_c_extn_spec.rb",
      "spec/basic_parser_spec.rb",
@@ -90,18 +90,18 @@ Gem::Specification.new do |s|
     s.specification_version = 3
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
-      s.add_development_dependency(%q<bundler>, [">= 0.9.26"])
+      s.add_development_dependency(%q<bundler>, [">= 1.0.0"])
       s.add_development_dependency(%q<jeweler>, [">= 0"])
-      s.add_development_dependency(%q<rspec>, [">= 1.2.9"])
+      s.add_development_dependency(%q<rspec>, [">= 1.3.0"])
     else
-      s.add_dependency(%q<bundler>, [">= 0.9.26"])
+      s.add_dependency(%q<bundler>, [">= 1.0.0"])
       s.add_dependency(%q<jeweler>, [">= 0"])
-      s.add_dependency(%q<rspec>, [">= 1.2.9"])
+      s.add_dependency(%q<rspec>, [">= 1.3.0"])
     end
   else
-    s.add_dependency(%q<bundler>, [">= 0.9.26"])
+    s.add_dependency(%q<bundler>, [">= 1.0.0"])
     s.add_dependency(%q<jeweler>, [">= 0"])
-    s.add_dependency(%q<rspec>, [">= 1.2.9"])
+    s.add_dependency(%q<rspec>, [">= 1.3.0"])
   end
 end
 
