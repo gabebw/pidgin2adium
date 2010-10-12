@@ -168,10 +168,8 @@ module Pidgin2Adium
     def strptime(time, format)
       date_hash = Date._strptime(time, format)
       return nil if date_hash.nil?
-      # Fill in the blanks using @basic_time_info
-      [:year, :mon, :mday].each do |key|
-        date_hash[key] = @basic_time_info[key] unless date_hash.key?(key)
-      end
+      # Fill in any blanks using @basic_time_info
+      date_hash = @basic_time_info.merge(date_hash)
       time = Time.local(date_hash[:year], date_hash[:mon], date_hash[:mday],
                         date_hash[:hour], date_hash[:min], date_hash[:sec],
                         date_hash[:sec_fraction], date_hash[:zone])
