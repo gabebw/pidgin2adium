@@ -226,24 +226,24 @@ module Pidgin2Adium
     def create_adium_time(time)
       return nil if time.nil?
       if is_minimal_time?(time)
-        new_time = try_to_parse_minimal_time(time)
+        datetime = try_to_parse_minimal_time(time)
       else
         begin
-          new_time = DateTime.parse(time)
+          datetime = DateTime.parse(time)
         rescue ArgumentError
-          new_time = try_to_parse_time(time)
-          if new_time.nil?
+          datetime = try_to_parse_time(time)
+          if datetime.nil?
             Pidgin2Adium.oops("#{time} couldn't be parsed. Please open an issue on GitHub: https://github.com/gabebw/pidgin2adium/issues")
             return nil
           end
         end
       end
 
-      return nil if new_time.nil?
+      return nil if datetime.nil?
 
       # Instead of dealing with Ruby 1.9 vs Ruby 1.8, DateTime vs Date vs
       # Time, and #xmlschema vs #iso8601, just use strftime.
-      new_time.strftime('%Y-%m-%dT%H:%M:%S%Z')
+      datetime.strftime('%Y-%m-%dT%H:%M:%S%Z')
     end
 
     # Extract required data from the file. Run by parse. Sets these
