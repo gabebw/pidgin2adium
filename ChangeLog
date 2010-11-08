@@ -1,3 +1,8 @@
+=== 3.2.0 / 2010-10-12
+* Last release broke 1.8 compatibility due to use of strptime. 1.8 and 1.9
+both work in 3.2.0.
+* Moved Pidgin2Adium::VERSION to its own file
+
 === 3.1.1 / 2010-08-13
 * Moved BasicParser and its subclasses into parsers/ subdir
   - You can now do "require 'pidgin2adium/parsers/all'",
