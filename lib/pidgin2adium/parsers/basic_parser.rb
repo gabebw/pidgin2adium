@@ -24,6 +24,10 @@ module Pidgin2Adium
   # using this class directly.
   class BasicParser
     include Pidgin2Adium
+
+    # Minimal times don't have a date
+    MINIMAL_TIME_REGEX = /^\d{1,2}:\d{1,2}:\d{1,2}(?: [AP]M)?$/
+
     def initialize(src_path, user_aliases)
       @src_path = src_path
       # Whitespace is removed for easy matching later on.
@@ -195,7 +199,8 @@ module Pidgin2Adium
         "%Y-%m-%d %H:%M:%S",    # 2008-01-22 23:08:24
         "%Y/%m/%d %H:%M:%S", # 2008/01/22 04:01:45
         "%Y-%m-%d %H:%M:%S",  # 2008-01-22 04:01:45
-        '%a %d %b %Y %H:%M:%S %p %Z' # "Sat 18 Apr 2009 10:43:35 AM PDT"
+        '%a %d %b %Y %H:%M:%S %p %Z', # "Sat 18 Apr 2009 10:43:35 AM PDT"
+        '%a %b %d %H:%M:%S %Y' # "Wed May 24 19:00:33 2006"
       ]
       try_to_parse_time_with_formats(time, formats)
     end
@@ -209,14 +214,29 @@ module Pidgin2Adium
       try_to_parse_time_with_formats(minimal_time, formats)
     end
 
+    # Returns true if the time is minimal, i.e. doesn't include a date.
+    # Otherwise returns false.
+    def is_minimal_time?(str)
+      not str.strip.match(MINIMAL_TIME_REGEX).nil?
+    end
+
     # Converts a pidgin datestamp to an Adium one.
     # Returns a string representation of _time_ or
     # nil if it couldn't parse the provided _time_.
     def create_adium_time(time)
       return nil if time.nil?
-      new_time = try_to_parse_time(time)
-      if new_time.nil?
+      if is_minimal_time?(time)
         new_time = try_to_parse_minimal_time(time)
+      else
+        begin
+          new_time = DateTime.parse(time)
+        rescue ArgumentError
+          new_time = try_to_parse_time(time)
+          if new_time.nil?
+            Pidgin2Adium.oops("#{time} couldn't be parsed. Please open an issue on GitHub: https://github.com/gabebw/pidgin2adium/issues")
+            return nil
+          end
+        end
       end
 
       return nil if new_time.nil?
