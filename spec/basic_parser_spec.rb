@@ -29,22 +29,22 @@ describe "BasicParser" do
 
     it "should parse a first line time correctly" do
       time = @bp.create_adium_time(@first_line_time)
-      time.should =~ /2007-04-18T11:02:00-\d{2}:00/
+      time.should =~ /2007-04-18T11:02:00[-+]\d{2}:00/
     end
 
     it "should parse a normal time correctly" do
       time = @bp.create_adium_time(@time)
-      time.should =~ /2007-08-20T12:33:13-\d{2}:00/
+      time.should =~ /2007-08-20T12:33:13[-+]\d{2}:00/
     end
 
     it "should parse a minimal time correctly" do
       time = @bp.create_adium_time(@minimal_time)
-      time.should =~ /2008-01-15T04:22:05-\d{2}:00/
+      time.should =~ /2008-01-15T04:22:05[-+]\d{2}:00/
     end
 
     it "should parse a minimal time without AM/PM correctly" do
       time = @bp.create_adium_time(@minimal_time_2)
-      time.should =~ /2008-01-15T04:22:05-\d{2}:00/
+      time.should =~ /2008-01-15T04:22:05[-+]\d{2}:00/
     end
 
     it "should return an array of nils for an invalid time" do
