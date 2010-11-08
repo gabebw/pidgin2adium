@@ -241,7 +241,9 @@ module Pidgin2Adium
 
       return nil if new_time.nil?
 
-      new_time.xmlschema
+      # Instead of dealing with Ruby 1.9 vs Ruby 1.8, DateTime vs Date vs
+      # Time, and #xmlschema vs #iso8601, just use strftime.
+      new_time.strftime('%Y-%m-%dT%H:%M:%S%Z')
     end
 
     # Extract required data from the file. Run by parse. Sets these
