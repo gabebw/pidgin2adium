@@ -1,3 +1,9 @@
+=== 3.2.2 / 2010-11-08
+* Use DateTime#strftime to get dates in xmlschema format. DateTime#xmlschema
+doesn't exist in Ruby 1.8, and Ruby 1.9 has DateTime#iso8601, not
+DateTime#xmlschema. Just use strftime. Thanks to Matthew Jakubowski for
+pointing this bug out.
+
 === 3.2.1 / 2010-11-08
 * Use straight DateTime.parse when possible, and only fall back on hacky
 Date._strptime when we have to.
