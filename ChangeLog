@@ -1,3 +1,8 @@
+=== 3.2.3 / 2010-11-08
+* Be more liberal in what Pidgin2Adium accepts when parsing the date and
+getting basic time info for the first line. Thanks to Matthew Jakubowski for
+helping me fix this bug.
+
 === 3.2.2 / 2010-11-08
 * Use DateTime#strftime to get dates in xmlschema format. DateTime#xmlschema
 doesn't exist in Ruby 1.8, and Ruby 1.9 has DateTime#iso8601, not
@@ -20,6 +25,7 @@ both work in 3.2.0.
 * Moved Message and its subclasses into messages/ subdir
   - You can now do "require 'pidgin2adium/messages/all'",
     though the old "require 'pidgin2adium/message" will still work
+
 === 3.1.0 / 2010-08-13
 * Compatible with Ruby 1.9!
   - removed dependency on "parsedate" library, which 1.9 doesn't have
