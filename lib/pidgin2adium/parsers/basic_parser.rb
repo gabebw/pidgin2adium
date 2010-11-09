@@ -28,6 +28,13 @@ module Pidgin2Adium
     # Minimal times don't have a date
     MINIMAL_TIME_REGEX = /^\d{1,2}:\d{1,2}:\d{1,2}(?: [AP]M)?$/
 
+    # Time regexes must be set before pre_parse!().
+    # "4/18/2007 11:02:00 AM" => %w{4, 18, 2007}
+    # ONLY used (if at all) in first line of chat ("Conversation with...at...")
+    TIME_REGEX_FIRST_LINE = %r{^(\d{1,2})/(\d{1,2})/(\d{4}) \d{1,2}:\d{2}:\d{2} [AP]M$}
+    # "2007-04-17 12:33:13" => %w{2007, 04, 17}
+    TIME_REGEX = /^(\d{4})-(\d{2})-(\d{2}) \d{2}:\d{2}:\d{2}$/
+
     def initialize(src_path, user_aliases)
       @src_path = src_path
       # Whitespace is removed for easy matching later on.
@@ -286,11 +293,11 @@ module Pidgin2Adium
         # You should be able to fill everything else in. If you can't,
         # something's wrong.
         @basic_time_info = case pidgin_chat_time_start
-                           when @time_regex
+                           when TIME_REGEX
                              {:year => $1.to_i,
                               :mon => $2.to_i,
                               :mday => $3.to_i}
-                           when @time_regex_first_line
+                           when TIME_REGEX_FIRST_LINE
                              {:year => $3.to_i,
                               :mon => $1.to_i,
                               :mday => $2.to_i}
