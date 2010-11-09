@@ -386,7 +386,7 @@ module Pidgin2Adium
       # Return nil, which will get compact'ed out
       return nil if @ignore_events.detect{|regex| str =~ regex }
 
-      regex, status = @status_map.detect{|regex, status| str =~ regex}
+      regex, status = @status_map.detect{|rxp, stat| str =~ rxp}
       if regex and status
         # Status message
         buddy_alias = regex.match(str)[1]
@@ -394,11 +394,11 @@ module Pidgin2Adium
         msg = StatusMessage.new(sender, time, buddy_alias, status)
       else
         # Test for event
-        regex = @lib_purple_events.detect{|regex| str =~ regex }
+        regex = @lib_purple_events.detect{|rxp| str =~ rxp }
         event_type = 'libpurpleEvent' if regex
         unless regex and event_type
           # not a libpurple event, try others
-          regex, event_type = @event_map.detect{|regex,event_type| str =~ regex}
+          regex, event_type = @event_map.detect{|rxp,ev_type| str =~ rxp}
           unless regex and event_type
             error(sprintf("Error parsing status or event message, no status or event found: %p", str))
             return false
