@@ -294,15 +294,44 @@ module Pidgin2Adium
                              {:year => $3.to_i,
                               :mon => $1.to_i,
                               :mday => $2.to_i}
+                           else
+                             nil
                            end
-        # Need @basic_time_info set for create_adium_time
+        if @basic_time_info.nil?
+          begin
+            parsed_time = DateTime.parse(pidgin_chat_time_start)
+            @basic_time_info = {:year => parsed_time.year,
+                                :mon => parsed_time.mon,
+                                :mday => parsed_time.mday}
+          rescue ArgumentError
+            # Couldn't parse the date
+            Pidgin2Adium.oops("#{@src_path}: couldn't parse the date in the first line.")
+            @basic_time_info = nil
+          end
+        end
+
+        # Note: need @basic_time_info set for create_adium_time
         # When the chat started, in Adium's format
         @adium_chat_time_start = create_adium_time(pidgin_chat_time_start)
-        [@service,
-          @user_SN,
-          @partner_SN,
-          @basic_time_info,
-          @adium_chat_time_start].all?
+
+        first_line_variables = [@service,
+                                @user_SN,
+                                @partner_SN,
+                                @basic_time_info,
+                                @adium_chat_time_start]
+        if first_line_variables.all?
+          true
+        else
+          # Print an informative error message
+          unset_variable_names = []
+          unset_variable_names << 'service' if @service.nil?
+          unset_variable_names << 'user_SN' if @user_SN.nil?
+          unset_variable_names << 'partner_SN' if @partner_SN.nil?
+          unset_variable_names << 'basic_time_info' if @basic_time_info.nil?
+          unset_variable_names << 'adium_chat_time_start' if @adium_chat_time_start.nil?
+          Pidgin2Adium.oops("Couldn't set these variables: #{unset_variable_names.join(', ')}")
+          false
+        end
       end
     end
 
