@@ -53,7 +53,7 @@ describe "BasicParser" do
     end
   end
 
-  describe "#pre_parse" do
+  describe "#pre_parse!" do
     it "should raise an error for an invalid first line" do
       bp =  Pidgin2Adium::BasicParser.new(
               File.join(@current_dir,
@@ -61,21 +61,41 @@ describe "BasicParser" do
                         "invalid-first-line.txt"),
               @aliases)
       lambda do
-        bp.pre_parse()
+        bp.pre_parse!()
       end.should raise_error(Pidgin2Adium::InvalidFirstLineError)
     end
 
-    it "should return correct info for an valid first line" do
+    it "should return true when everything can be parsed" do
       bp =  Pidgin2Adium::BasicParser.new(@html_logfile_path,
                                           @aliases)
-      results = bp.pre_parse()
-      results.should be_instance_of(Array)
-      results.should == ['aim', # service
-                         'othersn', # my SN
-                         'aolsystemmsg', # other person's SN
-                         {:year=>2008, :mon=>1, :mday=>15}, # basic time info
-                         '2008-01-15T07:14:45-05:00' # chat start time
-                        ]
+      bp.pre_parse!.should be_true
+    end
+
+    describe "correctly setting variables" do
+      before do
+        @bp =  Pidgin2Adium::BasicParser.new(@html_logfile_path, @aliases)
+        @bp.pre_parse!()
+      end
+
+      it "should correctly set @service" do
+        @bp.instance_variable_get('@service').should == 'aim'
+      end
+
+      it "should correctly set user_SN" do
+        @bp.instance_variable_get('@user_SN').should == 'othersn'
+      end
+
+      it "should correctly set partner_SN" do
+        @bp.instance_variable_get('@partner_SN').should == 'aolsystemmsg'
+      end
+
+      it "should correctly set basic_time_info" do
+        @bp.instance_variable_get('@basic_time_info').should == {:year=>2008, :mon=>1, :mday=>15}
+      end
+
+      it "should correctly set adium_chat_time_start" do
+        @bp.instance_variable_get('@adium_chat_time_start').should == '2008-01-15T07:14:45-05:00'
+      end
     end
   end
 
