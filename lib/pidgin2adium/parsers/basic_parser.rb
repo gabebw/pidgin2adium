@@ -35,10 +35,13 @@ module Pidgin2Adium
     # "2007-04-17 12:33:13" => %w{2007, 04, 17}
     TIME_REGEX = /^(\d{4})-(\d{2})-(\d{2}) \d{2}:\d{2}:\d{2}$/
 
-    def initialize(src_path, user_aliases)
+    #  force_conversion: Should we continue to convert after hitting an unparseable line?
+    def initialize(src_path, user_aliases, force_conversion = false)
       @src_path = src_path
       # Whitespace is removed for easy matching later on.
       @user_aliases = user_aliases.split(',').map!{|x| x.downcase.gsub(/\s+/,'') }.uniq
+
+      @force_conversion = force_conversion
       # @user_alias is set each time get_sender_by_alias is called. It is a non-normalized
       # alias.
       # Set an initial value just in case the first message doesn't give
@@ -400,8 +403,17 @@ module Pidgin2Adium
           # not a libpurple event, try others
           regex, event_type = @event_map.detect{|rxp,ev_type| str =~ rxp}
           unless regex and event_type
-            error(sprintf("Error parsing status or event message, no status or event found: %p", str))
-            return false
+            if force_conversion?
+              unless printed_conversion_error?
+                error("#{@src_path} was converted with the following errors:")
+                printed_conversion_error!
+              end
+            end
+
+            error(sprintf("%sError parsing status or event message, no status or event found: %p",
+                          force_conversion? ? "\t" : '', # indent if we're forcing conversion
+                          str))
+            return false unless force_conversion?
           end
         end
 
@@ -420,6 +432,19 @@ module Pidgin2Adium
         end
       end
       return msg
+    end
+
+    # Should we continue to convert after hitting an unparseable line?
+    def force_conversion?
+      !! @force_conversion
+    end
+
+    def printed_conversion_error?
+      @printed_conversion_error == true
+    end
+
+    def printed_conversion_error!
+      @printed_conversion_error = true
     end
   end # END BasicParser class
 end

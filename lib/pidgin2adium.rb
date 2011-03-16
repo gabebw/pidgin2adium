@@ -39,19 +39,20 @@ module Pidgin2Adium
 
   # Parses the provided log.
   # Returns a LogFile instance or false if an error occurred.
-  def parse(logfile_path, my_aliases)
+  def parse(logfile_path, my_aliases, force_conversion)
     logfile_path = File.expand_path(logfile_path)
     ext = File.extname(logfile_path).sub('.', '').downcase
 
     if(ext == "html" || ext == "htm")
-      parser = HtmlLogParser.new(logfile_path, my_aliases)
+      parser_class = HtmlLogParser
     elsif(ext == "txt")
-      parser = TextLogParser.new(logfile_path, my_aliases)
+      parser_class = TextLogParser
     else
       error("Doing nothing, logfile is not a text or html file. Path: #{logfile_path}.")
       return false
     end
 
+    parser = parser_class.new(logfile_path, my_aliases, force_conversion)
     return parser.parse()
   end
 
@@ -72,6 +73,8 @@ module Pidgin2Adium
   def parse_and_generate(logfile_path, my_aliases, opts = {})
     opts = {} unless opts.is_a?(Hash)
     overwrite = !!opts[:overwrite]
+    force_conversion = opts[:force_conversion]
+
     if opts.key?(:output_dir)
       output_dir = opts[:output_dir]
     else
@@ -88,7 +91,7 @@ module Pidgin2Adium
       end
     end
 
-    logfile_obj = parse(logfile_path, my_aliases)
+    logfile_obj = parse(logfile_path, my_aliases, force_conversion)
     return false if logfile_obj == false
     dest_file_path = logfile_obj.write_out(overwrite, output_dir)
     if dest_file_path == false

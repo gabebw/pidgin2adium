@@ -5,8 +5,8 @@ require 'balance_tags_c'
 
 module Pidgin2Adium
   class HtmlLogParser < BasicParser
-    def initialize(src_path, user_aliases)
-      super(src_path, user_aliases)
+    def initialize(src_path, user_aliases, force_conversion = false)
+      super(src_path, user_aliases, force_conversion)
       @timestamp_rx = '\(((?:\d{4}-\d{2}-\d{2} )?\d{1,2}:\d{1,2}:\d{1,2}(?: [AP]M)?)\)'
 
       # @line_regex matches a line in an HTML log file other than the

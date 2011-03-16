@@ -49,6 +49,10 @@ oparser = OptionParser.new do |opts|
     options[:force] = f
   end
 
+  opts.on('-c', '--continue', "Continue converting after hitting unparseable lines. Will print the problem lines and log at the end.") do |c|
+    options[:force_conversion] = c
+  end
+
   opts.on("-v", "--version", "Show version information") do
     puts version
     exit
@@ -95,9 +99,9 @@ if need_opts
 end
 
 extra_opts = {:overwrite => options[:force]}
-if options.has_key?(:output_dir)
-  extra_opts[:output_dir] = options[:output_dir]
-end
+
+extra_opts[:output_dir] = options[:output_dir]
+extra_opts[:force_conversion] = options[:force_conversion]
 
 log_converter = Pidgin2Adium::LogConverter.new(options[:in],
                                                options[:aliases],
