@@ -35,7 +35,6 @@ RSpec::Core::RakeTask.new(:rcov) do |spec|
   spec.rcov = true
 end
 
-task :spec => :check_dependencies
 task :spec => "extconf:compile"
 
 task :default => :spec
