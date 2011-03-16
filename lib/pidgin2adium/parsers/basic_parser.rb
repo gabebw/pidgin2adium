@@ -158,8 +158,14 @@ module Pidgin2Adium
           create_msg($~.captures)
         elsif line =~ @line_regex_status
           msg = create_status_or_event_msg($~.captures)
-          # Error occurred while parsing
-          return false if msg == false
+          if msg == false
+            if force_conversion?
+              nil # will get compacted out
+            else
+              # Error occurred while parsing
+              return false
+            end
+          end
         else
           error "Could not parse line:"
           p line
@@ -413,7 +419,7 @@ module Pidgin2Adium
             error(sprintf("%sError parsing status or event message, no status or event found: %p",
                           force_conversion? ? "\t" : '', # indent if we're forcing conversion
                           str))
-            return false unless force_conversion?
+            return false
           end
         end
 
