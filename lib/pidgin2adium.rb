@@ -5,7 +5,7 @@
 
 require 'fileutils'
 require 'time'
-require 'version'
+require 'pidgin2adium/version'
 require 'pidgin2adium/parsers/all'
 
 module Pidgin2Adium
