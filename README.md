@@ -27,8 +27,8 @@ You do not need to provide your screenname in the alias list.
 Assuming that:
 * your Pidgin log files are in the "pidgin-logs" folder
 * your various aliases in your chats are "Gabe", "Gabe B-W", and "gbw"
-Then run (at the command line)
 
+Then run (at the command line)
 
     $ pidgin2adium -i pidgin-logs -a "Gabe, Gabe B-W, gbw"
 
