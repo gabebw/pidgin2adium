@@ -1,3 +1,6 @@
+=== 3.3.0 / 2011-10-16
+* Pidgin2Adium depended on itself for some reason. Now it doesn't.
+
 === 3.2.3 / 2010-11-08
 * Be more liberal in what Pidgin2Adium accepts when parsing the date and
 getting basic time info for the first line. Thanks to Matthew Jakubowski for
