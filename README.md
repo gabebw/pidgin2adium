@@ -25,6 +25,7 @@ You do not need to provide your screenname in the alias list.
 
 ### Example (using script)
 Assuming that:
+
 * your Pidgin log files are in the "pidgin-logs" folder
 * your various aliases in your chats are "Gabe", "Gabe B-W", and "gbw"
 
