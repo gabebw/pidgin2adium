@@ -5,4 +5,4 @@ end
 
 task :compile => "extconf:compile"
 
-task :test => :compile
+task :rspec => :compile
