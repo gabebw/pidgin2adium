@@ -1,8 +1,6 @@
 # HtmlLogParser class, a subclass of BasicParser.
 # Used for parse()ing HTML logs.
 
-require 'balance_tags_c'
-
 module Pidgin2Adium
   class HtmlLogParser < BasicParser
     def initialize(src_path, user_aliases, force_conversion = false)

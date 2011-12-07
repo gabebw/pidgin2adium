@@ -5,8 +5,10 @@
 
 require 'fileutils'
 require 'time'
+
 require 'pidgin2adium/version'
 require 'pidgin2adium/parsers/all'
+require 'pidgin2adium/tag_balancer'
 
 module Pidgin2Adium
   # Returned by LogFile.write_out if the output logfile already exists.

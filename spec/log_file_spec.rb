@@ -32,24 +32,10 @@ describe "LogFile" do
   end
 
   describe "attributes" do
-    it "should have chat_lines readable" do
-      @logfile.should respond_to(:chat_lines)
-    end
-
-    it "should have service readable" do
-      @logfile.should respond_to(:service)
-    end
-
-    it "should have user_SN readable" do
-      @logfile.should respond_to(:user_SN)
-    end
-
-    it "should have partner_SN readable" do
-      @logfile.should respond_to(:partner_SN)
-    end
-
-    it "should have adium_chat_time_start readable" do
-      @logfile.should respond_to(:adium_chat_time_start)
+    [:chat_lines, :service, :user_SN, :partner_SN, :adium_chat_time_start].each do |attribute|
+      it "has a reader for #{attribute}" do
+        @logfile.should respond_to(attribute)
+      end
     end
   end
 
@@ -67,7 +53,7 @@ describe "LogFile" do
     end
 
     describe "#each_with_index" do
-      it "should yield the correct messages" do
+      it "yields the correct messages, in order" do
         @logfile.each_with_index do |msg, n|
           msg.should == @messages[n]
         end
@@ -75,13 +61,13 @@ describe "LogFile" do
     end
 
     describe "#max" do
-      it "should return the most recent message" do
+      it "returns the most recent message" do
         @logfile.max.should == @messages.last
       end
     end
 
     describe "#min" do
-      it "should return the oldest message" do
+      it "returns the oldest message" do
         @logfile.min.should == @messages.first
       end
     end
@@ -103,21 +89,21 @@ describe "LogFile" do
         @output_file = @logfile.write_out(false, @output_dir)
       end
 
-      it "should write out the correct content" do
-        IO.read(@output_file).include?(@logfile.to_s).should be_true
+      it "writes out the correct content" do
+        IO.read(@output_file).should include(@logfile.to_s)
       end
 
-      it "should write out the correct header" do
+      it "writes out the correct header" do
         header = sprintf('<?xml version="1.0" encoding="UTF-8" ?>'+"\n"+
                          '<chat xmlns="http://purl.org/net/ulf/ns/0.4-02" account="gabebw" service="AIM">'+"\n")
         IO.read(@output_file).should =~ /^#{Regexp.escape(header)}/
       end
 
-      it "should write out the closing </chat> tag" do
+      it "writes out the closing </chat> tag" do
         IO.read(@output_file).should =~ %r{</chat>$}
       end
 
-      it "should write to the correct path" do
+      it "writes to the correct path" do
         @output_file.should == @output_file_path
       end
     end
@@ -127,11 +113,13 @@ describe "LogFile" do
         FileUtils.mkdir_p(File.dirname(@output_file_path))
         File.new(@output_file_path, 'w').close
       end
-      it "should return FILE_EXISTS" do
+
+      it "returns FILE_EXISTS" do
         output_file = @logfile.write_out(false, @output_dir)
         output_file.should == Pidgin2Adium::FILE_EXISTS
       end
-      it "should return output file path if overwrite is true" do
+
+      it "returns output file path if overwrite is true" do
         output_file = @logfile.write_out(true, @output_dir)
         output_file.should == @output_file_path
       end
@@ -148,7 +136,7 @@ describe "LogFile" do
           `chmod +w #{File.dirname(@output_dir)}`
         end
 
-        it "should return false if it can't create the output dir" do
+        it "returns false if it can't create the output dir" do
           @logfile.write_out(false, @output_dir).should be_false
         end
       end
@@ -167,7 +155,7 @@ describe "LogFile" do
           `chmod +w '#{@output_file_parent_dir}'`
         end
 
-        it "should return false if it can't open the output file for writing" do
+        it "returns false if it can't open the output file for writing" do
           @logfile.write_out(false, @output_dir).should be_false
         end
       end

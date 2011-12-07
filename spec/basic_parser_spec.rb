@@ -1,15 +1,13 @@
 require 'spec_helper'
 
 describe "BasicParser" do
-  it "should include Pidgin2Adium" do
-    Pidgin2Adium::BasicParser.included_modules.include?(Pidgin2Adium).should be_true
+  it "includes Pidgin2Adium" do
+    Pidgin2Adium::BasicParser.included_modules.should include(Pidgin2Adium)
   end
 
   describe "#parse" do
-    it "should return false" do
-      bp = Pidgin2Adium::BasicParser.new(@text_logfile_path,
-                                         @aliases)
-      bp.parse().should be_false
+    it "returns false" do
+      Pidgin2Adium::BasicParser.new(@text_logfile_path, @aliases).parse.should be_false
     end
   end
 
@@ -27,34 +25,34 @@ describe "BasicParser" do
                                           @aliases)
     end
 
-    it "should parse a first line time correctly" do
+    it "parses a first line time correctly" do
       time = @bp.create_adium_time(@first_line_time)
       time.should =~ /2007-04-18T11:02:00[-+]\d{2}:00/
     end
 
-    it "should parse a normal time correctly" do
+    it "parses a normal time correctly" do
       time = @bp.create_adium_time(@time)
       time.should =~ /2007-08-20T12:33:13[-+]\d{2}:00/
     end
 
-    it "should parse a minimal time correctly" do
+    it "parses a minimal time correctly" do
       time = @bp.create_adium_time(@minimal_time)
       time.should =~ /2008-01-15T04:22:05[-+]\d{2}:00/
     end
 
-    it "should parse a minimal time without AM/PM correctly" do
+    it "parses a minimal time without AM/PM correctly" do
       time = @bp.create_adium_time(@minimal_time_2)
       time.should =~ /2008-01-15T04:22:05[-+]\d{2}:00/
     end
 
-    it "should return an array of nils for an invalid time" do
+    it "returns an array of nils for an invalid time" do
       time = @bp.create_adium_time(@invalid_time)
       time.should be_nil
     end
   end
 
   describe "#pre_parse!" do
-    it "should raise an error for an invalid first line" do
+    it "raises an error for an invalid first line" do
       bp =  Pidgin2Adium::BasicParser.new(
               File.join(@current_dir,
                         "logfiles",
@@ -65,7 +63,7 @@ describe "BasicParser" do
       end.should raise_error(Pidgin2Adium::InvalidFirstLineError)
     end
 
-    it "should return true when everything can be parsed" do
+    it "returns true when everything can be parsed" do
       bp =  Pidgin2Adium::BasicParser.new(@html_logfile_path,
                                           @aliases)
       bp.pre_parse!.should be_true
@@ -77,23 +75,23 @@ describe "BasicParser" do
         @bp.pre_parse!()
       end
 
-      it "should correctly set @service" do
+      it "correctly sets @service" do
         @bp.instance_variable_get('@service').should == 'aim'
       end
 
-      it "should correctly set user_SN" do
+      it "correctly sets user_SN" do
         @bp.instance_variable_get('@user_SN').should == 'othersn'
       end
 
-      it "should correctly set partner_SN" do
+      it "correctly sets partner_SN" do
         @bp.instance_variable_get('@partner_SN').should == 'aolsystemmsg'
       end
 
-      it "should correctly set basic_time_info" do
+      it "correctly sets basic_time_info" do
         @bp.instance_variable_get('@basic_time_info').should == {:year=>2008, :mon=>1, :mday=>15}
       end
 
-      it "should correctly set adium_chat_time_start" do
+      it "correctly sets adium_chat_time_start" do
         @bp.instance_variable_get('@adium_chat_time_start').should == '2008-01-15T07:14:45-05:00'
       end
     end
@@ -111,15 +109,15 @@ describe "BasicParser" do
                                           @my_alias)
     end
 
-    it "should return my SN when passed my alias" do
+    it "returns my SN when passed my alias" do
       @bp.get_sender_by_alias(@my_alias).should == @my_SN
     end
 
-    it "should return my SN when passed my alias with an action" do
+    it "returns my SN when passed my alias with an action" do
       @bp.get_sender_by_alias("***#{@my_alias}").should == @my_SN
     end
 
-    it "should return partner's SN when passed partner's alias" do
+    it "returns partner's SN when passed partner's alias" do
       @bp.get_sender_by_alias(@partner_alias).should == @partner_SN
     end
   end
@@ -144,17 +142,17 @@ describe "BasicParser" do
     end
 
 
-    it "should return XMLMessage class for a normal message" do
+    it "returns XMLMessage class for a normal message" do
       @bp.create_msg(@matches).should
         be_instance_of(Pidgin2Adium::XMLMessage)
     end
 
-    it "should return AutoReplyMessage class for an auto reply" do
+    it "returns AutoReplyMessage class for an auto reply" do
       @bp.create_msg(@auto_reply_matches).should
         be_instance_of(Pidgin2Adium::AutoReplyMessage)
     end
 
-    it "should return nil if the time is nil" do
+    it "returns nil if the time is nil" do
       @matches[0] = nil
       @bp.create_msg(@matches).should be_nil
     end
@@ -187,7 +185,7 @@ describe "BasicParser" do
                                           @alias)
     end
 
-    it "should map statuses correctly" do
+    it "maps statuses correctly" do
       @status_map.each do |message, status|
         return_value = @bp.create_status_or_event_msg([@time,
                                                      message])
@@ -196,21 +194,21 @@ describe "BasicParser" do
       end
     end
 
-    it "should map libpurple events correctly" do
+    it "maps libpurple events correctly" do
       return_val = @bp.create_status_or_event_msg([@time,
                                                   @libpurple_event_msg])
       return_val.should be_instance_of(Pidgin2Adium::Event)
       return_val.event_type.should == 'libpurpleEvent'
     end
 
-    it "should map non-libpurple events correctly" do
+    it "maps non-libpurple events correctly" do
       return_val = @bp.create_status_or_event_msg([@time,
                                                   @event_msg])
       return_val.should be_instance_of(Pidgin2Adium::Event)
       return_val.event_type.should == @event_type
     end
 
-    it "should return nil for ignored events" do
+    it "returns nil for ignored events" do
       return_val = @bp.create_status_or_event_msg([@time,
                                                   @ignored_event_msg])
       return_val.should be_nil

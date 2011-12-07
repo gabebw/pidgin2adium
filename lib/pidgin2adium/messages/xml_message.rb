@@ -22,7 +22,7 @@ module Pidgin2Adium
       normalize_body_entities!()
       # Fix mismatched tags. Yes, it's faster to do it per-message
       # than all at once.
-      @body = Pidgin2Adium.balance_tags_c(@body)
+      @body = Pidgin2Adium::TagBalancer.new(@body).balance
       if @buddy_alias[0,3] == '***'
         # "***<alias>" is what pidgin sets as the alias for a /me action
         @buddy_alias.slice!(0,3)
