@@ -8,6 +8,7 @@ require 'time'
 
 require 'pidgin2adium/version'
 require 'pidgin2adium/parsers/all'
+require 'pidgin2adium/time_converter'
 require 'pidgin2adium/tag_balancer'
 
 module Pidgin2Adium
