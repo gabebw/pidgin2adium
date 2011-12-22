@@ -42,7 +42,7 @@ module Pidgin2Adium
 
   # Parses the provided log.
   # Returns a LogFile instance or false if an error occurred.
-  def parse(logfile_path, my_aliases, force_conversion)
+  def self.parse(logfile_path, my_aliases, force_conversion)
     logfile_path = File.expand_path(logfile_path)
     ext = File.extname(logfile_path).sub('.', '').downcase
 
@@ -73,7 +73,7 @@ module Pidgin2Adium
   # * *output_dir*: The top-level dir to put the logs in.
   #   Logs under output_dir are still each in their own folders, etc.
   #   Defaults to Pidgin2Adium::ADIUM_LOG_DIR
-  def parse_and_generate(logfile_path, my_aliases, opts = {})
+  def self.parse_and_generate(logfile_path, my_aliases, opts = {})
     opts = {} unless opts.is_a?(Hash)
     overwrite = !!opts[:overwrite]
     force_conversion = opts[:force_conversion]
@@ -119,7 +119,7 @@ module Pidgin2Adium
   # allow for batch-processing of files. Thus, you will probably want to run
   # Pidgin2Adium.delete_search_indexes after running LogFile.write_out in
   # your own scripts.
-  def delete_search_indexes()
+  def self.delete_search_indexes
     log_msg "Deleting log search indexes in order to force re-indexing of imported logs..."
     dirty_file = File.expand_path("~/Library/Caches/Adium/Default/DirtyLogs.plist")
     log_index_file = File.expand_path("~/Library/Caches/Adium/Default/Logs.index")
@@ -135,6 +135,4 @@ module Pidgin2Adium
     log_msg "...done."
     log_msg "When you next start the Adium Chat Transcript Viewer, it will re-index the logs, which may take a while."
   end
-
-  module_function :parse, :parse_and_generate, :delete_search_indexes
 end
