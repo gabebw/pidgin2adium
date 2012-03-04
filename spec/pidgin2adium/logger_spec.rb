@@ -30,7 +30,7 @@ describe Pidgin2Adium::Logger do
       logger.oops('hi')
       output.string.should == ''
       logger.flush
-      output.string.should == "Oops: hi\n"
+      output.string.should == "Minor error messages:\nOops: hi\n"
     end
   end
 
@@ -39,7 +39,7 @@ describe Pidgin2Adium::Logger do
       logger.error('hi')
       output.string.should == ''
       logger.flush
-      output.string.should == "Error: hi\n"
+      output.string.should == "Major error messages:\nError: hi\n"
     end
   end
 end

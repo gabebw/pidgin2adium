@@ -21,7 +21,7 @@ module Pidgin2Adium
 
       unless File.directory?(@pidgin_log_dir)
         msg = "Source directory #{@pidgin_log_dir} does not exist or is not a directory."
-        error(msg)
+        Pidgin2Adium.error(msg)
 
         # ENOENT automatically prepends "No such file or directory - " to
         # its initializer's arguments
@@ -37,8 +37,8 @@ module Pidgin2Adium
       begin
         files_path = get_all_chat_files()
       rescue Errno::EACCES => bang
-        error("Sorry, permission denied for getting Pidgin chat files from #{@pidgin_log_dir}.")
-        error("Details: #{bang.message}")
+        Pidgin2Adium.error("Sorry, permission denied for getting Pidgin chat files from #{@pidgin_log_dir}.")
+        Pidgin2Adium.error("Details: #{bang.message}")
         raise bang
       end
 
@@ -57,10 +57,7 @@ module Pidgin2Adium
       Pidgin2Adium.delete_search_indexes()
 
       Pidgin2Adium.log "Finished converting! Converted #{total_successes} files of #{total_files} total."
-      puts "Minor error messages:"
-      puts @@oops_messages.join("\n")
-      puts "Major error messages:"
-      puts @@error_messages.join("\n")
+      Pidgin2Adium.logger.flush
     end
 
     def get_all_chat_files

@@ -30,22 +30,17 @@ module Pidgin2Adium
     @@logger = new_logger
   end
 
-  def log(str) #:nodoc:
+  def self.log(str) #:nodoc:
     Pidgin2Adium.logger.log(str)
   end
 
-  def oops(str) #:nodoc:
+  def self.oops(str) #:nodoc:
     Pidgin2Adium.logger.oops(str)
   end
 
-  def error(str) #:nodoc:
+  def self.error(str) #:nodoc:
     Pidgin2Adium.logger.error(str)
   end
-
-  #######################
-  #So that we can use log when calling delete_search_indexes() by itself
-  module_function :log, :oops, :error
-  #######################
 
   # Parses the provided log.
   # Returns a LogFile instance or false if an error occurred.

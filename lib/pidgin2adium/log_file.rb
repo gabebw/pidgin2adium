@@ -62,7 +62,7 @@ module Pidgin2Adium
       begin
         FileUtils.mkdir_p(output_dir)
       rescue => bang
-        error "Could not create destination directory for log file. (Details: #{bang.class}: #{bang.message})"
+        Pidgin2Adium.error "Could not create destination directory for log file. (Details: #{bang.class}: #{bang.message})"
         return false
       end
       if overwrite
@@ -84,7 +84,7 @@ module Pidgin2Adium
       begin
         outfile = File.new(output_path, 'w')
       rescue => bang
-        error "Could not open log file for writing. (Details: #{bang.class}: #{bang.message})"
+        Pidgin2Adium.error "Could not open log file for writing. (Details: #{bang.class}: #{bang.message})"
         return false
       end
 

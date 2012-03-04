@@ -55,7 +55,7 @@ module Pidgin2Adium
         @file_content = file.read
         file.close
       rescue Errno::ENOENT
-        oops("#{@src_path} doesn't exist! Continuing...")
+        Pidgin2Adium.oops("#{@src_path} doesn't exist! Continuing...")
         @log_file_is_valid = false
         return nil
       end
@@ -145,7 +145,7 @@ module Pidgin2Adium
       # Prevent parse from being called directly from BasicParser, since
       # it uses subclassing magic.
       if self.class == BasicParser
-        oops("Please don't call parse directly from BasicParser. Use a subclass :)")
+        Pidgin2Adium.oops("Please don't call parse directly from BasicParser. Use a subclass :)")
         return false
       end
       return false unless @log_file_is_valid
