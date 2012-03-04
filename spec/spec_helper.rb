@@ -1,8 +1,3 @@
-# Pidgin2Adium.oops and Pidgin2Adium.warn both use warn() to output errors.
-# Setting $-w (the warning level) to nil suppresses them, which makes for
-# much prettier test output.
-$-w=nil # OMGHAX
-
 $LOAD_PATH.unshift(File.expand_path('..',  __FILE__))
 $LOAD_PATH.unshift(File.expand_path('../lib', __FILE__))
 
