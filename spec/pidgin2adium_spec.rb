@@ -164,14 +164,18 @@ describe Pidgin2Adium, "#parse_and_generate" do
     @text_output_file_path = File.join(@output_dir,
                                         "AIM.awesomesn",
                                         "BUDDY_PERSON",
-                                        "BUDDY_PERSON (2006-12-21T22.36.06+00:00).chatlog",
-                                        "BUDDY_PERSON (2006-12-21T22.36.06+00:00).xml")
+                                        "BUDDY_PERSON (2006-12-21T22:36:06+00:00).chatlog",
+                                        "BUDDY_PERSON (2006-12-21T22:36:06+00:00).xml")
     @htm_output_file_path = File.join(@output_dir,
                                       "AIM.otherSN",
                                       "aolsystemmsg",
-                                      "aolsystemmsg (2008-01-15T07.14.45-0500).chatlog",
-                                      "aolsystemmsg (2008-01-15T07.14.45-0500).xml")
-    @html_output_file_path = @htm_output_file_path
+                                      "aolsystemmsg (2008-01-15T07:14:45EST).chatlog",
+                                      "aolsystemmsg (2008-01-15T07:14:45EST).xml")
+    @html_output_file_path = File.join(@output_dir,
+                                      "AIM.otherSN",
+                                      "aolsystemmsg",
+                                      "aolsystemmsg (2008-01-15T07:14:45EST).chatlog",
+                                      "aolsystemmsg (2008-01-15T07:14:45EST).xml")
     @nonexistent_output_dir = File.join(@current_dir, "nonexistent_output_dir/")
   end
 
@@ -199,44 +203,41 @@ describe Pidgin2Adium, "#parse_and_generate" do
       end
 
       describe "when file already exists" do
-      #   describe "when :force is not set" do
-      #     context "for a text file" do
-      #       it "should return FILE_EXISTS" do
-      #         FileUtils.mkdir_p(File.dirname(@text_output_file_path))
-      #         File.new(@text_output_file_path, 'w').tap do |f|
-      #           f.write('hi')
-      #           f.close
-      #         end
-      #         Pidgin2Adium.parse_and_generate(@text_logfile_path,
-      #                                         @aliases,
-      #                                         @opts).should == Pidgin2Adium::FILE_EXISTS
-      #       end
-      #     end
+        describe "when :force is not set" do
+          context "for a text file" do
+            it "should return FILE_EXISTS" do
+              FileUtils.mkdir_p(File.dirname(@text_output_file_path))
+              File.new(@text_output_file_path, 'w').close
+              Pidgin2Adium.parse_and_generate(@text_logfile_path,
+                                              @aliases,
+                                              @opts).should == Pidgin2Adium::FILE_EXISTS
+            end
+          end
 
-      #     context "for an HTM file" do
-      #       before do
-      #         FileUtils.mkdir_p(File.dirname(@htm_output_file_path))
-      #         File.new(@htm_output_file_path, 'w').close # create file
-      #       end
-      #       it "should return FILE_EXISTS" do
-      #         Pidgin2Adium.parse_and_generate(@htm_logfile_path,
-      #                                         @aliases,
-      #                                         @opts).should == Pidgin2Adium::FILE_EXISTS
-      #       end
-      #     end
+          context "for an HTM file" do
+            before do
+              FileUtils.mkdir_p(File.dirname(@htm_output_file_path))
+              File.new(@htm_output_file_path, 'w').close # create file
+            end
+            it "should return FILE_EXISTS" do
+              Pidgin2Adium.parse_and_generate(@htm_logfile_path,
+                                              @aliases,
+                                              @opts).should == Pidgin2Adium::FILE_EXISTS
+            end
+          end
 
-      #     context "for an HTML file" do
-      #       before do
-      #         FileUtils.mkdir_p(File.dirname(@html_output_file_path))
-      #         File.new(@html_output_file_path, 'w').close # create file
-      #       end
-      #       it "should return FILE_EXISTS" do
-      #         Pidgin2Adium.parse_and_generate(@html_logfile_path,
-      #                                         @aliases,
-      #                                         @opts).should == Pidgin2Adium::FILE_EXISTS
-      #       end
-      #     end
-        # end
+          context "for an HTML file" do
+            before do
+              FileUtils.mkdir_p(File.dirname(@html_output_file_path))
+              File.new(@html_output_file_path, 'w').close # create file
+            end
+            it "should return FILE_EXISTS" do
+              Pidgin2Adium.parse_and_generate(@html_logfile_path,
+                                              @aliases,
+                                              @opts).should == Pidgin2Adium::FILE_EXISTS
+            end
+          end
+        end
       end
     end
   end # failure
