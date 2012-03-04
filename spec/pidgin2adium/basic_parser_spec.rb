@@ -220,3 +220,41 @@ describe Pidgin2Adium::BasicParser do
     end
   end
 end
+
+describe Pidgin2Adium::BasicParser, "#try_to_parse_time" do
+  let(:parser) { Pidgin2Adium::BasicParser.new(create_chat_file, '') }
+
+  it 'parses "%m/%d/%Y %I:%M:%S %P"' do
+    time = '01/22/2008 03:01:45 PM'
+    parseable_time = '2008-01-22 03:01:45 PM'
+    parser.try_to_parse_time(time).should == Time.parse(parseable_time)
+  end
+
+  it 'parses "%Y-%m-%d %H:%M:%S"' do
+    time = '2008-01-22 23:08:24'
+    parser.try_to_parse_time(time).should == Time.parse(time)
+  end
+
+  it 'parses "%Y/%m/%d %H:%M:%S"' do
+    time = '2008/01/22 04:01:45'
+    parser.try_to_parse_time(time).should == Time.parse(time)
+  end
+
+  it 'parses "%Y-%m-%d %H:%M:%S"' do
+    time = '2008-01-22 04:01:45'
+    parser.try_to_parse_time(time).should == Time.parse(time)
+  end
+
+  it 'parses "%a %d %b %Y %H:%M:%S %p %Z", ignoring time zones' do
+    time = "Sat 18 Apr 2009 10:43:35 AM PDT"
+    time_without_zone = time.sub('PDT', '')
+    parsed_time = Time.parse(time_without_zone)
+    parsed_time.hour.should == 10
+    parser.try_to_parse_time(time).should == parsed_time
+  end
+
+  it 'parses "%a %b %d %H:%M:%S %Y"' do
+    time = "Wed May 24 19:00:33 2006"
+    parser.try_to_parse_time(time).should == Time.parse(time)
+  end
+end
