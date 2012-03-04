@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe "LogFile" do
-  before(:each) do
+  before do
     @user_SN = "gabebw"
     @user_alias = "Gabe B-W"
 
@@ -74,7 +74,7 @@ describe "LogFile" do
   end
 
   describe "#write_out" do
-    before(:each) do
+    before do
       @output_file_path = File.join(@output_dir,
                             'AIM.gabebw',
                             'matz',
@@ -83,7 +83,7 @@ describe "LogFile" do
     end
 
     describe "when file does not exist" do
-      before(:each) do
+      before do
         FileUtils.rm_r(File.join(@output_dir, 'AIM.gabebw'),
                        :force => true)
         @output_file = @logfile.write_out(false, @output_dir)
@@ -109,7 +109,7 @@ describe "LogFile" do
     end
 
     describe "when file exists" do
-      before(:each) do
+      before do
         FileUtils.mkdir_p(File.dirname(@output_file_path))
         File.new(@output_file_path, 'w').close
       end
@@ -127,12 +127,12 @@ describe "LogFile" do
 
     describe "permissions problems" do
       describe "with output dir" do
-        before(:each) do
+        before do
           FileUtils.rm_r(@output_dir, :force => true)
           `chmod -w #{File.dirname(@output_dir)}`
         end
 
-        after(:each) do
+        after do
           `chmod +w #{File.dirname(@output_dir)}`
         end
 
@@ -142,7 +142,7 @@ describe "LogFile" do
       end
 
       describe "with output file" do
-        before(:each) do
+        before do
           # Make parent dir unwriteable because creating the
           # file itself and making it unwriteable returns
           # FILE_EXISTS
@@ -151,7 +151,7 @@ describe "LogFile" do
           `chmod -w '#{@output_file_parent_dir}'`
         end
 
-        after(:each) do
+        after do
           `chmod +w '#{@output_file_parent_dir}'`
         end
 

@@ -1,7 +1,7 @@
 require 'spec_helper'
 
-describe "TextLogParser" do
-  before(:each) do
+describe Pidgin2Adium::TextLogParser do
+  before do
     @time = '(04:20:06)'
     @tlp = Pidgin2Adium::TextLogParser.new(@text_logfile_path,
                                            @aliases)

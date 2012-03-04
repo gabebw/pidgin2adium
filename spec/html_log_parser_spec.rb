@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe "HtmlLogParser" do
-  before(:each) do
+  before do
     # @year, @am, and @pm are not required. @time is.
     # So @year + @time is a valid time,
     # as is @time, and @year + @time + @am.
@@ -100,7 +100,7 @@ describe "HtmlLogParser" do
   end
 
   describe "#parse" do
-    before(:each) do
+    before do
       @logfile = @hlp.parse()
     end
 

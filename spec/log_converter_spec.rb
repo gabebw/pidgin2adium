@@ -3,7 +3,7 @@ require 'pidgin2adium/log_converter'
 require 'fileutils'
 
 describe "LogConverter" do
-  before(:each) do
+  before do
     @converter = Pidgin2Adium::LogConverter.new(@logfile_path,
                                                 @aliases,
                                                 { :output_dir => @output_dir })

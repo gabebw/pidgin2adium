@@ -8,7 +8,7 @@ describe Pidgin2Adium::BasicParser do
   end
 
   describe "#create_adium_time" do
-    before(:each) do
+    before do
       @first_line_time = "4/18/2007 11:02:00 AM"
       @time = "2007-08-20 12:33:13"
       @minimal_time = "04:22:05 AM"
@@ -94,7 +94,7 @@ describe Pidgin2Adium::BasicParser do
   end
 
   describe "#get_sender_by_alias" do
-    before(:each) do
+    before do
       @my_alias = "Gabe B-W"
       @my_SN =  "awesomesn" # normalized from "awesome SN"
 
@@ -119,7 +119,7 @@ describe Pidgin2Adium::BasicParser do
   end
 
   describe "#create_msg" do
-    before(:each) do
+    before do
       body = "Your screen name (otherSN) is now signed into " +
         "AOL(R) Instant Messenger (TM) in 2 locations. " +
         "To sign off the other location(s), reply to this message " + "with the number 1. Click " +
@@ -155,7 +155,7 @@ describe Pidgin2Adium::BasicParser do
   end
 
   describe "#create_status_or_event_msg" do
-    before(:each) do
+    before do
       # not yet converted to Adium format
       @time = "2007-08-20 12:33:13"
       @alias = "Gabe B-W"
