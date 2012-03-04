@@ -13,7 +13,6 @@ module Pidgin2Adium
   # Event::		 body, event_type
   # StatusMessage::	 status
   class LogFile
-    include Pidgin2Adium
     include Enumerable
     def initialize(chat_lines, service, user_SN, partner_SN, adium_chat_time_start)
       @chat_lines = chat_lines

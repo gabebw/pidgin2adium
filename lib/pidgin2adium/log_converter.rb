@@ -4,7 +4,6 @@ module Pidgin2Adium
   # An easy way to batch-process a directory. Used by the pidgin2adium
   # command-line script.
   class LogConverter
-    include Pidgin2Adium
     # You can add options using the _opts_ hash, which can have the
     # following keys, all of which are optional:
     # * *overwrite*: If true, then overwrite even if log is found.
@@ -44,9 +43,9 @@ module Pidgin2Adium
 
       total_files = files_path.size
       total_successes = 0
-      log("#{total_files} files to convert.")
+      Pidgin2Adium.log("#{total_files} files to convert.")
       files_path.each_with_index do |fname, i|
-        log(
+        Pidgin2Adium.log(
           sprintf("[%d/%d] Converting %s...",
                   (i+1), total_files, fname)
         )
