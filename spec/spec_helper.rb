@@ -12,6 +12,10 @@ require 'pidgin2adium'
 require 'time'
 require 'bourne'
 
+Dir['spec/support/**/*.rb'].each do |f|
+  require File.expand_path(f)
+end
+
 RSpec.configure do |config|
   config.mock_with :mocha
   config.before(:all) do

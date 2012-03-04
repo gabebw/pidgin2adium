@@ -85,11 +85,11 @@ module Pidgin2Adium
     end
 
     unless File.directory?(output_dir)
-      puts "Output log directory (#{output_dir}) does not exist or is not a directory."
+      error("Output log directory (#{output_dir}) does not exist or is not a directory.")
       begin
         FileUtils.mkdir_p(output_dir)
       rescue Errno::EACCES
-        puts "Permission denied, could not create output directory (#{output_dir})"
+        error("Permission denied, could not create output directory (#{output_dir})")
         return false
       end
     end
