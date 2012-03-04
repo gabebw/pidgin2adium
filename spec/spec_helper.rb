@@ -29,14 +29,11 @@ RSpec.configure do |config|
     @htm_logfile_path = "#{@logfile_path}/2008-01-15.071445-0500PST.htm"
     @html_logfile_path = "#{@logfile_path}/2008-01-15.071445-0500PST.html"
 
-    @nonexistent_output_dir = File.join(@current_dir, "nonexistent_output_dir/")
     @output_dir = File.join(@current_dir, "output-dir/")
-    FileUtils.rm_r(@nonexistent_output_dir, :force => true)
   end
 
   config.after(:all) do
     # Clean up.
-    FileUtils.rm_r(@nonexistent_output_dir, :force => true)
     FileUtils.rm_r(@output_dir, :force => true)
   end
 end

@@ -3,46 +3,50 @@ require 'spec_helper'
 describe Pidgin2Adium::BasicParser do
   describe "#parse" do
     it "returns false" do
-      Pidgin2Adium::BasicParser.new(@text_logfile_path, @aliases).parse.should be_false
+      Pidgin2Adium::BasicParser.new(create_chat_file, '').parse.should be_false
     end
   end
 
   describe "#create_adium_time" do
     before do
-      @first_line_time = "4/18/2007 11:02:00 AM"
-      @time = "2007-08-20 12:33:13"
-      @minimal_time = "04:22:05 AM"
-      @minimal_time_2 = "04:22:05"
-      @invalid_time = "Hammer time!"
-
-      # Use HTML logfile because it has an explicit timezone (-0500), so we
-      # don't have to calculate it out.
-      @bp = Pidgin2Adium::BasicParser.new(@html_logfile_path,
-                                          @aliases)
+      @bp = Pidgin2Adium::BasicParser.new(create_chat_file, '')
     end
 
     it "parses a first line time correctly" do
-      time = @bp.create_adium_time(@first_line_time)
+      first_line_time = "4/18/2007 11:02:00 AM"
+      time = @bp.create_adium_time(first_line_time)
       time.should include '2007-04-18T11:02:00'
     end
 
     it "parses a normal time correctly" do
-      time = @bp.create_adium_time(@time)
+      normal_time = "2007-08-20 12:33:13"
+      time = @bp.create_adium_time(normal_time)
       time.should include '2007-08-20T12:33:13'
     end
 
     it "parses a minimal time correctly" do
-      time = @bp.create_adium_time(@minimal_time)
+      minimal_time = "04:22:05 AM"
+      path = create_chat_file('minimal.html') do |b|
+        b.first_line :time => "1/15/2008 7:14:45 AM"
+      end
+      parser = Pidgin2Adium::BasicParser.new(path, '')
+      time = parser.create_adium_time(minimal_time)
       time.should include '2008-01-15T04:22:05'
     end
 
     it "parses a minimal time without AM/PM correctly" do
-      time = @bp.create_adium_time(@minimal_time_2)
+      minimal_time_without_ampm = "04:22:05"
+      path = create_chat_file('minimal.html') do |b|
+        b.first_line :time => "1/15/2008 7:14:45 AM"
+      end
+      parser = Pidgin2Adium::BasicParser.new(path, '')
+      time = parser.create_adium_time(minimal_time_without_ampm)
       time.should include '2008-01-15T04:22:05'
     end
 
-    it "returns an array of nils for an invalid time" do
-      time = @bp.create_adium_time(@invalid_time)
+    it "returns nil for an invalid time" do
+      invalid_time = "Hammer time!"
+      time = @bp.create_adium_time(invalid_time)
       time.should be_nil
     end
   end
@@ -60,15 +64,22 @@ describe Pidgin2Adium::BasicParser do
     end
 
     it "returns true when everything can be parsed" do
-      bp =  Pidgin2Adium::BasicParser.new(@html_logfile_path,
-                                          @aliases)
-      bp.pre_parse!.should be_true
+      path = create_chat_file('blah.html') do |b|
+        b.first_line
+      end
+      parser = Pidgin2Adium::BasicParser.new(path, '')
+      parser.pre_parse!.should be_true
     end
 
     describe "correctly setting variables" do
       before do
-        @bp =  Pidgin2Adium::BasicParser.new(@html_logfile_path, @aliases)
-        @bp.pre_parse!()
+        path = create_chat_file('blah.html') do |b|
+          b.first_line :from => 'othersn', :to => 'aolsystemmsg',
+            :time => '1/15/2008 7:14:45 AM', :service => 'aim'
+        end
+
+        @bp =  Pidgin2Adium::BasicParser.new(path, '')
+        @bp.pre_parse!
       end
 
       it "correctly sets @service" do
@@ -95,14 +106,17 @@ describe Pidgin2Adium::BasicParser do
 
   describe "#get_sender_by_alias" do
     before do
+      path = create_chat_file('sender.txt') do |b|
+        b.first_line :from => "awesome SN", :to => "BUDDY_PERSON"
+        b.message :from_alias => "Gabe B-W"
+        b.message :from_alias => "Leola Farber III"
+      end
       @my_alias = "Gabe B-W"
       @my_SN =  "awesomesn" # normalized from "awesome SN"
 
       @partner_alias = "Leola Farber III"
       @partner_SN = "BUDDY_PERSON" # not normalized
-      # Use text logfile since it has aliases set up.
-      @bp = Pidgin2Adium::BasicParser.new(@text_logfile_path,
-                                          @my_alias)
+      @bp = Pidgin2Adium::BasicParser.new(path, 'Gabe B-W')
     end
 
     it "returns my SN when passed my alias" do
@@ -133,8 +147,7 @@ describe Pidgin2Adium::BasicParser do
       @auto_reply_matches = @matches.dup
       @auto_reply_matches[2] = '<AUTO-REPLY>'
 
-      @bp = Pidgin2Adium::BasicParser.new(@text_logfile_path,
-                                          "Gabe B-W")
+      @bp = Pidgin2Adium::BasicParser.new(create_chat_file, "Gabe B-W")
     end
 
 
@@ -177,8 +190,7 @@ describe Pidgin2Adium::BasicParser do
 
       @ignored_event_msg = "Gabe B-W is now known as gbw.<br/>"
 
-      @bp = Pidgin2Adium::BasicParser.new(@html_logfile_path,
-                                          @alias)
+      @bp = Pidgin2Adium::BasicParser.new(create_chat_file, @alias)
     end
 
     it "maps statuses correctly" do

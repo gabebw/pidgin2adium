@@ -172,6 +172,7 @@ describe Pidgin2Adium, "#parse_and_generate" do
                                       "aolsystemmsg (2008-01-15T07.14.45-0500).chatlog",
                                       "aolsystemmsg (2008-01-15T07.14.45-0500).xml")
     @html_output_file_path = @htm_output_file_path
+    @nonexistent_output_dir = File.join(@current_dir, "nonexistent_output_dir/")
   end
 
   describe "failure" do
@@ -187,9 +188,8 @@ describe Pidgin2Adium, "#parse_and_generate" do
 
       it "returns false when it can't create the output dir" do
         `chmod -w #{@current_dir}` # prevent creation of output_dir
-        Pidgin2Adium.parse_and_generate(@text_logfile_path,
-                                        @aliases,
-                                        @opts).should be_false
+        result = Pidgin2Adium.parse_and_generate(create_chat_file('log.txt'), '', @opts)
+        result.should be_false
       end
     end
 
@@ -250,19 +250,21 @@ describe Pidgin2Adium, "#parse_and_generate" do
 
       context "for a text file" do
         it "returns true" do
-          result = Pidgin2Adium.parse_and_generate(@text_logfile_path, @aliases, @opts)
+          result = Pidgin2Adium.parse_and_generate(create_chat_file('log.txt'), @aliases, @opts)
           result.should be_true
         end
       end
+
       context "for an htm file" do
         it "returns true" do
-          result = Pidgin2Adium.parse_and_generate(@htm_logfile_path, @aliases, @opts)
+          result = Pidgin2Adium.parse_and_generate(create_chat_file('log.htm'), @aliases, @opts)
           result.should be_true
         end
       end
+
       context "for an html file" do
         it "returns true" do
-          result = Pidgin2Adium.parse_and_generate(@html_logfile_path, @aliases, @opts)
+          result = Pidgin2Adium.parse_and_generate(create_chat_file('log.html'), @aliases, @opts)
           result.should be_true
         end
       end
@@ -272,21 +274,24 @@ describe Pidgin2Adium, "#parse_and_generate" do
       before do
         @opts = { :output_dir => @output_dir }
       end
+
       context "for a text file" do
         it "returns true" do
-          result = Pidgin2Adium.parse_and_generate(@text_logfile_path, @aliases, @opts)
+          result = Pidgin2Adium.parse_and_generate(create_chat_file('log.txt'), @aliases, @opts)
           result.should be_true
         end
       end
+
       context "for an htm file" do
         it "returns true" do
-          result = Pidgin2Adium.parse_and_generate(@htm_logfile_path, @aliases, @opts)
+          result = Pidgin2Adium.parse_and_generate(create_chat_file('log.htm'), @aliases, @opts)
           result.should be_true
         end
       end
+
       context "for an html file" do
         it "returns true" do
-          result = Pidgin2Adium.parse_and_generate(@html_logfile_path, @aliases, @opts)
+          result = Pidgin2Adium.parse_and_generate(create_chat_file('log.html'), @aliases, @opts)
           result.should be_true
         end
       end

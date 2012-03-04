@@ -1,90 +1,90 @@
 require 'spec_helper'
 
 describe "HtmlLogParser" do
-  before do
-    # @year, @am, and @pm are not required. @time is.
-    # So @year + @time is a valid time,
-    # as is @time, and @year + @time + @am.
-    @year = '2007-10-28 '
-    @time = '4:46:20'
-    @am = ' AM'
-    @pm = ' PM'
-    @hlp = Pidgin2Adium::HtmlLogParser.new(@html_logfile_path,
-                                           @aliases)
-    @clean = "clean"
-  end
-
   describe "#cleanup" do
     it "should remove html, body, and font tags" do
-      dirty_text = %Q{<html><body type="ichat"><font color="red">#{@clean}</font></body></html>}
-      @hlp.cleanup(dirty_text).should == @clean
+      clean_text = 'clean'
+      dirty_text = %Q{<html><body type="ichat"><font color="red">#{clean_text}</font></body></html>}
+      create_parser.cleanup(dirty_text).should == clean_text
     end
 
     it "should remove those weird <FONT HSPACE> tags" do
-      dirty = %Q{&lt;/FONT HSPACE='2'>#{@clean}}
-      @hlp.cleanup(dirty).should == @clean
+      clean_text = 'clean'
+      dirty_text = %Q{&lt;/FONT HSPACE='2'>#{clean_text}}
+      create_parser.cleanup(dirty_text).should == clean_text
     end
 
     it "should remove \\r" do
-      dirty = [@clean, @clean, @clean].join("\r")
-      @hlp.cleanup(dirty).should == @clean * 3
+      clean_text = 'clean'
+      dirty_text = [clean_text, clean_text, clean_text].join("\r")
+      create_parser.cleanup(dirty_text).should == clean_text * 3
     end
 
     it "should remove empty lines" do
-      dirty = "#{@clean}\n\n"
-      @hlp.cleanup(dirty).should == @clean
+      clean_text = 'clean'
+      dirty_text = "#{clean_text}\n\n"
+      create_parser.cleanup(dirty_text).should == clean_text
     end
 
     it "should replace newlines with <br/>" do
-      dirty = "\n#{@clean}"
-      @hlp.cleanup(dirty).should == "<br/>#{@clean}"
+      clean_text = "<br/>clean"
+      dirty_text = "\nclean"
+      parser = Pidgin2Adium::HtmlLogParser.new(create_chat_file('dirty.html'), '')
+      parser.cleanup(dirty_text).should == clean_text
     end
 
     it "should remove empty links" do
-      dirty = %Q{<a href="awesomelink">   </a>#{@clean}}
-      dirty += %Q{<a href='awesomelink'></a>#{@clean}}
-      @hlp.cleanup(dirty).should == @clean + @clean
+      clean_text = 'clean' * 2
+      dirty_text = %Q{<a href="awesomelink">   </a>clean}
+      dirty_text += %Q{<a href='awesomelink'></a>clean}
+      create_parser.cleanup(dirty_text).should == clean_text
     end
 
     describe "with <span>s" do
       it "should remove font-family" do
-        dirty = %Q{<span style='font-family: Helvetica;'>#{@clean}</span>}
-        @hlp.cleanup(dirty).should == @clean
+        clean_text = 'clean'
+        dirty_text = %Q{<span style='font-family: Helvetica;'>#{clean_text}</span>}
+        create_parser.cleanup(dirty_text).should == clean_text
       end
 
       it "should remove font-size" do
-        dirty = %Q{<span style="font-size: 6;">#{@clean}</span>}
-        @hlp.cleanup(dirty).should == @clean
+        clean_text = 'clean'
+        dirty_text = %Q{<span style="font-size: 6;">#{clean_text}</span>}
+        create_parser.cleanup(dirty_text).should == clean_text
       end
 
       it "should remove background" do
-        dirty = %Q{<span style="background: #00afaf;">#{@clean}</span>}
-        @hlp.cleanup(dirty).should == @clean
+        clean_text = 'clean'
+        dirty_text = %Q{<span style="background: #00afaf;">#{clean_text}</span>}
+        create_parser.cleanup(dirty_text).should == clean_text
       end
 
       it "should remove color=#00000" do
-        dirty = %Q{<span style="color: #000000;">#{@clean}</span>}
-        @hlp.cleanup(dirty).should == @clean
+        clean_text = 'clean'
+        dirty_text = %Q{<span style="color: #000000;">#{clean_text}</span>}
+        create_parser.cleanup(dirty_text).should == clean_text
       end
 
       it "should not remove color != #00000" do
-        dirty = %Q{<span style="color: #01ABcdef;">#{@clean}</span>}
-        @hlp.cleanup(dirty).should == dirty
+        dirty_text = %Q{<span style="color: #01ABcdef;">whatever</span>}
+        create_parser.cleanup(dirty_text).should == dirty_text
       end
 
       it "should remove improperly-formatted colors" do
-        dirty = %Q{<span style="color: #0;">#{@clean}</span>}
-        @hlp.cleanup(dirty).should == @clean
+        clean_text = 'clean'
+        dirty_text = %Q{<span style="color: #0;">#{clean_text}</span>}
+        create_parser.cleanup(dirty_text).should == clean_text
       end
 
       it "should replace <em> with italic font-style" do
-        dirty = "<em>#{@clean}</em>"
-        clean = %Q{<span style="font-style: italic;">#{@clean}</span>}
-        @hlp.cleanup(dirty).should == clean
+        text = 'whatever'
+        dirty_text = "<em>#{text}</em>"
+        clean_text = %Q{<span style="font-style: italic;">#{text}</span>}
+        create_parser.cleanup(dirty_text).should == clean_text
       end
 
       it "shouldn't modify clean text" do
-        @hlp.cleanup(@clean).should == @clean
+        create_parser.cleanup('clean').should == 'clean'
       end
 
       # This implicitly tests a lot of other things, but they've been tested
@@ -93,15 +93,33 @@ describe "HtmlLogParser" do
         dirty_span_open = "<span style='color: #afaf00; font-size: 14pt; font-weight: bold; '>"
         # Replaced double quotes, removed space before ">"
         clean_span_open = '<span style="color: #afaf00;">'
-        dirty = dirty_span_open + @clean + "</span>"
-        @hlp.cleanup(dirty).should == clean_span_open + @clean + "</span>"
+        text = 'whatever'
+        dirty_text = "#{dirty_span_open}#{text}</span>"
+        clean_text = "#{clean_span_open}#{text}</span>"
+        create_parser.cleanup(dirty_text).should == clean_text
       end
     end
   end
 
   describe "#parse" do
     before do
-      @logfile = @hlp.parse()
+      @path = path = create_chat_file('parse.html') do |b|
+        b.first_line :from => 'otherSN', :to => 'aolsystemmsg',
+          :time => '1/15/2008 7:14:45 AM', :service => 'aim'
+        b.message :time => '2008-01-15 07:14:45',
+          :from_alias => 'AOL System Msg',
+          :text => %{Your screen name (otherSN) is now signed into AOL(R) Instant Messenger (TM) in 2 locations. To sign off the other location(s), reply to this message with the number 1. Click <a href='http://www.aim.com/password/routing.adp'>here</a> for more information.},
+          :font_color => 'A82F2F'
+        b.message :time => '2008-01-15 07:14:48', :from_alias => 'Gabe B-W',
+          :text => %{<span style='color: #000000;'>1</span>},
+          :font_color => '16569E'
+        b.message :time => '2008-01-15 07:14:48',
+          :from_alias => 'AOL System Msg',
+          :text => %{Your other AIM sessions have been signed-off.  You are now signed-on from 1 location(s).},
+          :font_color => 'A82F2F'
+      end
+
+      @logfile = create_parser_for(path, 'Gabe B-W').parse
     end
 
     it "should return a LogFile instance" do
@@ -113,7 +131,7 @@ describe "HtmlLogParser" do
     end
 
     it "should return a LogFile with the correct message type" do
-      @logfile.chat_lines.map{|x| x.class }.should == [Pidgin2Adium::XMLMessage] * 3
+      @logfile.chat_lines.map(&:class).should == [Pidgin2Adium::XMLMessage] * 3
     end
 
     it "should return a LogFile with the correct data" do
@@ -142,5 +160,13 @@ describe "HtmlLogParser" do
       third_msg.time.should =~ /^2008-01-15T07:14:48[-+]\d{2}:00$/
       third_msg.body.should == "Your other AIM sessions have been signed-off.  You are now signed-on from 1 location(s)."
     end
+  end
+
+  def create_parser
+    create_parser_for(create_chat_file('dirty.html'))
+  end
+
+  def create_parser_for(file, aliases = '')
+    Pidgin2Adium::HtmlLogParser.new(file, aliases)
   end
 end
