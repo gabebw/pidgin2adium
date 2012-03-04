@@ -249,13 +249,22 @@ describe Pidgin2Adium, "#parse_and_generate" do
       end
 
       context "for a text file" do
-        specify { Pidgin2Adium.parse_and_generate(@text_logfile_path, @aliases, @opts).should be_true }
+        it "returns true" do
+          result = Pidgin2Adium.parse_and_generate(@text_logfile_path, @aliases, @opts)
+          result.should be_true
+        end
       end
       context "for an htm file" do
-        specify { Pidgin2Adium.parse_and_generate(@htm_logfile_path, @aliases, @opts).should be_true }
+        it "returns true" do
+          result = Pidgin2Adium.parse_and_generate(@htm_logfile_path, @aliases, @opts)
+          result.should be_true
+        end
       end
       context "for an html file" do
-        specify { Pidgin2Adium.parse_and_generate(@html_logfile_path, @aliases, @opts).should be_true }
+        it "returns true" do
+          result = Pidgin2Adium.parse_and_generate(@html_logfile_path, @aliases, @opts)
+          result.should be_true
+        end
       end
     end
 
@@ -264,24 +273,21 @@ describe Pidgin2Adium, "#parse_and_generate" do
         @opts = { :output_dir => @output_dir }
       end
       context "for a text file" do
-        specify do
-          Pidgin2Adium.parse_and_generate(@text_logfile_path,
-                                          @aliases,
-                                          @opts).should be_true
+        it "returns true" do
+          result = Pidgin2Adium.parse_and_generate(@text_logfile_path, @aliases, @opts)
+          result.should be_true
         end
       end
       context "for an htm file" do
-        specify do
-          Pidgin2Adium.parse_and_generate(@htm_logfile_path,
-                                          @aliases,
-                                          @opts).should be_true
+        it "returns true" do
+          result = Pidgin2Adium.parse_and_generate(@htm_logfile_path, @aliases, @opts)
+          result.should be_true
         end
       end
       context "for an html file" do
-        specify do
-          Pidgin2Adium.parse_and_generate(@html_logfile_path,
-                                          @aliases,
-                                          @opts).should be_true
+        it "returns true" do
+          result = Pidgin2Adium.parse_and_generate(@html_logfile_path, @aliases, @opts)
+          result.should be_true
         end
       end
     end
