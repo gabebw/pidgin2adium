@@ -10,6 +10,7 @@ require 'pidgin2adium/version'
 require 'pidgin2adium/parsers/all'
 require 'pidgin2adium/time_converter'
 require 'pidgin2adium/tag_balancer'
+require 'pidgin2adium/logger'
 
 module Pidgin2Adium
   # Returned by LogFile.write_out if the output logfile already exists.
@@ -21,23 +22,29 @@ module Pidgin2Adium
   @@oops_messages = []
   @@error_messages = []
 
-  def log_msg(str) #:nodoc:
-    puts str.to_s
+  def self.logger
+    @@logger ||= Pidgin2Adium::Logger.new
+  end
+
+  def self.logger=(new_logger)
+    @@logger = new_logger
+  end
+
+  def log(str) #:nodoc:
+    Pidgin2Adium.logger.log(str)
   end
 
   def oops(str) #:nodoc:
-    @@oops_messages << str
-    warn("Oops: #{str}")
+    Pidgin2Adium.logger.oops(str)
   end
 
   def error(str) #:nodoc:
-    @@error_messages << str
-    warn("Error: #{str}")
+    Pidgin2Adium.logger.error(str)
   end
 
   #######################
-  #So that we can use log_msg when calling delete_search_indexes() by itself
-  module_function :log_msg, :oops, :error
+  #So that we can use log when calling delete_search_indexes() by itself
+  module_function :log, :oops, :error
   #######################
 
   # Parses the provided log.
@@ -102,10 +109,10 @@ module Pidgin2Adium
       error("Successfully parsed file, but failed to write it out. Path: #{logfile_path}.")
       return false
     elsif dest_file_path == FILE_EXISTS
-      log_msg("File already exists.")
+      log("File already exists.")
       return FILE_EXISTS
     else
-      log_msg("Output to: #{dest_file_path}")
+      log("Output to: #{dest_file_path}")
       return true
     end
   end
@@ -121,7 +128,7 @@ module Pidgin2Adium
   # Pidgin2Adium.delete_search_indexes after running LogFile.write_out in
   # your own scripts.
   def self.delete_search_indexes
-    log_msg "Deleting log search indexes in order to force re-indexing of imported logs..."
+    log "Deleting log search indexes in order to force re-indexing of imported logs..."
     dirty_file = File.expand_path("~/Library/Caches/Adium/Default/DirtyLogs.plist")
     log_index_file = File.expand_path("~/Library/Caches/Adium/Default/Logs.index")
     [dirty_file, log_index_file].each do |f|
@@ -133,7 +140,7 @@ module Pidgin2Adium
         end
       end
     end
-    log_msg "...done."
-    log_msg "When you next start the Adium Chat Transcript Viewer, it will re-index the logs, which may take a while."
+    log "...done."
+    log "When you next start the Adium Chat Transcript Viewer, it will re-index the logs, which may take a while."
   end
 end

@@ -33,7 +33,7 @@ module Pidgin2Adium
     # provided in new, then deletes Adium's search indexes to force
     # it to rescan logs on startup.
     def start
-      log_msg "Begin converting."
+      log "Begin converting."
       begin
         files_path = get_all_chat_files()
       rescue Errno::EACCES => bang
@@ -44,9 +44,9 @@ module Pidgin2Adium
 
       total_files = files_path.size
       total_successes = 0
-      log_msg("#{total_files} files to convert.")
+      log("#{total_files} files to convert.")
       files_path.each_with_index do |fname, i|
-        log_msg(
+        log(
           sprintf("[%d/%d] Converting %s...",
                   (i+1), total_files, fname)
         )
@@ -56,7 +56,7 @@ module Pidgin2Adium
 
       Pidgin2Adium.delete_search_indexes()
 
-      Pidgin2Adium.log_msg "Finished converting! Converted #{total_successes} files of #{total_files} total."
+      Pidgin2Adium.log "Finished converting! Converted #{total_successes} files of #{total_files} total."
       puts "Minor error messages:"
       puts @@oops_messages.join("\n")
       puts "Major error messages:"

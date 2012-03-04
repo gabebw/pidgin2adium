@@ -22,23 +22,47 @@ describe "Pidgin2Adium" do
   end # constants
 
   describe "utility methods" do
-    before(:each) do
-      Pidgin2Adium.stubs(:log_msg)
+    before do
+      Pidgin2Adium.logger = stubbed_logger
+    end
+    let(:stubbed_logger) do
+      stub("logger", :oops => nil, :error => nil, :log => nil)
     end
 
-    describe "::oops()" do
-      it "should add a message to @@oops_messages" do
-        message = "Oops! I messed up!"
-        Pidgin2Adium.oops(message)
-        Pidgin2Adium.send(:class_variable_get, :@@oops_messages).include?(message).should be_true
+    context '.logger=' do
+      it 'sets the logger' do
+        Pidgin2Adium.logger=('hi')
+        Pidgin2Adium.logger.should == 'hi'
       end
     end
 
-    describe "::error()" do
-      it "should add a message to @@error_messages" do
-        err_message = "Error! I *really* messed up!"
-        Pidgin2Adium.error(err_message)
-        Pidgin2Adium.send(:class_variable_get, :@@error_messages).include?(err_message).should be_true
+    context '.logger' do
+      it 'gets the logger' do
+        Pidgin2Adium.logger=('hi')
+        Pidgin2Adium.logger.should == 'hi'
+      end
+    end
+
+    describe ".oops" do
+      it "delegates to the logger" do
+        Pidgin2Adium.oops('hi')
+        stubbed_logger.should have_received(:oops).with('hi')
+      end
+    end
+
+    describe ".error" do
+      it "delegates to the logger" do
+        error = 'hi'
+        Pidgin2Adium.error('hi')
+        stubbed_logger.should have_received(:error).with('hi')
+      end
+    end
+
+    describe ".log" do
+      it "delegates to the logger" do
+        log = 'hi'
+        Pidgin2Adium.log('hi')
+        stubbed_logger.should have_received(:log).with('hi')
       end
     end
 
@@ -76,12 +100,12 @@ describe "Pidgin2Adium" do
           [@dirty_file, @log_index_file].each do |f|
             `chmod -w #{f}` # make unwriteable
           end
-          Pidgin2Adium.stubs(:error => nil, :log_msg => nil)
+          Pidgin2Adium.stubs(:error => nil, :log => nil)
           Pidgin2Adium.delete_search_indexes()
           Pidgin2Adium.should have_received(:error).with("File exists but is not writable. Please delete it yourself: #{@dirty_file}")
           Pidgin2Adium.should have_received(:error).with("File exists but is not writable. Please delete it yourself: #{@log_index_file}")
-          Pidgin2Adium.should have_received(:log_msg).with("...done.")
-          Pidgin2Adium.should have_received(:log_msg).with("When you next start the Adium Chat Transcript Viewer, " +
+          Pidgin2Adium.should have_received(:log).with("...done.")
+          Pidgin2Adium.should have_received(:log).with("When you next start the Adium Chat Transcript Viewer, " +
                                                      "it will re-index the logs, which may take a while.")
           File.exist?(@dirty_file).should be_true
           File.exist?(@log_index_file).should be_true
