@@ -35,7 +35,6 @@ describe Pidgin2Adium::TextLogParser do
       msg.sender.should == "awesomesn"
       msg.body.should == "what are you doing tomorrow?"
       msg.buddy_alias.should == "Gabe B-W"
-      # Use regex to ignore time zone
       msg.time.should include '2006-12-21T22:36:11'
     end
   end
