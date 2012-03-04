@@ -184,19 +184,6 @@ module Pidgin2Adium
       time
     end
 
-    # Tries to parse _time_ (a string) according to the formats in _formats_, which
-    # should be an array of strings. For more on acceptable format strings,
-    # see the official documentation for Time.strptime. Returns a Time
-    # object or nil (if no formats matched).
-    def try_to_parse_time_with_formats(time, formats)
-      parsed = nil
-      formats.each do |format|
-        parsed = strptime(time, format)
-        break unless parsed.nil?
-      end
-      parsed
-    end
-
     def try_to_parse_time(time)
       formats = [
         "%m/%d/%Y %I:%M:%S %P", # 01/22/2008 03:01:45 PM
@@ -341,12 +328,12 @@ module Pidgin2Adium
 
     def get_sender_by_alias(alias_name)
       no_action = alias_name.sub(/^\*{3}/, '')
-      if @user_aliases.include? no_action.downcase.gsub(/\s+/, '')
+      if @user_aliases.include?(no_action.downcase.gsub(/\s+/, ''))
         # Set the current alias being used of the ones in @user_aliases
         @user_alias = no_action
-        return @user_SN
+        @user_SN
       else
-        return @partner_SN
+        @partner_SN
       end
     end
 
@@ -391,7 +378,7 @@ module Pidgin2Adium
       return nil if @ignore_events.detect{|regex| str =~ regex }
 
       regex, status = @status_map.detect{|rxp, stat| str =~ rxp}
-      if regex and status
+      if regex && status
         # Status message
         buddy_alias = regex.match(str)[1]
         sender = get_sender_by_alias(buddy_alias)
@@ -418,7 +405,7 @@ module Pidgin2Adium
           end
         end
 
-        if regex and event_type
+        if regex && event_type
           regex_matches = regex.match(str)
           # Event message
           if regex_matches.size == 1
@@ -432,7 +419,22 @@ module Pidgin2Adium
           msg = Event.new(sender, time, buddy_alias, str, event_type)
         end
       end
-      return msg
+
+      msg
+    end
+
+    private
+
+    # Tries to parse _time_ (a string) according to the formats in _formats_, which
+    # should be an array of strings. For more on acceptable format strings,
+    # see the official documentation for Time.strptime. Returns a Time
+    # object or nil (if no formats matched).
+    def try_to_parse_time_with_formats(time, formats)
+      parsed = nil
+      formats.detect do |format|
+        parsed = strptime(time, format)
+      end
+      parsed
     end
 
     # Should we continue to convert after hitting an unparseable line?
@@ -447,5 +449,5 @@ module Pidgin2Adium
     def printed_conversion_error!
       @printed_conversion_error = true
     end
-  end # END BasicParser class
+  end
 end
