@@ -37,12 +37,10 @@ describe "LogConverter" do
   describe "#get_all_chat_files" do
     it "should return correct listings" do
       files = @converter.get_all_chat_files
-      dir = File.join(File.dirname(File.expand_path(__FILE__)),
-                      'logfiles')
 
-      expected_files = %w{2006-12-21.223606.txt
+      expected_files = %w(2006-12-21.223606.txt
         2008-01-15.071445-0500PST.htm
-        2008-01-15.071445-0500PST.html}.map!{|f| File.join(dir, f) }
+        2008-01-15.071445-0500PST.html).map{|f| File.join(@logfile_path, f) }
 
       files.sort.should == expected_files.sort
     end

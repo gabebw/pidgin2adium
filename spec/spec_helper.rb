@@ -29,7 +29,7 @@ RSpec.configure do |config|
     # -7 => "-0700"
     @current_tz_offset = sprintf("%+03d00", Time.zone_offset(Time.new.zone) / 3600)
 
-    @logfile_path = File.join(@current_dir, "logfiles/")
+    @logfile_path = File.join(@current_dir, "support", "logfiles")
     @text_logfile_path = "#{@logfile_path}/2006-12-21.223606.txt"
     @htm_logfile_path = "#{@logfile_path}/2008-01-15.071445-0500PST.htm"
     @html_logfile_path = "#{@logfile_path}/2008-01-15.071445-0500PST.html"
