@@ -36,7 +36,7 @@ describe "TextLogParser" do
       msg.body.should == "what are you doing tomorrow?"
       msg.buddy_alias.should == "Gabe B-W"
       # Use regex to ignore time zone
-      msg.time.should =~ /^2006-12-21T22:36:11[-+]\d{2}:00$/
+      msg.time.should include '2006-12-21T22:36:11'
     end
   end
 end

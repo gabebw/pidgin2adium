@@ -50,11 +50,11 @@ module Pidgin2Adium
           sprintf("[%d/%d] Converting %s...",
                   (i+1), total_files, fname)
         )
-        result = parse_and_generate(fname, @my_aliases, @opts)
+        result = Pidgin2Adium.parse_and_generate(fname, @my_aliases, @opts)
         total_successes += 1 if result == true
       end
 
-      delete_search_indexes()
+      Pidgin2Adium.delete_search_indexes()
 
       Pidgin2Adium.log_msg "Finished converting! Converted #{total_successes} files of #{total_files} total."
       puts "Minor error messages:"

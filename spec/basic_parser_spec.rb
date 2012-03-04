@@ -27,22 +27,22 @@ describe "BasicParser" do
 
     it "parses a first line time correctly" do
       time = @bp.create_adium_time(@first_line_time)
-      time.should =~ /2007-04-18T11:02:00[-+]\d{2}:00/
+      time.should include '2007-04-18T11:02:00'
     end
 
     it "parses a normal time correctly" do
       time = @bp.create_adium_time(@time)
-      time.should =~ /2007-08-20T12:33:13[-+]\d{2}:00/
+      time.should include '2007-08-20T12:33:13'
     end
 
     it "parses a minimal time correctly" do
       time = @bp.create_adium_time(@minimal_time)
-      time.should =~ /2008-01-15T04:22:05[-+]\d{2}:00/
+      time.should include '2008-01-15T04:22:05'
     end
 
     it "parses a minimal time without AM/PM correctly" do
       time = @bp.create_adium_time(@minimal_time_2)
-      time.should =~ /2008-01-15T04:22:05[-+]\d{2}:00/
+      time.should include '2008-01-15T04:22:05'
     end
 
     it "returns an array of nils for an invalid time" do
@@ -92,7 +92,7 @@ describe "BasicParser" do
       end
 
       it "correctly sets adium_chat_time_start" do
-        @bp.instance_variable_get('@adium_chat_time_start').should == '2008-01-15T07:14:45-05:00'
+        @bp.instance_variable_get('@adium_chat_time_start').should == '2008-01-15T07:14:45EST'
       end
     end
   end

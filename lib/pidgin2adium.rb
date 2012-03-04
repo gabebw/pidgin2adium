@@ -42,7 +42,7 @@ module Pidgin2Adium
 
   # Parses the provided log.
   # Returns a LogFile instance or false if an error occurred.
-  def self.parse(logfile_path, my_aliases, force_conversion)
+  def self.parse(logfile_path, my_aliases, force_conversion = false)
     logfile_path = File.expand_path(logfile_path)
     ext = File.extname(logfile_path).sub('.', '').downcase
 
@@ -97,6 +97,7 @@ module Pidgin2Adium
     logfile_obj = parse(logfile_path, my_aliases, force_conversion)
     return false if logfile_obj == false
     dest_file_path = logfile_obj.write_out(overwrite, output_dir)
+
     if dest_file_path == false
       error("Successfully parsed file, but failed to write it out. Path: #{logfile_path}.")
       return false
