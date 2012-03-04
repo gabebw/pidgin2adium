@@ -4,7 +4,7 @@ require "pidgin2adium/version"
 
 Gem::Specification.new do |s|
   s.name             = "pidgin2adium"
-  s.date             = "2011-10-16"
+  s.date             = Date.today.strftime('%Y-%m-%d')
   s.version          = Pidgin2Adium::VERSION
   s.platform         = Gem::Platform::RUBY
   s.authors          = ["Gabe Berke-Williams"]
