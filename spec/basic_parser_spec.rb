@@ -1,10 +1,6 @@
 require 'spec_helper'
 
-describe "BasicParser" do
-  it "includes Pidgin2Adium" do
-    Pidgin2Adium::BasicParser.included_modules.should include(Pidgin2Adium)
-  end
-
+describe Pidgin2Adium::BasicParser do
   describe "#parse" do
     it "returns false" do
       Pidgin2Adium::BasicParser.new(@text_logfile_path, @aliases).parse.should be_false
