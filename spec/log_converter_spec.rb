@@ -7,8 +7,7 @@ describe "LogConverter" do
     @converter = Pidgin2Adium::LogConverter.new(@logfile_path,
                                                 @aliases,
                                                 { :output_dir => @output_dir })
-    Pidgin2Adium::LogConverter.stub!(:puts).and_return(nil)
-    Pidgin2Adium::LogConverter.stub!(:log_msg)
+    Pidgin2Adium::LogConverter.stubs(:puts => nil, :log_msg => nil)
   end
 
   describe "with non-existent input dir" do
@@ -23,14 +22,16 @@ describe "LogConverter" do
   # it "should have correct output when files don't exist" do
   #   FileUtils.rm_f(File.join(@output_dir, '*'))
   #   # Will only convert 2 files because the .htm file == the .html file
-  #   Pidgin2Adium.should_receive(:log_msg).with(/Converted 2 files of 3 total/)
+  #   Pidgin2Adium.stubs(:log_msg)
   #   @converter.start()
+  #   Pidgin2Adium.should have_received(:log_msg).with(regexp_matches(/Converted 2 files of 3 total/))
   # end
 
   # it "should have correct output when files do exist" do
   #   @converter.start() # create files
-  #   Pidgin2Adium.should_receive(:log_msg).with(/Converted 0 files of 3 total/)
+  #   Pidgin2Adium.stubs(:log_msg)
   #   @converter.start()
+  #   Pidgin2Adium.should have_received(:log_msg).with(regexp_matches(/Converted 0 files of 3 total/))
   # end
 
   describe "#get_all_chat_files" do

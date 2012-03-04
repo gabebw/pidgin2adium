@@ -21,5 +21,6 @@ Gem::Specification.new do |s|
 
   s.add_development_dependency(%q<bundler>, [">= 1.0.0"])
   s.add_development_dependency(%q<rspec>, ["~> 2.4.0"])
+  s.add_development_dependency(%q<bourne>, ["~> 1.1.0"])
 end
 

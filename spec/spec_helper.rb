@@ -10,8 +10,10 @@ $LOAD_PATH.unshift(File.expand_path('../lib', __FILE__))
 
 require 'pidgin2adium'
 require 'time'
+require 'bourne'
 
 RSpec.configure do |config|
+  config.mock_with :mocha
   config.before(:all) do
     @current_dir = File.dirname(__FILE__)
     @aliases = %w{gabebw gabeb-w gbw me}.join(',')

@@ -8,7 +8,7 @@ describe "Pidgin2Adium" do
   before(:each) do
     # "Kernel gets mixed in to an object, so you need to stub [its methods] on the object
     # itself." - http://www.ruby-forum.com/topic/128619
-    Pidgin2Adium.stub!(:puts).and_return(nil) # Doesn't work in the before(:all) block
+    Pidgin2Adium.stubs(:puts => nil) # Doesn't work in the before(:all) block
   end
 
   describe "constants" do
@@ -23,7 +23,7 @@ describe "Pidgin2Adium" do
 
   describe "utility methods" do
     before(:each) do
-      Pidgin2Adium.stub!(:log_msg).and_return(nil)
+      Pidgin2Adium.stubs(:log_msg)
     end
 
     describe "::oops()" do
@@ -76,12 +76,13 @@ describe "Pidgin2Adium" do
           [@dirty_file, @log_index_file].each do |f|
             `chmod -w #{f}` # make unwriteable
           end
-          Pidgin2Adium.should_receive(:error).with("File exists but is not writable. Please delete it yourself: #{@dirty_file}")
-          Pidgin2Adium.should_receive(:error).with("File exists but is not writable. Please delete it yourself: #{@log_index_file}")
-          Pidgin2Adium.should_receive(:log_msg).with("...done.")
-          Pidgin2Adium.should_receive(:log_msg).with("When you next start the Adium Chat Transcript Viewer, " +
-                                                     "it will re-index the logs, which may take a while.")
+          Pidgin2Adium.stubs(:error => nil, :log_msg => nil)
           Pidgin2Adium.delete_search_indexes()
+          Pidgin2Adium.should have_received(:error).with("File exists but is not writable. Please delete it yourself: #{@dirty_file}")
+          Pidgin2Adium.should have_received(:error).with("File exists but is not writable. Please delete it yourself: #{@log_index_file}")
+          Pidgin2Adium.should have_received(:log_msg).with("...done.")
+          Pidgin2Adium.should have_received(:log_msg).with("When you next start the Adium Chat Transcript Viewer, " +
+                                                     "it will re-index the logs, which may take a while.")
           File.exist?(@dirty_file).should be_true
           File.exist?(@log_index_file).should be_true
         end
@@ -95,8 +96,9 @@ describe "Pidgin2Adium" do
         @weird_logfile_path = File.join(@current_dir, 'logfile.foobar')
       end
       it "should give an error when file is not text or html" do
-        Pidgin2Adium.should_receive(:error).with(/Doing nothing, logfile is not a text or html file/)
+        Pidgin2Adium.stubs(:error)
         Pidgin2Adium.parse(@weird_logfile_path, @aliases).should be_false
+        Pidgin2Adium.should have_received(:error).with(regexp_matches(/Doing nothing, logfile is not a text or html file/))
       end
 
       it "should gracefully handle nonexistent files" do
