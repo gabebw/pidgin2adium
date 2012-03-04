@@ -50,7 +50,7 @@ module Pidgin2Adium
 
       @log_file_is_valid = true
       begin
-        file = File.new(@src_path, 'r')
+        file = File.new(@src_path)
         @first_line = file.readline
         @file_content = file.read
         file.close
@@ -62,15 +62,15 @@ module Pidgin2Adium
 
       begin
         successfully_set_variables = pre_parse!
-        if not successfully_set_variables
-          error("Failed to set some key variables: #{@src_path}")
+        if ! successfully_set_variables
+          Pidgin2Adium.error("Failed to set some key variables: #{@src_path}")
           @log_file_is_valid = false
           return
         end
       rescue InvalidFirstLineError
         # The first line isn't parseable
         @log_file_is_valid = false
-        error("Failed to parse, invalid first line: #{@src_path}")
+        Pidgin2Adium.error("Failed to parse, invalid first line: #{@src_path}")
         return # stop processing
       end
 
@@ -226,7 +226,7 @@ module Pidgin2Adium
     # Returns true if the time is minimal, i.e. doesn't include a date.
     # Otherwise returns false.
     def is_minimal_time?(str)
-      not str.strip.match(MINIMAL_TIME_REGEX).nil?
+      ! str.strip.match(MINIMAL_TIME_REGEX).nil?
     end
 
     # Converts a pidgin datestamp to an Adium one.
@@ -411,12 +411,12 @@ module Pidgin2Adium
           unless regex and event_type
             if force_conversion?
               unless printed_conversion_error?
-                error("#{@src_path} was converted with the following errors:")
+                Pidgin2Adium.error("#{@src_path} was converted with the following errors:")
                 printed_conversion_error!
               end
             end
 
-            error(sprintf("%sError parsing status or event message, no status or event found: %p",
+            Pidgin2Adium.error(sprintf("%sError parsing status or event message, no status or event found: %p",
                           force_conversion? ? "\t" : '', # indent if we're forcing conversion
                           str))
             return false
