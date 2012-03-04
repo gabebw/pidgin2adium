@@ -6,9 +6,6 @@
 # Please use Pidgin2Adium.parse or Pidgin2Adium.parse_and_generate instead of
 # using these classes directly.
 
-require 'date'
-require 'time'
-
 require 'pidgin2adium/log_file'
 require 'pidgin2adium/messages/all'
 
