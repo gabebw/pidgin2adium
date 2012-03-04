@@ -185,15 +185,19 @@ module Pidgin2Adium
     end
 
     def try_to_parse_time(time)
-      formats = [
-        "%m/%d/%Y %I:%M:%S %P", # 01/22/2008 03:01:45 PM
-        "%Y-%m-%d %H:%M:%S",    # 2008-01-22 23:08:24
-        "%Y/%m/%d %H:%M:%S", # 2008/01/22 04:01:45
-        "%Y-%m-%d %H:%M:%S",  # 2008-01-22 04:01:45
-        '%a %d %b %Y %H:%M:%S %p %Z', # "Sat 18 Apr 2009 10:43:35 AM PDT"
-        '%a %b %d %H:%M:%S %Y' # "Wed May 24 19:00:33 2006"
-      ]
-      try_to_parse_time_with_formats(time, formats)
+      # Remove time zone
+      if time =~ / [A-Z]{3}/
+        time.sub!(/ [A-Z]{3}/, '')
+      end
+
+      begin
+        Time.parse(time)
+      rescue ArgumentError
+        formats = [
+          "%m/%d/%Y %I:%M:%S %P", # 01/22/2008 03:01:45 PM
+        ]
+        try_to_parse_time_with_formats(time, formats)
+      end
     end
 
     def try_to_parse_minimal_time(minimal_time)

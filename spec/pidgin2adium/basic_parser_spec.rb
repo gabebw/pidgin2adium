@@ -258,3 +258,53 @@ describe Pidgin2Adium::BasicParser, "#try_to_parse_time" do
     parser.try_to_parse_time(time).should == Time.parse(time)
   end
 end
+
+describe Pidgin2Adium::BasicParser, "#is_minimal_time?" do
+  let(:parser) { Pidgin2Adium::BasicParser.new(create_chat_file, '') }
+
+  it 'returns true for a time like 03:04:08' do
+    parser.is_minimal_time?('03:04:08').should be
+  end
+
+  it 'returns true for a time like 03:04:08 AM' do
+    parser.is_minimal_time?('03:04:08 AM').should be
+  end
+
+  it 'returns true for a time like 03:04:08 PM' do
+    parser.is_minimal_time?('03:04:08 PM').should be
+  end
+
+  it 'strips space before matching' do
+    parser.is_minimal_time?('  03:04:08  ').should be
+  end
+
+  it 'returns false for other times' do
+    parser.is_minimal_time?('2006-08-02 03:04:08').should_not be
+  end
+end
+
+describe Pidgin2Adium::BasicParser, "#strptime" do
+  it 'parses a time string according to a given format' do
+    time_string = '2008-02-25 03:04:08'
+    result = create_parser.strptime(time_string, '%Y-%m-%d %H:%M:%S')
+    result.should == Time.parse(time_string)
+  end
+
+  it 'fills in missing times with values from the first line' do
+    parser = create_parser do |b|
+      b.first_line :time => "2007-04-17 12:33:13"
+    end
+    result = parser.strptime('03:04:08', '%H:%M:%S')
+    result.year.should == 2007
+    result.day.should == 17
+    result.month.should == 4
+  end
+
+  it 'returns nil if the format does not match' do
+    create_parser.strptime('03', '%H:%M:%S').should be_nil
+  end
+
+  def create_parser(&block)
+    Pidgin2Adium::BasicParser.new(create_chat_file(&block), '')
+  end
+end
