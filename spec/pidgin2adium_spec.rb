@@ -110,6 +110,7 @@ end
 
 describe Pidgin2Adium, "#parse" do
   include_context "fake logger"
+  let(:aliases) { '' }
 
   context "on failure" do
     before do
@@ -117,38 +118,38 @@ describe Pidgin2Adium, "#parse" do
     end
 
     it "returns falsy when file is not text or html" do
-      Pidgin2Adium.parse(@weird_logfile_path, @aliases).should be_false
+      Pidgin2Adium.parse(@weird_logfile_path, aliases).should be_false
     end
 
     it "logs an error" do
-      Pidgin2Adium.parse(@weird_logfile_path, @aliases).should be_false
+      Pidgin2Adium.parse(@weird_logfile_path, aliases).should be_false
       Pidgin2Adium.logger.should have_received(:error).with(regexp_matches(/No parser found/i))
     end
 
     it "gracefully handles nonexistent files" do
-      Pidgin2Adium.parse("i_do_not_exist.html", @aliases).should be_false
-      Pidgin2Adium.parse("i_do_not_exist.txt", @aliases).should be_false
+      Pidgin2Adium.parse("i_do_not_exist.html", aliases).should be_false
+      Pidgin2Adium.parse("i_do_not_exist.txt", aliases).should be_false
     end
   end
 
   context "on success" do
     context "for a text file" do
       it "returns a LogFile instance" do
-        result = Pidgin2Adium.parse(@text_logfile_path, @aliases)
+        result = Pidgin2Adium.parse(@text_logfile_path, aliases)
         result.should be_instance_of(Pidgin2Adium::LogFile)
       end
     end
 
     context "for an htm file" do
       it "returns a LogFile instance" do
-        result = Pidgin2Adium.parse(@htm_logfile_path, @aliases)
+        result = Pidgin2Adium.parse(@htm_logfile_path, aliases)
         result.should be_instance_of(Pidgin2Adium::LogFile)
       end
     end
 
     context "for an html file" do
       it "returns a LogFile instance" do
-        result = Pidgin2Adium.parse(@html_logfile_path, @aliases)
+        result = Pidgin2Adium.parse(@html_logfile_path, aliases)
         result.should be_instance_of(Pidgin2Adium::LogFile)
       end
     end
@@ -157,6 +158,7 @@ end
 
 describe Pidgin2Adium, "#parse_and_generate" do
   include_context "fake logger"
+  let(:aliases) { '' }
 
   before do
     # text logfile has screenname awesomeSN,
@@ -209,7 +211,7 @@ describe Pidgin2Adium, "#parse_and_generate" do
               FileUtils.mkdir_p(File.dirname(@text_output_file_path))
               File.new(@text_output_file_path, 'w').close
               Pidgin2Adium.parse_and_generate(@text_logfile_path,
-                                              @aliases,
+                                              aliases,
                                               @opts).should == Pidgin2Adium::FILE_EXISTS
             end
           end
@@ -221,7 +223,7 @@ describe Pidgin2Adium, "#parse_and_generate" do
             end
             it "should return FILE_EXISTS" do
               Pidgin2Adium.parse_and_generate(@htm_logfile_path,
-                                              @aliases,
+                                              aliases,
                                               @opts).should == Pidgin2Adium::FILE_EXISTS
             end
           end
@@ -233,7 +235,7 @@ describe Pidgin2Adium, "#parse_and_generate" do
             end
             it "should return FILE_EXISTS" do
               Pidgin2Adium.parse_and_generate(@html_logfile_path,
-                                              @aliases,
+                                              aliases,
                                               @opts).should == Pidgin2Adium::FILE_EXISTS
             end
           end
@@ -251,21 +253,21 @@ describe Pidgin2Adium, "#parse_and_generate" do
 
       context "for a text file" do
         it "returns true" do
-          result = Pidgin2Adium.parse_and_generate(create_chat_file('log.txt'), @aliases, @opts)
+          result = Pidgin2Adium.parse_and_generate(create_chat_file('log.txt'), aliases, @opts)
           result.should be_true
         end
       end
 
       context "for an htm file" do
         it "returns true" do
-          result = Pidgin2Adium.parse_and_generate(create_chat_file('log.htm'), @aliases, @opts)
+          result = Pidgin2Adium.parse_and_generate(create_chat_file('log.htm'), aliases, @opts)
           result.should be_true
         end
       end
 
       context "for an html file" do
         it "returns true" do
-          result = Pidgin2Adium.parse_and_generate(create_chat_file('log.html'), @aliases, @opts)
+          result = Pidgin2Adium.parse_and_generate(create_chat_file('log.html'), aliases, @opts)
           result.should be_true
         end
       end
@@ -278,21 +280,21 @@ describe Pidgin2Adium, "#parse_and_generate" do
 
       context "for a text file" do
         it "returns true" do
-          result = Pidgin2Adium.parse_and_generate(create_chat_file('log.txt'), @aliases, @opts)
+          result = Pidgin2Adium.parse_and_generate(create_chat_file('log.txt'), aliases, @opts)
           result.should be_true
         end
       end
 
       context "for an htm file" do
         it "returns true" do
-          result = Pidgin2Adium.parse_and_generate(create_chat_file('log.htm'), @aliases, @opts)
+          result = Pidgin2Adium.parse_and_generate(create_chat_file('log.htm'), aliases, @opts)
           result.should be_true
         end
       end
 
       context "for an html file" do
         it "returns true" do
-          result = Pidgin2Adium.parse_and_generate(create_chat_file('log.html'), @aliases, @opts)
+          result = Pidgin2Adium.parse_and_generate(create_chat_file('log.html'), aliases, @opts)
           result.should be_true
         end
       end

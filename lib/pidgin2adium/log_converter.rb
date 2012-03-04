@@ -32,7 +32,7 @@ module Pidgin2Adium
     # provided in new, then deletes Adium's search indexes to force
     # it to rescan logs on startup.
     def start
-      log "Begin converting."
+      Pidgin2Adium.log "Begin converting."
       begin
         files_path = get_all_chat_files()
       rescue Errno::EACCES => bang

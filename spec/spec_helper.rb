@@ -20,9 +20,6 @@ RSpec.configure do |config|
   config.mock_with :mocha
   config.before(:all) do
     @current_dir = File.dirname(__FILE__)
-    @aliases = %w{gabebw gabeb-w gbw me}.join(',')
-    # -7 => "-0700"
-    @current_tz_offset = sprintf("%+03d00", Time.zone_offset(Time.new.zone) / 3600)
 
     @logfile_path = File.join(@current_dir, "support", "logfiles")
     @text_logfile_path = "#{@logfile_path}/2006-12-21.223606.txt"
