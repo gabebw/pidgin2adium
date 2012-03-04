@@ -11,6 +11,11 @@ $LOAD_PATH.unshift(File.expand_path('../lib', __FILE__))
 require 'pidgin2adium'
 require 'time'
 require 'bourne'
+begin
+  require 'simplecov'
+rescue LoadError
+  # Ignore, we're probably on 1.8.7
+end
 
 Dir['spec/support/**/*.rb'].each do |f|
   require File.expand_path(f)
