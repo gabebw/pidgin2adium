@@ -119,10 +119,15 @@ describe "Pidgin2Adium" do
       before(:each) do
         @weird_logfile_path = File.join(@current_dir, 'logfile.foobar')
       end
-      it "should give an error when file is not text or html" do
-        Pidgin2Adium.stubs(:error)
+
+      it "returns falsy when file is not text or html" do
         Pidgin2Adium.parse(@weird_logfile_path, @aliases).should be_false
-        Pidgin2Adium.should have_received(:error).with(regexp_matches(/Doing nothing, logfile is not a text or html file/))
+      end
+
+      it "logs an error" do
+        Pidgin2Adium.logger.stubs(:error)
+        Pidgin2Adium.parse(@weird_logfile_path, @aliases).should be_false
+        Pidgin2Adium.logger.should have_received(:error).with(regexp_matches(/No parser found/i))
       end
 
       it "should gracefully handle nonexistent files" do

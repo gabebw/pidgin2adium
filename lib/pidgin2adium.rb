@@ -11,6 +11,7 @@ require 'pidgin2adium/parsers/all'
 require 'pidgin2adium/time_converter'
 require 'pidgin2adium/tag_balancer'
 require 'pidgin2adium/logger'
+require 'pidgin2adium/parser_factory'
 
 module Pidgin2Adium
   # Returned by LogFile.write_out if the output logfile already exists.
@@ -46,19 +47,16 @@ module Pidgin2Adium
   # Returns a LogFile instance or false if an error occurred.
   def self.parse(logfile_path, my_aliases, force_conversion = false)
     logfile_path = File.expand_path(logfile_path)
-    ext = File.extname(logfile_path).sub('.', '').downcase
 
-    if(ext == "html" || ext == "htm")
-      parser_class = HtmlLogParser
-    elsif(ext == "txt")
-      parser_class = TextLogParser
+    factory =  ParserFactory.new(my_aliases, force_conversion)
+    parser = factory.parser_for(logfile_path)
+
+    if parser
+      parser.parse
     else
-      error("Doing nothing, logfile is not a text or html file. Path: #{logfile_path}.")
-      return false
+      Pidgin2Adium.error("No parser found for the given path (is it an HTML or text file?):#{logfile_path}")
+      false
     end
-
-    parser = parser_class.new(logfile_path, my_aliases, force_conversion)
-    return parser.parse()
   end
 
   # Parses the provided log and writes out the log in Adium format.
