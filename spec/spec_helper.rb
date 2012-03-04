@@ -1,5 +1,3 @@
-require 'fileutils'
-
 # Pidgin2Adium.oops and Pidgin2Adium.warn both use warn() to output errors.
 # Setting $-w (the warning level) to nil suppresses them, which makes for
 # much prettier test output.
@@ -8,14 +6,16 @@ $-w=nil # OMGHAX
 $LOAD_PATH.unshift(File.expand_path('..',  __FILE__))
 $LOAD_PATH.unshift(File.expand_path('../lib', __FILE__))
 
-require 'pidgin2adium'
-require 'time'
-require 'bourne'
 begin
   require 'simplecov'
 rescue LoadError
   # Ignore, we're probably on 1.8.7
 end
+
+require 'fileutils'
+require 'time'
+require 'pidgin2adium'
+require 'bourne'
 
 Dir['spec/support/**/*.rb'].each do |f|
   require File.expand_path(f)
