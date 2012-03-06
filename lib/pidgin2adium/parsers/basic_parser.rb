@@ -97,26 +97,17 @@ module Pidgin2Adium
     # Returns a string representation of _time_ or
     # nil if it couldn't parse the provided _time_.
     def create_adium_time(time)
-      return nil if time.nil?
-      if time_parser.is_minimal_time?(time)
-        datetime = time_parser.try_to_parse_minimal_time(time)
+      if time.nil?
+        nil
       else
-        begin
-          datetime = DateTime.parse(time)
-        rescue ArgumentError
-          datetime = time_parser.try_to_parse_time(time)
-          if datetime.nil?
-            Pidgin2Adium.oops("#{time} couldn't be parsed. Please open an issue on GitHub: https://github.com/gabebw/pidgin2adium/issues")
-            return nil
-          end
+        time = time_parser.parse(time)
+        if time.nil?
+          Pidgin2Adium.oops("#{time} couldn't be parsed. Please open an issue on GitHub: https://github.com/gabebw/pidgin2adium/issues")
+          nil
+        else
+          time.strftime('%Y-%m-%dT%H:%M:%S%Z')
         end
       end
-
-      return nil if datetime.nil?
-
-      # Instead of dealing with Ruby 1.9 vs Ruby 1.8, DateTime vs Date vs
-      # Time, and #xmlschema vs #iso8601, just use strftime.
-      datetime.strftime('%Y-%m-%dT%H:%M:%S%Z')
     end
 
     # Extract required data from the file. Run by parse. Sets these

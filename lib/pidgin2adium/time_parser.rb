@@ -18,44 +18,45 @@ module Pidgin2Adium
       @day = day
     end
 
-    # Returns true if the time is minimal, i.e. doesn't include a date.
-    # Otherwise returns false.
-    def is_minimal_time?(str)
-      ! str.strip.match(MINIMAL_TIME_REGEX).nil?
-    end
-
-    def try_to_parse_time(time)
-      time = remove_time_zone(time)
-
-      begin
-        Time.parse(time)
-      rescue ArgumentError
-        try_to_parse_time_with_formats(time, NORMAL_TIME_FORMATS)
+    def parse(time_string)
+      time_string_without_zone = remove_time_zone(time_string)
+      if includes_date?(time_string)
+        parse_time_with_date(time_string_without_zone)
+      else
+        parse_time_without_date(time_string_without_zone)
       end
     end
 
-    def try_to_parse_minimal_time(minimal_time)
-      try_to_parse_time_with_formats(minimal_time, MINIMAL_TIME_FORMATS)
+    private
+
+    def parse_time_with_date(time_string)
+      begin
+        DateTime.parse(time_string)
+      rescue ArgumentError
+        parse_time_with_formats(time_string, NORMAL_TIME_FORMATS)
+      end
     end
 
-    private
+    def parse_time_without_date(minimal_time_string)
+      parse_time_with_formats(minimal_time_string, MINIMAL_TIME_FORMATS)
+    end
 
     # Tries to parse _time_ (a string) according to the formats in _formats_, which
     # should be an array of strings. For more on acceptable format strings,
     # see the official documentation for Time.strptime. Returns a Time
     # object or nil (if no formats matched).
-    def try_to_parse_time_with_formats(time, formats)
+    def parse_time_with_formats(time_string, formats)
       parsed = nil
       formats.detect do |format|
-        parsed = strptime(time, format)
+        parsed = strptime(time_string, format)
       end
       parsed
     end
 
     # Returns a Time object, or nil if the format string doesn't match the
     # time string.
-    def strptime(time, format)
-      date_hash = Date._strptime(time, format)
+    def strptime(time_string, format)
+      date_hash = Date._strptime(time_string, format)
       if date_hash.nil?
         nil
       else
@@ -71,8 +72,12 @@ module Pidgin2Adium
       { :year => @year, :mon => @month, :mday => @day }.merge(date_hash)
     end
 
-    def remove_time_zone(time)
-      time.sub(/ [A-Z]{3}/, '')
+    def remove_time_zone(time_string)
+      time_string.sub(/ [A-Z]{3}/, '')
+    end
+
+    def includes_date?(time_string)
+      time_string.strip.match(MINIMAL_TIME_REGEX).nil?
     end
   end
 end
