@@ -40,17 +40,7 @@ module Pidgin2Adium
       # us an alias.
       @user_alias = user_aliases.split(',')[0]
 
-      @log_file_is_valid = true
-      begin
-        open(@src_path) do |f|
-          @first_line = f.readline
-          @file_content = f.read
-        end
-      rescue Errno::ENOENT
-        Pidgin2Adium.oops("#{@src_path} doesn't exist! Continuing...")
-        @log_file_is_valid = false
-        return nil
-      end
+      @log_file_is_valid = read_source_file
 
       begin
         successfully_set_variables = pre_parse!
@@ -65,71 +55,6 @@ module Pidgin2Adium
         Pidgin2Adium.error("Failed to parse, invalid first line: #{@src_path}")
         return # stop processing
       end
-
-      # @status_map, @lib_purple_events, and @events are used in
-      # create_status_or_event_msg
-      @status_map = {
-        /(.+) logged in\.$/ => 'online',
-        /(.+) logged out\.$/ => 'offline',
-        /(.+) has signed on\.$/ => 'online',
-        /(.+) has signed off\.$/ => 'offline',
-        /(.+) has gone away\.$/ => 'away',
-        /(.+) is no longer away\.$/ => 'available',
-        /(.+) has become idle\.$/ => 'idle',
-        /(.+) is no longer idle\.$/ => 'available'
-      }
-
-      # lib_purple_events are all of event_type libPurple
-      @lib_purple_events = [
-        # file transfer
-        /Starting transfer of .+ from (.+)/,
-        /^Offering to send .+ to (.+)$/,
-        /(.+) is offering to send file/,
-        /^Transfer of file .+ complete$/,
-        /Error reading|writing|accessing .+: .+/,
-        /You cancell?ed the transfer of/,
-        /File transfer cancelled/,
-        /(.+?) cancell?ed the transfer of/,
-        /(.+?) cancelled the file transfer/,
-        # Direct IM - actual (dis)connect events are their own types
-        /^Attempting to connect to (.+) at .+ for Direct IM\./,
-        /^Asking (.+) to connect to us at .+ for Direct IM\./,
-        /^Attempting to connect via proxy server\.$/,
-        /^Direct IM with (.+) failed/,
-        # encryption
-        /Received message encrypted with wrong key/,
-        /^Requesting key\.\.\.$/,
-        /^Outgoing message lost\.$/,
-        /^Conflicting Key Received!$/,
-        /^Error in decryption- asking for resend\.\.\.$/,
-        /^Making new key pair\.\.\.$/,
-        # sending errors
-        /^Last outgoing message not received properly- resetting$/,
-        /Resending\.\.\./,
-        # connection errors
-        /Lost connection with the remote user:.+/,
-        # chats
-        /^.+ entered the room\.$/,
-        /^.+ left the room\.$/
-      ]
-
-      # non-libpurple events
-      # Each key maps to an event_type string. The keys will be matched against a line of chat
-      # and the partner's alias will be in regex group 1, IF the alias is matched.
-      @event_map = {
-        # .+ is not an alias, it's a proxy server so no grouping
-        /^Attempting to connect to .+\.$/ => 'direct-im-connect',
-        # NB: pidgin doesn't track when Direct IM is disconnected, AFAIK
-        /^Direct IM established$/ => 'directIMConnected',
-        /Unable to send message/ => 'chat-error',
-        /You missed .+ messages from (.+) because they were too large/ => 'chat-error',
-        /User information not available/ => 'chat-error'
-      }
-
-      @ignore_events = [
-        # Adium ignores SN/alias changes.
-        /^.+? is now known as .+?\.<br\/?>$/
-      ]
     end
 
     # This method returns a LogFile instance, or false if an error occurred.
@@ -318,9 +243,9 @@ module Pidgin2Adium
       return nil if time.nil?
       str = matches[1]
       # Return nil, which will get compact'ed out
-      return nil if @ignore_events.detect{|regex| str =~ regex }
+      return nil if ignore_events.detect{|regex| str =~ regex }
 
-      regex, status = @status_map.detect{|rxp, stat| str =~ rxp}
+      regex, status = status_map.detect{|rxp, stat| str =~ rxp}
       if regex && status
         # Status message
         buddy_alias = regex.match(str)[1]
@@ -328,11 +253,11 @@ module Pidgin2Adium
         msg = StatusMessage.new(sender, time, buddy_alias, status)
       else
         # Test for event
-        regex = @lib_purple_events.detect{|rxp| str =~ rxp }
+        regex = lib_purple_events.detect{|rxp| str =~ rxp }
         event_type = 'libpurpleEvent' if regex
         unless regex and event_type
           # not a libpurple event, try others
-          regex, event_type = @event_map.detect{|rxp,ev_type| str =~ rxp}
+          regex, event_type = event_map.detect{|rxp,ev_type| str =~ rxp}
           unless regex and event_type
             if force_conversion?
               unless printed_conversion_error?
@@ -370,7 +295,7 @@ module Pidgin2Adium
       @time_parser ||= TimeParser.new(@basic_time_info[:year], @basic_time_info[:month], @basic_time_info[:day])
     end
 
-    private
+    protected
 
     # Should we continue to convert after hitting an unparseable line?
     def force_conversion?
@@ -383,6 +308,90 @@ module Pidgin2Adium
 
     def printed_conversion_error!
       @printed_conversion_error = true
+    end
+
+    def read_source_file
+      begin
+        open(@src_path) do |f|
+          @first_line = f.readline
+          @file_content = f.read
+        end
+      rescue Errno::ENOENT
+        Pidgin2Adium.oops("#{@src_path} doesn't exist! Continuing...")
+        @log_file_is_valid = false
+        return nil
+      end
+    end
+
+    def status_map
+      {
+        /(.+) logged in\.$/ => 'online',
+        /(.+) logged out\.$/ => 'offline',
+        /(.+) has signed on\.$/ => 'online',
+        /(.+) has signed off\.$/ => 'offline',
+        /(.+) has gone away\.$/ => 'away',
+        /(.+) is no longer away\.$/ => 'available',
+        /(.+) has become idle\.$/ => 'idle',
+        /(.+) is no longer idle\.$/ => 'available'
+      }
+    end
+
+    def lib_purple_events
+      # All of event_type libPurple.
+      [
+        # file transfer
+        /Starting transfer of .+ from (.+)/,
+        /^Offering to send .+ to (.+)$/,
+        /(.+) is offering to send file/,
+        /^Transfer of file .+ complete$/,
+        /Error reading|writing|accessing .+: .+/,
+        /You cancell?ed the transfer of/,
+        /File transfer cancelled/,
+        /(.+?) cancell?ed the transfer of/,
+        /(.+?) cancelled the file transfer/,
+        # Direct IM - actual (dis)connect events are their own types
+        /^Attempting to connect to (.+) at .+ for Direct IM\./,
+        /^Asking (.+) to connect to us at .+ for Direct IM\./,
+        /^Attempting to connect via proxy server\.$/,
+        /^Direct IM with (.+) failed/,
+        # encryption
+        /Received message encrypted with wrong key/,
+        /^Requesting key\.\.\.$/,
+        /^Outgoing message lost\.$/,
+        /^Conflicting Key Received!$/,
+        /^Error in decryption- asking for resend\.\.\.$/,
+        /^Making new key pair\.\.\.$/,
+        # sending errors
+        /^Last outgoing message not received properly- resetting$/,
+        /Resending\.\.\./,
+        # connection errors
+        /Lost connection with the remote user:.+/,
+        # chats
+        /^.+ entered the room\.$/,
+        /^.+ left the room\.$/
+      ]
+    end
+
+    def event_map
+      # Each key maps to an event_type string. The keys will be matched against
+      # a line of chat and the partner's alias will be in regex group 1, IF the
+      # alias is matched.
+      {
+        # .+ is not an alias, it's a proxy server so no grouping
+        /^Attempting to connect to .+\.$/ => 'direct-im-connect',
+        # NB: pidgin doesn't track when Direct IM is disconnected, AFAIK
+        /^Direct IM established$/ => 'directIMConnected',
+        /Unable to send message/ => 'chat-error',
+        /You missed .+ messages from (.+) because they were too large/ => 'chat-error',
+        /User information not available/ => 'chat-error'
+      }
+    end
+
+    def ignore_events
+      [
+        # Adium ignores SN/alias changes.
+        /^.+? is now known as .+?\.<br\/?>$/
+      ]
     end
   end
 end
