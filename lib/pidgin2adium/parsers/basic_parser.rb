@@ -20,9 +20,6 @@ module Pidgin2Adium
   # Please use Pidgin2Adium.parse or Pidgin2Adium.parse_and_generate instead of
   # using this class directly.
   class BasicParser
-    # Minimal times don't have a date
-    MINIMAL_TIME_REGEX = /^\d{1,2}:\d{1,2}:\d{1,2}(?: [AP]M)?$/
-
     # Time regexes must be set before pre_parse!().
     # "4/18/2007 11:02:00 AM" => %w{4, 18, 2007}
     # ONLY used (if at all) in first line of chat ("Conversation with...at...")
@@ -171,62 +168,18 @@ module Pidgin2Adium
       return LogFile.new(@file_content, @service, @user_SN, @partner_SN, @adium_chat_time_start)
     end
 
-    # Returns a Time object, or nil if the format string doesn't match the
-    # time string.
-    def strptime(time, format)
-      date_hash = Date._strptime(time, format)
-      return nil if date_hash.nil?
-      # Fill in any blanks using @basic_time_info
-      date_hash = @basic_time_info.merge(date_hash)
-      time = Time.local(date_hash[:year], date_hash[:mon], date_hash[:mday],
-                        date_hash[:hour], date_hash[:min], date_hash[:sec],
-                        date_hash[:sec_fraction], date_hash[:zone])
-      time
-    end
-
-    def try_to_parse_time(time)
-      # Remove time zone
-      if time =~ / [A-Z]{3}/
-        time.sub!(/ [A-Z]{3}/, '')
-      end
-
-      begin
-        Time.parse(time)
-      rescue ArgumentError
-        formats = [
-          "%m/%d/%Y %I:%M:%S %P", # 01/22/2008 03:01:45 PM
-        ]
-        try_to_parse_time_with_formats(time, formats)
-      end
-    end
-
-    def try_to_parse_minimal_time(minimal_time)
-      formats = [
-        "%I:%M:%S %P", # 04:01:45 AM
-        "%H:%M:%S" # 23:01:45
-      ]
-
-      try_to_parse_time_with_formats(minimal_time, formats)
-    end
-
-    # Returns true if the time is minimal, i.e. doesn't include a date.
-    # Otherwise returns false.
-    def is_minimal_time?(str)
-      ! str.strip.match(MINIMAL_TIME_REGEX).nil?
-    end
-
     # Converts a pidgin datestamp to an Adium one.
     # Returns a string representation of _time_ or
     # nil if it couldn't parse the provided _time_.
     def create_adium_time(time)
       return nil if time.nil?
-      if is_minimal_time?(time)
-        datetime = try_to_parse_minimal_time(time)
+      if time_parser.is_minimal_time?(time)
+        datetime = time_parser.try_to_parse_minimal_time(time)
       else
         begin
           datetime = DateTime.parse(time)
         rescue ArgumentError
-          datetime = try_to_parse_time(time)
+          datetime = time_parser.try_to_parse_time(time)
           if datetime.nil?
             Pidgin2Adium.oops("#{time} couldn't be parsed. Please open an issue on GitHub: https://github.com/gabebw/pidgin2adium/issues")
             return nil
@@ -283,12 +236,12 @@ module Pidgin2Adium
         @basic_time_info = case pidgin_chat_time_start
                            when TIME_REGEX
                              {:year => $1.to_i,
-                              :mon => $2.to_i,
-                              :mday => $3.to_i}
+                              :month => $2.to_i,
+                              :day => $3.to_i}
                            when TIME_REGEX_FIRST_LINE
                              {:year => $3.to_i,
-                              :mon => $1.to_i,
-                              :mday => $2.to_i}
+                              :month => $1.to_i,
+                              :day => $2.to_i}
                            else
                              nil
                            end
@@ -296,8 +249,8 @@ module Pidgin2Adium
           begin
             parsed_time = DateTime.parse(pidgin_chat_time_start)
             @basic_time_info = {:year => parsed_time.year,
-                                :mon => parsed_time.mon,
-                                :mday => parsed_time.mday}
+                                :month => parsed_time.mon,
+                                :day => parsed_time.mday}
           rescue ArgumentError
             # Couldn't parse the date
             Pidgin2Adium.oops("#{@src_path}: couldn't parse the date in the first line.")
@@ -427,19 +380,11 @@ module Pidgin2Adium
       msg
     end
 
-    private
-
-    # Tries to parse _time_ (a string) according to the formats in _formats_, which
-    # should be an array of strings. For more on acceptable format strings,
-    # see the official documentation for Time.strptime. Returns a Time
-    # object or nil (if no formats matched).
-    def try_to_parse_time_with_formats(time, formats)
-      parsed = nil
-      formats.detect do |format|
-        parsed = strptime(time, format)
-      end
-      parsed
+    def time_parser
+      @time_parser ||= TimeParser.new(@basic_time_info[:year], @basic_time_info[:month], @basic_time_info[:day])
     end
+
+    private
 
     # Should we continue to convert after hitting an unparseable line?
     def force_conversion?
