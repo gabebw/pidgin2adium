@@ -43,8 +43,8 @@ module Pidgin2Adium
       @chat_str ||= @chat_lines.map(&:to_s).join
     end
 
-    def each(&blk)
-      @chat_lines.each{|l| yield l }
+    def each(&block)
+      @chat_lines.each(&block)
     end
 
     # Set overwrite=true to create a logfile even if logfile already exists.
