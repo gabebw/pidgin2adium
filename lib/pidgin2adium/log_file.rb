@@ -20,9 +20,6 @@ module Pidgin2Adium
       @partner_SN = partner_SN
       @adium_chat_time_start = adium_chat_time_start
 
-      # @chat_str is generated when to_s is called
-      @chat_str = nil
-
       # key is for Pidgin, value is for Adium
       # Just used for <service>.<screenname> in directory structure
       service_name_map = {'aim' => 'AIM',
@@ -40,7 +37,7 @@ module Pidgin2Adium
 
     # Returns contents of log file
     def to_s
-      @chat_str ||= @chat_lines.map(&:to_s).join
+      @chat_lines.map(&:to_s).join
     end
 
     def each(&block)
@@ -87,10 +84,10 @@ module Pidgin2Adium
         return false
       end
 
-      # no \n before </chat> because @chat_str (from to_s) has it already
+      # no \n before </chat> because to_s has it already
       outfile.printf('<?xml version="1.0" encoding="UTF-8" ?>'<<"\n"+
                      '<chat xmlns="http://purl.org/net/ulf/ns/0.4-02" account="%s" service="%s">'<<"\n"<<'%s</chat>',
-                     @user_SN, @service, self.to_s)
+                     @user_SN, @service, to_s)
       outfile.close
 
       return output_path
