@@ -238,57 +238,14 @@ module Pidgin2Adium
       # ["22:58:00", "BuddyName logged in."]
       # 0: time
       # 1: status message or event
-      msg = nil
       time = create_adium_time(matches[0])
-      return nil if time.nil?
       str = matches[1]
-      # Return nil, which will get compact'ed out
-      return nil if ignorable_event?(str)
 
-      regex, status = status_map.detect{|rxp, stat| str =~ rxp}
-      if regex && status
-        # Status message
-        buddy_alias = regex.match(str)[1]
-        sender = get_sender_by_alias(buddy_alias)
-        msg = StatusMessage.new(sender, time, buddy_alias, status)
+      if time.nil? || ignorable_event?(str)
+        nil
       else
-        # Test for event
-        regex = lib_purple_events.detect{|rxp| str =~ rxp }
-        event_type = 'libpurpleEvent' if regex
-        unless regex and event_type
-          # not a libpurple event, try others
-          regex, event_type = event_map.detect{|rxp,ev_type| str =~ rxp}
-          unless regex and event_type
-            if force_conversion?
-              unless printed_conversion_error?
-                Pidgin2Adium.error("#{@src_path} was converted with the following errors:")
-                printed_conversion_error!
-              end
-            end
-
-            Pidgin2Adium.error(sprintf("%sError parsing status or event message, no status or event found: %p",
-                          force_conversion? ? "\t" : '', # indent if we're forcing conversion
-                          str))
-            return false
-          end
-        end
-
-        if regex && event_type
-          regex_matches = regex.match(str)
-          # Event message
-          if regex_matches.size == 1
-            # No alias - this means it's the user
-            buddy_alias = @user_alias
-            sender = @user_SN
-          else
-            buddy_alias = regex_matches[1]
-            sender = get_sender_by_alias(buddy_alias)
-          end
-          msg = Event.new(sender, time, buddy_alias, str, event_type)
-        end
+        create_status_message(str, time) || create_event_message(str, time)
       end
-
-      msg
     end
 
     def time_parser
@@ -325,6 +282,52 @@ module Pidgin2Adium
 
     def ignorable_event?(str)
       ignore_events.detect{|regex| str =~ regex }
+    end
+
+    def create_status_message(str, time)
+      regex, status = status_map.detect{|rxp, stat| str =~ rxp}
+      if regex && status
+        buddy_alias = regex.match(str)[1]
+        sender = get_sender_by_alias(buddy_alias)
+        msg = StatusMessage.new(sender, time, buddy_alias, status)
+      end
+    end
+
+    def create_event_message(str, time)
+      # Test for event
+      regex = lib_purple_events.detect{|rxp| str =~ rxp }
+      event_type = 'libpurpleEvent' if regex
+      unless regex and event_type
+        # not a libpurple event, try others
+        regex, event_type = event_map.detect{|rxp,ev_type| str =~ rxp}
+        unless regex and event_type
+          if force_conversion?
+            unless printed_conversion_error?
+              Pidgin2Adium.error("#{@src_path} was converted with the following errors:")
+              printed_conversion_error!
+            end
+          end
+
+          Pidgin2Adium.error(sprintf("%sError parsing status or event message, no status or event found: %p",
+                                     force_conversion? ? "\t" : '', # indent if we're forcing conversion
+                                     str))
+          return false
+        end
+      end
+
+      if regex && event_type
+        regex_matches = regex.match(str)
+        # Event message
+        if regex_matches.size == 1
+          # No alias - this means it's the user
+          buddy_alias = @user_alias
+          sender = @user_SN
+        else
+          buddy_alias = regex_matches[1]
+          sender = get_sender_by_alias(buddy_alias)
+        end
+        msg = Event.new(sender, time, buddy_alias, str, event_type)
+      end
     end
 
     def status_map
