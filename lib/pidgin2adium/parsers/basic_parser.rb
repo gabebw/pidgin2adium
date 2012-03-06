@@ -42,10 +42,10 @@ module Pidgin2Adium
 
       @log_file_is_valid = true
       begin
-        file = File.new(@src_path)
-        @first_line = file.readline
-        @file_content = file.read
-        file.close
+        open(@src_path) do |f|
+          @first_line = f.readline
+          @file_content = f.read
+        end
       rescue Errno::ENOENT
         Pidgin2Adium.oops("#{@src_path} doesn't exist! Continuing...")
         @log_file_is_valid = false
