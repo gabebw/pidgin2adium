@@ -203,28 +203,14 @@ module Pidgin2Adium
     # * @adium_chat_time_start
     # Returns true if none of these variables are false or nil.
     def pre_parse!
-      # Deal with first line.
-
-      # the first line is special. It tells us (in order of regex groups):
-      # 1) who we're talking to
-      # 2) what time/date
-      # 3) what SN we used
-      # 4) what protocol (AIM, icq, jabber...)
-      first_line_match = /Conversation with (.+?) at (.+?) on (.+?) \((.+?)\)/.match(@first_line)
-      if first_line_match.nil?
+      metadata = Metadata.new(@first_line)
+      if metadata.invalid?
         raise InvalidFirstLineError
       else
-        # first_line_match is like so:
-        # ["Conversation with BUDDY_PERSON at 2006-12-21 22:36:06 on awesome SN (aim)",
-        #  "BUDDY_PERSON",
-        #  "2006-12-21 22:36:06",
-        #  "awesome SN",
-        #  "aim"]
-        @service = first_line_match[4]
-        # @user_SN is normalized to avoid "AIM.name" and "AIM.na me" folders
-        @user_SN = first_line_match[3].downcase.tr(' ', '')
-        @partner_SN = first_line_match[1]
-        pidgin_chat_time_start = first_line_match[2]
+        @service = metadata.service
+        @user_SN = metadata.sender_screen_name
+        @partner_SN = metadata.receiver_screen_name
+        pidgin_chat_time_start = metadata.time_string
         # @basic_time_info is for files that only have the full
         # timestamp at the top; we can use it to fill in the minimal
         # per-line timestamps. It is a hash with 3 keys:

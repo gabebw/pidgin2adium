@@ -13,6 +13,7 @@ require 'pidgin2adium/tag_balancer'
 require 'pidgin2adium/logger'
 require 'pidgin2adium/parser_factory'
 require 'pidgin2adium/time_parser'
+require 'pidgin2adium/metadata'
 
 module Pidgin2Adium
   # Returned by LogFile.write_out if the output logfile already exists.
