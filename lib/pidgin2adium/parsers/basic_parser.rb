@@ -259,6 +259,13 @@ module Pidgin2Adium
       !! @force_conversion
     end
 
+    def print_conversion_error
+      if ! printed_conversion_error?
+        Pidgin2Adium.error("#{@src_path} was converted with the following errors:")
+        printed_conversion_error!
+      end
+    end
+
     def printed_conversion_error?
       @printed_conversion_error == true
     end
@@ -293,40 +300,24 @@ module Pidgin2Adium
       end
     end
 
-    def create_event_message(str, time)
-      # Test for event
-      regex = lib_purple_events.detect{|rxp| str =~ rxp }
-      event_type = 'libpurpleEvent' if regex
-      unless regex and event_type
-        # not a libpurple event, try others
-        regex, event_type = event_map.detect{|rxp,ev_type| str =~ rxp}
-        unless regex and event_type
-          if force_conversion?
-            unless printed_conversion_error?
-              Pidgin2Adium.error("#{@src_path} was converted with the following errors:")
-              printed_conversion_error!
-            end
-          end
+    def create_event_message(string, time)
+      message = create_lib_purple_event_message(string, time) || create_non_lib_purple_event_message(string, time)
 
-          Pidgin2Adium.error(sprintf("%sError parsing status or event message, no status or event found: %p",
-                                     force_conversion? ? "\t" : '', # indent if we're forcing conversion
-                                     str))
-          return false
+      if message
+        message
+      else
+        if force_conversion?
+          print_conversion_error
         end
-      end
 
-      if regex && event_type
-        regex_matches = regex.match(str)
-        # Event message
-        if regex_matches.size == 1
-          # No alias - this means it's the user
-          buddy_alias = @user_alias
-          sender = @user_SN
-        else
-          buddy_alias = regex_matches[1]
-          sender = get_sender_by_alias(buddy_alias)
-        end
-        msg = Event.new(sender, time, buddy_alias, str, event_type)
+        indent = if force_conversion?
+                   "\t"
+                 else
+                   ""
+                 end
+
+        Pidgin2Adium.error("#{indent}Error parsing status or event message, no status or event found: #{string.inspect}")
+        false
       end
     end
 
@@ -399,6 +390,34 @@ module Pidgin2Adium
         # Adium ignores SN/alias changes.
         /^.+? is now known as .+?\.<br\/?>$/
       ]
+    end
+
+    def create_lib_purple_event_message(str, time)
+      regex = lib_purple_events.detect{|rxp| str =~ rxp }
+      if regex
+        event_type = 'libpurpleEvent'
+        create_event_message_from(regex, str, time, event_type)
+      end
+    end
+
+    def create_non_lib_purple_event_message(string, time)
+      regex, event_type = event_map.detect{|rxp,ev_type| string =~ rxp}
+      if regex && event_type
+        create_event_message_from(regex, string, time, event_type)
+      end
+    end
+
+    def create_event_message_from(regex, string, time, event_type)
+      regex_matches = regex.match(string)
+      if regex_matches.size == 1
+        # No alias - this means it's the user
+        buddy_alias = @user_alias
+        sender = @user_SN
+      else
+        buddy_alias = regex_matches[1]
+        sender = get_sender_by_alias(buddy_alias)
+      end
+      msg = Event.new(sender, time, buddy_alias, string, event_type)
     end
   end
 end
