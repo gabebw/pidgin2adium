@@ -243,7 +243,7 @@ module Pidgin2Adium
       return nil if time.nil?
       str = matches[1]
       # Return nil, which will get compact'ed out
-      return nil if ignore_events.detect{|regex| str =~ regex }
+      return nil if ignorable_event?(str)
 
       regex, status = status_map.detect{|rxp, stat| str =~ rxp}
       if regex && status
@@ -321,6 +321,10 @@ module Pidgin2Adium
         @log_file_is_valid = false
         return nil
       end
+    end
+
+    def ignorable_event?(str)
+      ignore_events.detect{|regex| str =~ regex }
     end
 
     def status_map
