@@ -13,22 +13,9 @@ end
 describe Pidgin2Adium, "utility methods" do
   include_context "fake logger"
 
-  before do
-    # "Kernel gets mixed in to an object, so you need to stub [its methods] on the object
-    # itself." - http://www.ruby-forum.com/topic/128619
-    Pidgin2Adium.stubs(:puts => nil) # Doesn't work in the before(:all) block
-  end
-
-  context '.logger=' do
-    it 'sets the logger' do
-      Pidgin2Adium.logger=('hi')
-      Pidgin2Adium.logger.should == 'hi'
-    end
-  end
-
-  context '.logger' do
-    it 'gets the logger' do
-      Pidgin2Adium.logger=('hi')
+  context '.logger getters and setters' do
+    it 'gets/sets the logger' do
+      Pidgin2Adium.logger = 'hi'
       Pidgin2Adium.logger.should == 'hi'
     end
   end
