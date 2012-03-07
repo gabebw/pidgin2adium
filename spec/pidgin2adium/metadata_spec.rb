@@ -31,24 +31,33 @@ describe Pidgin2Adium::Metadata do
     end
   end
 
-  context '#time_string' do
-    it 'returns the time string' do
+  context '#start_time' do
+    it 'returns the start time' do
       time_string = '2008-04-01 22:36:06'
       path = create_chat_file('log.html') do |b|
         b.first_line :time => time_string
       end
       metadata = Pidgin2Adium::Metadata.new(first_line_of(path))
-      metadata.time_string.should == time_string
+      metadata.start_time.year.should == 2008
+      metadata.start_time.mon.should == 4
+      metadata.start_time.mday.should == 1
+      metadata.start_time.hour.should == 22
+      metadata.start_time.min.should == 36
+      metadata.start_time.sec.should == 6
     end
 
     it 'can detect peculiar times' do
-       time_string = "1/15/2008 7:14:45 AM"
-      time_string = '2008-04-01 22:36:06'
+      time_string = "1/15/2008 7:14:45 AM"
       path = create_chat_file('log.html') do |b|
         b.first_line :time => time_string
       end
       metadata = Pidgin2Adium::Metadata.new(first_line_of(path))
-      metadata.time_string.should == time_string
+      metadata.start_time.year.should == 2008
+      metadata.start_time.mon.should == 1
+      metadata.start_time.mday.should == 15
+      metadata.start_time.hour.should == 7
+      metadata.start_time.min.should == 14
+      metadata.start_time.sec.should == 45
     end
   end
 
@@ -68,7 +77,7 @@ describe Pidgin2Adium::Metadata do
       metadata.should be_invalid
     end
 
-    [:sender_screen_name, :receiver_screen_name, :service, :time_string].each do |attribute|
+    [:sender_screen_name, :receiver_screen_name, :service, :start_time].each do |attribute|
       it 'is true when #{attribute} cannot be detected' do
         metadata = Pidgin2Adium::Metadata.new(first_line_of(create_chat_file))
         metadata.stubs(attribute => nil)

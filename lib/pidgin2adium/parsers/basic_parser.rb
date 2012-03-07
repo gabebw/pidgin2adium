@@ -21,10 +21,7 @@ module Pidgin2Adium
   # using this class directly.
   class BasicParser
     # Time regexes must be set before pre_parse!().
-    # "4/18/2007 11:02:00 AM" => %w{4, 18, 2007}
-    # ONLY used (if at all) in first line of chat ("Conversation with...at...")
-    TIME_REGEX_FIRST_LINE = %r{^(\d{1,2})/(\d{1,2})/(\d{4}) \d{1,2}:\d{2}:\d{2} [AP]M$}
-    # "2007-04-17 12:33:13" => %w{2007, 04, 17}
+    # "2007-04-17 12:33:13" => %w(2007 04 17)
     TIME_REGEX = /^(\d{4})-(\d{2})-(\d{2}) \d{2}:\d{2}:\d{2}$/
 
     #  force_conversion: Should we continue to convert after hitting an unparseable line?
@@ -120,42 +117,13 @@ module Pidgin2Adium
         @service = metadata.service
         @user_SN = metadata.sender_screen_name
         @partner_SN = metadata.receiver_screen_name
-        pidgin_chat_time_start = metadata.time_string
-        # @basic_time_info is for files that only have the full
-        # timestamp at the top; we can use it to fill in the minimal
-        # per-line timestamps. It is a hash with 3 keys:
-        # * :year
-        # * :mon
-        # * :mday (day of month)
-        # You should be able to fill everything else in. If you can't,
-        # something's wrong.
-        @basic_time_info = case pidgin_chat_time_start
-                           when TIME_REGEX
-                             {:year => $1.to_i,
-                              :month => $2.to_i,
-                              :day => $3.to_i}
-                           when TIME_REGEX_FIRST_LINE
-                             {:year => $3.to_i,
-                              :month => $1.to_i,
-                              :day => $2.to_i}
-                           else
-                             nil
-                           end
-        if @basic_time_info.nil?
-          begin
-            parsed_time = DateTime.parse(pidgin_chat_time_start)
-            @basic_time_info = {:year => parsed_time.year,
-                                :month => parsed_time.mon,
-                                :day => parsed_time.mday}
-          rescue ArgumentError
-            Pidgin2Adium.warn("#{@src_path}: couldn't parse the date in the first line.")
-            @basic_time_info = nil
-          end
-        end
+        start_time = metadata.start_time
+        @basic_time_info = {:year => start_time.year,
+                            :month => start_time.mon,
+                            :day => start_time.mday}
 
-        # Note: need @basic_time_info set for create_adium_time
         # When the chat started, in Adium's format
-        @adium_chat_time_start = create_adium_time(pidgin_chat_time_start)
+        @adium_chat_time_start = start_time.strftime('%Y-%m-%dT%H:%M:%S%Z')
 
         first_line_variables = [@service,
                                 @user_SN,
