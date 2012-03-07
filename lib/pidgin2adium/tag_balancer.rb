@@ -80,8 +80,8 @@ module Pidgin2Adium
           # Begin Tag
 
           # Tag Cleaning
-          if self_closing?(attributes) || empty_tag?(tag)
-          elsif self_closing?(tag)
+          if self_closing_attributes?(attributes) || empty_tag?(tag)
+          elsif self_closing_tag?(tag)
             # ElseIf: it's a known single-entity tag but it doesn't close itself, do so
             attributes << '/'
           else
@@ -144,7 +144,7 @@ module Pidgin2Adium
       @stacksize <= 0
     end
 
-    def self_closing?(attributes)
+    def self_closing_attributes?(attributes)
       attributes[-1,1] == '/'
     end
 
@@ -152,7 +152,7 @@ module Pidgin2Adium
       tag == ''
     end
 
-    def self_closing?(tag)
+    def self_closing_tag?(tag)
       @self_closing_tags.include?(tag)
     end
 
