@@ -1,12 +1,6 @@
 require 'spec_helper'
 
 describe Pidgin2Adium::BasicParser do
-  describe "#parse" do
-    it "returns false" do
-      Pidgin2Adium::BasicParser.new(create_chat_file, '').parse.should be_false
-    end
-  end
-
   describe "#create_adium_time" do
     before do
       @bp = Pidgin2Adium::BasicParser.new(create_chat_file, '')

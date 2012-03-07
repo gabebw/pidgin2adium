@@ -59,12 +59,6 @@ module Pidgin2Adium
 
     # This method returns a LogFile instance, or false if an error occurred.
     def parse
-      # Prevent parse from being called directly from BasicParser, since
-      # it uses subclassing magic.
-      if self.class == BasicParser
-        Pidgin2Adium.warn("Please don't call parse directly from BasicParser. Use a subclass :)")
-        return false
-      end
       return false unless @log_file_is_valid
 
       cleaned_file_content = cleanup(@file_content).split("\n")
@@ -154,7 +148,6 @@ module Pidgin2Adium
                                 :month => parsed_time.mon,
                                 :day => parsed_time.mday}
           rescue ArgumentError
-            # Couldn't parse the date
             Pidgin2Adium.warn("#{@src_path}: couldn't parse the date in the first line.")
             @basic_time_info = nil
           end
