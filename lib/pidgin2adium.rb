@@ -80,9 +80,7 @@ module Pidgin2Adium
     FileUtils.mkdir_p(output_dir)
 
     logfile_obj = parse(logfile_path, my_aliases, force_conversion)
-    if logfile_obj == false
-      false
-    else
+    if logfile_obj
       dest_file_path = logfile_obj.write_out(overwrite, output_dir)
 
       if dest_file_path == false
@@ -95,6 +93,8 @@ module Pidgin2Adium
         log("Output to: #{dest_file_path}")
         true
       end
+    else
+      false
     end
   end
 

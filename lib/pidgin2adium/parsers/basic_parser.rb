@@ -66,9 +66,10 @@ module Pidgin2Adium
         return false
       end
       return false unless @log_file_is_valid
-      @file_content = cleanup(@file_content).split("\n")
 
-      @file_content.map! do |line|
+      cleaned_file_content = cleanup(@file_content).split("\n")
+
+      messages = cleaned_file_content.map do |line|
         # "next" returns nil which is removed by compact
         next if line =~ /^\s+$/
         if line =~ @line_regex
@@ -88,9 +89,8 @@ module Pidgin2Adium
           p line
           return false
         end
-      end
-      @file_content.compact!
-      return LogFile.new(@file_content, @service, @user_SN, @partner_SN, @adium_chat_time_start)
+      end.compact
+      LogFile.new(messages, @service, @user_SN, @partner_SN, @adium_chat_time_start)
     end
 
     # Converts a pidgin datestamp to an Adium one.
