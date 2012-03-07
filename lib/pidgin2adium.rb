@@ -74,13 +74,10 @@ module Pidgin2Adium
   def self.parse_and_generate(logfile_path, my_aliases, opts = {})
     opts = {} unless opts.is_a?(Hash)
     overwrite = !!opts[:overwrite]
-    force_conversion = opts[:force_conversion]
-
+    force_conversion = !!opts[:force_conversion]
     output_dir = opts[:output_dir] || ADIUM_LOG_DIR
 
-    unless File.directory?(output_dir)
-      FileUtils.mkdir_p(output_dir)
-    end
+    FileUtils.mkdir_p(output_dir)
 
     logfile_obj = parse(logfile_path, my_aliases, force_conversion)
     if logfile_obj == false
