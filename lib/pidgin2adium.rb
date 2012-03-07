@@ -76,11 +76,7 @@ module Pidgin2Adium
     overwrite = !!opts[:overwrite]
     force_conversion = opts[:force_conversion]
 
-    if opts.key?(:output_dir)
-      output_dir = opts[:output_dir]
-    else
-      output_dir = ADIUM_LOG_DIR
-    end
+    output_dir = opts[:output_dir] || ADIUM_LOG_DIR
 
     unless File.directory?(output_dir)
       error("Output log directory (#{output_dir}) does not exist or is not a directory.")
