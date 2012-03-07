@@ -31,18 +31,9 @@ describe "LogFile" do
                                          @partner_SN, @start_time)
   end
 
-  describe "attributes" do
-    [:chat_lines, :service, :user_SN, :partner_SN, :adium_chat_time_start].each do |attribute|
-      it "has a reader for #{attribute}" do
-        @logfile.should respond_to(attribute)
-      end
-    end
-  end
-
   describe "#to_s" do
     it "should return the correct string" do
-      output = @logfile.to_s
-      output.should == @messages.map{|m| m.to_s}.join
+      @logfile.to_s.should == @messages.map(&:to_s).join
     end
   end
 

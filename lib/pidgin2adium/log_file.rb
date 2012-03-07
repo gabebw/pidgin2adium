@@ -23,7 +23,7 @@ module Pidgin2Adium
       @service = service_name_map[service.downcase]
     end
 
-    attr_reader :chat_lines, :service, :user_SN, :partner_SN, :adium_chat_time_start
+    attr_reader :chat_lines
 
     # Returns contents of log file
     def to_s
