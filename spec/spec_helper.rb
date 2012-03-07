@@ -24,9 +24,8 @@ RSpec.configure do |config|
     @output_dir = File.join(@spec_directory, "output-dir/")
   end
 
-  config.after(:all) do
-    # Clean up.
-    FileUtils.rm_r(@output_dir, :force => true)
+  config.after do
+    FileUtils.rm_rf(@output_dir)
   end
 end
 
