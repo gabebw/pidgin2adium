@@ -96,7 +96,7 @@ describe Pidgin2Adium::BasicParser do
       end
 
       it "correctly sets adium_chat_time_start" do
-        @bp.instance_variable_get('@adium_chat_time_start').should == '2008-01-15T07:14:45EST'
+        @bp.instance_variable_get('@adium_chat_time_start').should include '2008-01-15T07:14:45'
       end
     end
   end
