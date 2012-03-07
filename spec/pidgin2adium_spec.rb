@@ -148,42 +148,28 @@ describe Pidgin2Adium, "#parse_and_generate" do
       describe "when file already exists" do
         describe "when :force is not set" do
           context "for a text file" do
-            before do
-              create_non_empty_file(@text_output_file_path)
-            end
-
             it "returns FILE_EXISTS" do
+              Pidgin2Adium.parse_and_generate(@text_logfile_path, aliases, @opts)
               result = Pidgin2Adium.parse_and_generate(@text_logfile_path, aliases, @opts)
               result.should == Pidgin2Adium::FILE_EXISTS
             end
           end
 
           context "for an HTM file" do
-            before do
-              create_non_empty_file(@htm_output_file_path)
-            end
-
             it "returns FILE_EXISTS" do
+              Pidgin2Adium.parse_and_generate(@htm_logfile_path, aliases, @opts)
               result = Pidgin2Adium.parse_and_generate(@htm_logfile_path, aliases, @opts)
               result.should == Pidgin2Adium::FILE_EXISTS
             end
           end
 
           context "for an HTML file" do
-            before do
-              create_non_empty_file(@html_output_file_path)
-            end
-
             it "returns FILE_EXISTS" do
+              Pidgin2Adium.parse_and_generate(@html_logfile_path, aliases, @opts)
               result = Pidgin2Adium.parse_and_generate(@html_logfile_path, aliases, @opts)
               result.should == Pidgin2Adium::FILE_EXISTS
             end
           end
-        end
-
-        def create_non_empty_file(path)
-          FileUtils.mkdir_p(File.dirname(path))
-          open(path, 'w') { |f| f.write(' ') }
         end
       end
     end
