@@ -93,18 +93,21 @@ module Pidgin2Adium
     end
 
     logfile_obj = parse(logfile_path, my_aliases, force_conversion)
-    return false if logfile_obj == false
-    dest_file_path = logfile_obj.write_out(overwrite, output_dir)
-
-    if dest_file_path == false
-      error("Successfully parsed file, but failed to write it out. Path: #{logfile_path}.")
-      return false
-    elsif dest_file_path == FILE_EXISTS
-      log("File already exists.")
-      return FILE_EXISTS
+    if logfile_obj == false
+      false
     else
-      log("Output to: #{dest_file_path}")
-      return true
+      dest_file_path = logfile_obj.write_out(overwrite, output_dir)
+
+      if dest_file_path == false
+        error("Successfully parsed file, but failed to write it out. Path: #{logfile_path}.")
+        false
+      elsif dest_file_path == FILE_EXISTS
+        log("File already exists.")
+        FILE_EXISTS
+      else
+        log("Output to: #{dest_file_path}")
+        true
+      end
     end
   end
 
