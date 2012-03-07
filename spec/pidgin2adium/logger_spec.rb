@@ -8,11 +8,11 @@ describe Pidgin2Adium::Logger do
   let(:output) { StringIO.new }
   let(:logger) { Pidgin2Adium::Logger.new(output) }
 
-  it 'defaults to printing to $STDOUT' do
+  it 'defaults to printing to STDOUT' do
     logger = Pidgin2Adium::Logger.new
-    $STDOUT.stubs(:puts)
+    STDOUT.stubs(:puts)
     logger.log('hi')
-    $STDOUT.should have_received(:puts).with('hi')
+    STDOUT.should have_received(:puts).with('hi')
   end
 
   context '#log' do

@@ -1,6 +1,6 @@
 module Pidgin2Adium
   class Logger
-    def initialize(output = $STDOUT)
+    def initialize(output = STDOUT)
       @warnings = []
       @errors = []
       @output = output
