@@ -68,3 +68,19 @@ describe Pidgin2Adium::TimeParser, "#parse" do
     end
   end
 end
+
+describe Pidgin2Adium::TimeParser, "#parse_into_adium_format" do
+  let(:time_parser) { Pidgin2Adium::TimeParser.new(2011, 4, 28) }
+
+  it 'parses into xmlschema format' do
+    time_string = '2008-01-22 03:01:45 PM'
+    formatted_time = DateTime.parse(time_string).strftime('%Y-%m-%dT%H:%M:%S%Z')
+    result = time_parser.parse_into_adium_format(time_string)
+    result.should == formatted_time
+  end
+
+  it 'returns nil when it cannot parse the given time' do
+    result = time_parser.parse_into_adium_format('foobar')
+    result.should be_nil
+  end
+end

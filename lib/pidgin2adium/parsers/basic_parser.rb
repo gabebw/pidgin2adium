@@ -90,16 +90,16 @@ module Pidgin2Adium
     # Converts a pidgin datestamp to an Adium one.
     # Returns a string representation of _time_ or
     # nil if it couldn't parse the provided _time_.
-    def create_adium_time(time)
-      if time.nil?
+    def create_adium_time(time_string)
+      if time_string.nil?
         nil
       else
-        time = time_parser.parse(time)
+        time = time_parser.parse_into_adium_format(time_string)
         if time.nil?
           Pidgin2Adium.warn("#{time} couldn't be parsed. Please open an issue on GitHub: https://github.com/gabebw/pidgin2adium/issues")
           nil
         else
-          time.strftime('%Y-%m-%dT%H:%M:%S%Z')
+          time
         end
       end
     end
