@@ -67,45 +67,22 @@ describe Pidgin2Adium, "utility methods" do
     end
 
     describe "when search indices exist" do
-      before do
-        `touch #{@dirty_file}`
-        `touch #{@log_index_file}`
+      it "deletes the search indices" do
+        stub_deletion
+        Pidgin2Adium.delete_search_indexes
+        assert_deleted(@dirty_file)
+        assert_deleted(@log_index_file)
       end
 
-      after do
-        # Recreate search indices
-        `touch #{@dirty_file}`
-        `touch #{@log_index_file}`
-        [@dirty_file, @log_index_file].each do |f|
-          `chmod +w #{f}` # make writeable
-        end
+      def stub_deletion
+        FileUtils.stubs(:rm_f)
       end
 
-      it "should delete the search indices when they are writeable" do
-        [@dirty_file, @log_index_file].each do |f|
-          `chmod +w #{f}` # make writeable
-        end
-        Pidgin2Adium.delete_search_indexes()
-        File.exist?(@dirty_file).should be_false
-        File.exist?(@log_index_file).should be_false
+      def assert_deleted(path_to_file)
+        FileUtils.should have_received(:rm_f).with(path_to_file)
       end
-
-      it "should give an error message when they are not writable" do
-        [@dirty_file, @log_index_file].each do |f|
-          `chmod -w #{f}` # make unwriteable
-        end
-        Pidgin2Adium.stubs(:error => nil, :log => nil)
-        Pidgin2Adium.delete_search_indexes()
-        Pidgin2Adium.should have_received(:error).with("File exists but is not writable. Please delete it yourself: #{@dirty_file}")
-        Pidgin2Adium.should have_received(:error).with("File exists but is not writable. Please delete it yourself: #{@log_index_file}")
-        Pidgin2Adium.should have_received(:log).with("...done.")
-        Pidgin2Adium.should have_received(:log).with("When you next start the Adium Chat Transcript Viewer, " +
-                                                    "it will re-index the logs, which may take a while.")
-        File.exist?(@dirty_file).should be_true
-        File.exist?(@log_index_file).should be_true
-      end
-    end # when search indices exist
-  end # delete_search_indexes
+    end
+  end
 end
 
 describe Pidgin2Adium, "#parse" do

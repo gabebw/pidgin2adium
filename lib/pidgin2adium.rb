@@ -125,15 +125,7 @@ module Pidgin2Adium
     log "Deleting log search indexes in order to force re-indexing of imported logs..."
     dirty_file = File.expand_path("~/Library/Caches/Adium/Default/DirtyLogs.plist")
     log_index_file = File.expand_path("~/Library/Caches/Adium/Default/Logs.index")
-    [dirty_file, log_index_file].each do |f|
-      if File.exist?(f)
-        if File.writable?(f)
-          File.delete(f)
-        else
-          error("File exists but is not writable. Please delete it yourself: #{f}")
-        end
-      end
-    end
+    [dirty_file, log_index_file].each { |file| FileUtils.rm_f(file) }
     log "...done."
     log "When you next start the Adium Chat Transcript Viewer, it will re-index the logs, which may take a while."
   end
