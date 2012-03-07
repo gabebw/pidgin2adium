@@ -37,10 +37,10 @@ describe Pidgin2Adium, "utility methods" do
     end
   end
 
-  describe ".oops" do
+  describe ".warn" do
     it "delegates to the logger" do
-      Pidgin2Adium.oops('hi')
-      stubbed_logger.should have_received(:oops).with('hi')
+      Pidgin2Adium.warn('hi')
+      stubbed_logger.should have_received(:warn).with('hi')
     end
   end
 

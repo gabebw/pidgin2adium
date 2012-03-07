@@ -56,7 +56,7 @@ module Pidgin2Adium
       Pidgin2Adium.delete_search_indexes()
 
       Pidgin2Adium.log "Finished converting! Converted #{total_successes} files of #{total_files} total."
-      Pidgin2Adium.logger.flush
+      Pidgin2Adium.logger.flush_warnings_and_errors
     end
 
     def get_all_chat_files

@@ -1,52 +1,44 @@
 module Pidgin2Adium
   class Logger
     def initialize(output = $STDOUT)
-      @log_messages = []
-      @oops_messages = []
-      @error_messages = []
+      @warnings = []
+      @errors = []
       @output = output
     end
 
     def log(message)
-      @log_messages << message
+      @output.puts(message)
     end
 
-    def oops(message)
-      @oops_messages << "Oops: #{message}"
+    def warn(message)
+      @warnings << "Warning: #{message}"
     end
 
     def error(message)
-      @error_messages << "Error: #{message}"
+      @errors << "Error: #{message}"
     end
 
-    def flush
-      flush_log_messages
-      flush_oops_messages
-      flush_error_messages
+    def flush_warnings_and_errors
+      flush_warnings
+      flush_errors
     end
 
     private
 
-    def flush_log_messages
-      @log_messages.each do |message|
-        @output.puts message
-      end
-    end
-
-    def flush_oops_messages
-      if @oops_messages.size > 0
+    def flush_warnings
+      if @warnings.size > 0
         @output.puts "Minor error messages:"
-        @oops_messages.each do |message|
-          @output.puts message
+        @warnings.each do |warning|
+          @output.puts(warning)
         end
       end
     end
 
-    def flush_error_messages
-      if @error_messages.size > 0
+    def flush_errors
+      if @errors.size > 0
         @output.puts "Major error messages:"
-        @error_messages.each do |message|
-          @output.puts message
+        @errors.each do |error|
+          @output.puts(error)
         end
       end
     end

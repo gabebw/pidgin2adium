@@ -9,6 +9,6 @@ shared_context "fake logger" do
   end
 
   let(:stubbed_logger) do
-    stub("logger", :oops => nil, :error => nil, :log => nil, :flush => nil)
+    stub("logger", :warn => nil, :error => nil, :log => nil, :flush_warnings_and_errors => nil)
   end
 end

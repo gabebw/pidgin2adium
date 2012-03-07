@@ -29,15 +29,15 @@ module Pidgin2Adium
     @@logger = new_logger
   end
 
-  def self.log(str) #:nodoc:
+  def self.log(str)
     Pidgin2Adium.logger.log(str)
   end
 
-  def self.oops(str) #:nodoc:
-    Pidgin2Adium.logger.oops(str)
+  def self.warn(str)
+    Pidgin2Adium.logger.warn(str)
   end
 
-  def self.error(str) #:nodoc:
+  def self.error(str)
     Pidgin2Adium.logger.error(str)
   end
 

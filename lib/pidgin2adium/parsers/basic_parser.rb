@@ -62,7 +62,7 @@ module Pidgin2Adium
       # Prevent parse from being called directly from BasicParser, since
       # it uses subclassing magic.
       if self.class == BasicParser
-        Pidgin2Adium.oops("Please don't call parse directly from BasicParser. Use a subclass :)")
+        Pidgin2Adium.warn("Please don't call parse directly from BasicParser. Use a subclass :)")
         return false
       end
       return false unless @log_file_is_valid
@@ -102,7 +102,7 @@ module Pidgin2Adium
       else
         time = time_parser.parse(time)
         if time.nil?
-          Pidgin2Adium.oops("#{time} couldn't be parsed. Please open an issue on GitHub: https://github.com/gabebw/pidgin2adium/issues")
+          Pidgin2Adium.warn("#{time} couldn't be parsed. Please open an issue on GitHub: https://github.com/gabebw/pidgin2adium/issues")
           nil
         else
           time.strftime('%Y-%m-%dT%H:%M:%S%Z')
@@ -155,7 +155,7 @@ module Pidgin2Adium
                                 :day => parsed_time.mday}
           rescue ArgumentError
             # Couldn't parse the date
-            Pidgin2Adium.oops("#{@src_path}: couldn't parse the date in the first line.")
+            Pidgin2Adium.warn("#{@src_path}: couldn't parse the date in the first line.")
             @basic_time_info = nil
           end
         end
@@ -179,7 +179,7 @@ module Pidgin2Adium
           unset_variable_names << 'partner_SN' if @partner_SN.nil?
           unset_variable_names << 'basic_time_info' if @basic_time_info.nil?
           unset_variable_names << 'adium_chat_time_start' if @adium_chat_time_start.nil?
-          Pidgin2Adium.oops("Couldn't set these variables: #{unset_variable_names.join(', ')}")
+          Pidgin2Adium.warn("Couldn't set these variables: #{unset_variable_names.join(', ')}")
           false
         end
       end
@@ -272,7 +272,7 @@ module Pidgin2Adium
           @file_content = f.read
         end
       rescue Errno::ENOENT
-        Pidgin2Adium.oops("#{@src_path} doesn't exist! Continuing...")
+        Pidgin2Adium.warn("#{@src_path} doesn't exist! Continuing...")
         @log_file_is_valid = false
         return nil
       end
