@@ -145,6 +145,10 @@ describe Pidgin2Adium, "#parse_and_generate" do
         @opts = { :output_dir => @output_dir }
       end
 
+      after do
+        FileUtils.rm_rf(@output_dir)
+      end
+
       describe "when file already exists" do
         describe "when :force is not set" do
           context "for a text file" do
@@ -213,6 +217,10 @@ describe Pidgin2Adium, "#parse_and_generate" do
     describe "when output_dir does exist" do
       before do
         @opts = { :output_dir => @output_dir }
+      end
+
+      after do
+        FileUtils.rm_rf(@output_dir)
       end
 
       context "for a text file" do

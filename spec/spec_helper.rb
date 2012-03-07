@@ -23,10 +23,6 @@ RSpec.configure do |config|
 
     @output_dir = File.join(@spec_directory, "output-dir/")
   end
-
-  config.after do
-    FileUtils.rm_rf(@output_dir)
-  end
 end
 
 Dir['spec/support/**/*.rb'].each do |f|
