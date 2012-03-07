@@ -44,16 +44,14 @@ module Pidgin2Adium
       total_files = files_path.size
       total_successes = 0
       Pidgin2Adium.log("#{total_files} files to convert.")
-      files_path.each_with_index do |fname, i|
-        Pidgin2Adium.log(
-          sprintf("[%d/%d] Converting %s...",
-                  (i+1), total_files, fname)
-        )
-        result = Pidgin2Adium.parse_and_generate(fname, @my_aliases, @opts)
+      files_path.each_with_index do |file_name, i|
+        progress = i + 1
+        Pidgin2Adium.log("[#{progress}/#{total_files}] Converting #{file_name}...")
+        result = Pidgin2Adium.parse_and_generate(file_name, @my_aliases, @opts)
         total_successes += 1 if result == true
       end
 
-      Pidgin2Adium.delete_search_indexes()
+      Pidgin2Adium.delete_search_indexes
 
       Pidgin2Adium.log "Finished converting! Converted #{total_successes} files of #{total_files} total."
       Pidgin2Adium.logger.flush_warnings_and_errors

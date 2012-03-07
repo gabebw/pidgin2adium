@@ -94,8 +94,8 @@ describe "LogFile" do
       end
 
       it "writes out the correct header" do
-        header = sprintf('<?xml version="1.0" encoding="UTF-8" ?>'+"\n"+
-                         '<chat xmlns="http://purl.org/net/ulf/ns/0.4-02" account="gabebw" service="AIM">'+"\n")
+        header = %(<?xml version="1.0" encoding="UTF-8" ?>\n) +
+                  %(<chat xmlns="http://purl.org/net/ulf/ns/0.4-02" account="gabebw" service="AIM">\n)
         IO.read(@output_file).should =~ /^#{Regexp.escape(header)}/
       end
 
