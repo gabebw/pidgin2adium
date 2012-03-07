@@ -5,21 +5,23 @@ module Pidgin2Adium
     def initialize(sender, time, buddy_alias, body)
       super(sender, time, buddy_alias)
       @body = body
-      @styled_body = '<div><span style="font-family: Helvetica; font-size: 12pt;">%s</span></div>' % @body
-      normalize_body!()
+      @styled_body = %(<div><span style="font-family: Helvetica; font-size: 12pt;">#{@body}</span></div>)
+      normalize_body!
     end
-    attr_accessor :body
+
+    attr_reader :body
 
     def to_s
-      return sprintf('<message sender="%s" time="%s" alias="%s">%s</message>' << "\n",
-                     @sender, @time, @buddy_alias, @styled_body)
+      %(<message sender="#{@sender}s" time="#{@time}" alias="#{@buddy_alias}">#{@styled_body}</message>\n)
     end
+
+    private
 
     # Balances mismatched tags, normalizes body style, and fixes actions
     # so they are in Adium style (Pidgin uses "***Buddy waves at you", Adium uses
     # "*Buddy waves at you*").
     def normalize_body!
-      normalize_body_entities!()
+      normalize_body_entities!
       # Fix mismatched tags. Yes, it's faster to do it per-message
       # than all at once.
       @body = Pidgin2Adium::TagBalancer.new(@body).balance

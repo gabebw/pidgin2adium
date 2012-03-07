@@ -9,31 +9,29 @@ module Pidgin2Adium
   # Subclasses: XMLMessage, AutoReplyMessage, StatusMessage, Event.
   class Message
     include Comparable
-    def initialize(sender, time, buddy_alias)
+    def initialize(sender, adium_formatted_time, buddy_alias)
       # The sender's screen name
       @sender = sender
-      # The time the message was sent, in Adium format (e.g.
-      # "2008-10-05T22:26:20-0800")
-      @time = time
+      @time = adium_formatted_time
       @time_object = Time.parse(@time)
       # The receiver's alias (NOT screen name)
       @buddy_alias = buddy_alias
     end
-    attr_accessor :sender, :time, :buddy_alias
+
+    attr_reader :sender, :time, :buddy_alias
 
     # Compare this Message to +other_message+, based on their timestamps.
     # Returns a number < 0 if this message was sent before +other_message+,
     # 0 if they were sent at the same time, and a number > 0 if this message
     # was sent after +other_message+.
     def <=>(other_message)
-      return @time_object - other_message.time_object
+      @time_object - other_message.time_object
     end
 
     protected
-      # Protected because Time.parse doesn't have exactly the right time
-      # zone. It works fine for <=>, though.
-      def time_object
-        return @time_object
-      end
+
+    def time_object
+      @time_object
+    end
   end
 end

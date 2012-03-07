@@ -7,11 +7,11 @@ module Pidgin2Adium
       super(sender, time, buddy_alias, body)
       @event_type = event_type
     end
-    attr_accessor :event_type
+
+    attr_reader :event_type
 
     def to_s
-      return sprintf('<event type="%s" sender="%s" time="%s" alias="%s">%s</event>',
-                     @event_type, @sender, @time, @buddy_alias, @styled_body)
+      %(<event type="#{@event_type}" sender="#{@sender}" time="#{@time}" alias="#{@buddy_alias}">#{@styled_body}</event>)
     end
   end
 end
