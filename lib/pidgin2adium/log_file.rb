@@ -14,22 +14,12 @@ module Pidgin2Adium
   # StatusMessage::	 status
   class LogFile
     include Enumerable
+
     def initialize(chat_lines, service, user_SN, partner_SN, adium_chat_time_start)
       @chat_lines = chat_lines
       @user_SN = user_SN
       @partner_SN = partner_SN
       @adium_chat_time_start = adium_chat_time_start
-
-      # key is for Pidgin, value is for Adium
-      # Just used for <service>.<screenname> in directory structure
-      service_name_map = {'aim' => 'AIM',
-        'jabber' =>'Jabber',
-        'gtalk'=> 'GTalk',
-        'icq' => 'ICQ',
-        'qq' => 'QQ',
-        'msn' => 'MSN',
-        'yahoo' => 'Yahoo!'}
-
       @service = service_name_map[service.downcase]
     end
 
@@ -91,6 +81,20 @@ module Pidgin2Adium
       outfile.close
 
       return output_path
+    end
+
+    private
+
+    def service_name_map
+      # key is for Pidgin, value is for Adium
+      # Just used for <service>.<screenname> in directory structure
+      { 'aim' => 'AIM',
+        'jabber' =>'Jabber',
+        'gtalk'=> 'GTalk',
+        'icq' => 'ICQ',
+        'qq' => 'QQ',
+        'msn' => 'MSN',
+        'yahoo' => 'Yahoo!'}
     end
   end
 end
