@@ -55,7 +55,7 @@ describe Pidgin2Adium, "#parse" do
 
   context "on failure" do
     before do
-      @weird_logfile_path = File.join(@current_dir, 'logfile.foobar')
+      @weird_logfile_path = File.join(@spec_directory, 'logfile.foobar')
     end
 
     it "returns falsy when file is not text or html" do

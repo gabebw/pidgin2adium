@@ -53,7 +53,7 @@ describe Pidgin2Adium::BasicParser do
 
   describe "#pre_parse!" do
     it "raises an error for an empty file" do
-      path = File.join(@current_dir, "logfiles", "invalid-first-line.txt")
+      path = File.join(@spec_directory, "logfiles", "invalid-first-line.txt")
       bp =  Pidgin2Adium::BasicParser.new(path, '')
       lambda do
         bp.pre_parse!()

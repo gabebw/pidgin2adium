@@ -15,14 +15,14 @@ require 'bourne'
 RSpec.configure do |config|
   config.mock_with :mocha
   config.before(:all) do
-    @current_dir = File.dirname(__FILE__)
+    @spec_directory = File.dirname(__FILE__)
 
-    @logfile_path = File.join(@current_dir, "support", "logfiles")
+    @logfile_path = File.join(@spec_directory, "support", "logfiles")
     @text_logfile_path = "#{@logfile_path}/2006-12-21.223606.txt"
     @htm_logfile_path = "#{@logfile_path}/2008-01-15.071445-0500PST.htm"
     @html_logfile_path = "#{@logfile_path}/2008-01-15.071445-0500PST.html"
 
-    @output_dir = File.join(@current_dir, "output-dir/")
+    @output_dir = File.join(@spec_directory, "output-dir/")
   end
 
   config.after(:all) do
