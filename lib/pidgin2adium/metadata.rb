@@ -1,3 +1,5 @@
+require 'date'
+
 module Pidgin2Adium
   class Metadata
     # "4/18/2007 11:02:00 AM" => %w(4 18 2007)
