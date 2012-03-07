@@ -77,6 +77,14 @@ describe Pidgin2Adium::Metadata do
       metadata.should be_invalid
     end
 
+    it 'is true when given a non-standard file to parse' do
+      path = create_file('nonstandard.html') do |f|
+        f.write '<HTML><BODY BGCOLOR="#ffffff"><B><FONT COLOR="#ff0000" LANG="0">jiggerific bug<!-- (3:22:29 PM)--></B></FONT><FONT COLOR="#ff0000" BACK="#ffffff">:</FONT><FONT COLOR="#000000"> try direct IM now</FONT><BR>'
+      end
+      metadata = Pidgin2Adium::Metadata.new(path)
+      metadata.should be_invalid
+    end
+
     [:sender_screen_name, :receiver_screen_name, :service, :start_time].each do |attribute|
       it 'is true when #{attribute} cannot be detected' do
         metadata = Pidgin2Adium::Metadata.new(first_line_of(create_chat_file))

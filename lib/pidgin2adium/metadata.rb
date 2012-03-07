@@ -13,27 +13,39 @@ module Pidgin2Adium
 
     def receiver_screen_name
       if line_is_present?
-        @first_line.match(/Conversation with (.+?) at/)[1]
+        match = @first_line.match(/Conversation with (.+?) at/)
+        if match
+          match[1]
+        end
       end
     end
 
     def sender_screen_name
       if line_is_present?
-        screen_name = @first_line.match(/ on ([^()]+) /)[1]
-        screen_name.downcase.gsub(' ', '')
+        match = @first_line.match(/ on ([^()]+) /)
+        if match
+          screen_name = match[1]
+          screen_name.downcase.gsub(' ', '')
+        end
       end
     end
 
     def service
       if line_is_present?
-        @first_line.match(/\(([a-z]+)\)/)[1]
+        match = @first_line.match(/\(([a-z]+)\)/)
+        if match
+          match[1]
+        end
       end
     end
 
     def start_time
       if line_is_present?
-        time_string = @first_line.match(%r{ at ([-\d/APM: ]+) on})[1]
-        parse_time(time_string)
+        match = @first_line.match(%r{ at ([-\d/APM: ]+) on})
+        if match
+          time_string = match[1]
+          parse_time(time_string)
+        end
       end
     end
 
