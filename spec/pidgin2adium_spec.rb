@@ -130,6 +130,10 @@ describe Pidgin2Adium, "#parse_and_generate" do
         @opts = { :output_dir => nonexistent_directory }
       end
 
+      after do
+        FileUtils.rm_rf(nonexistent_directory)
+      end
+
       it "creates the output directory" do
         Pidgin2Adium.parse_and_generate(create_chat_file('log.txt'), '', @opts)
         File.directory?(nonexistent_directory).should be_true
@@ -179,13 +183,19 @@ describe Pidgin2Adium, "#parse_and_generate" do
         end
       end
     end
-  end # failure
+  end
 
   describe "success" do
+    let(:nonexistent_directory) { File.join(@spec_directory, "i-am-not-here") }
+
     describe "when output_dir does not exist" do
       before do
-        @opts = { :output_dir => @nonexistent_output_dir }
-        FileUtils.rm_r(@nonexistent_output_dir, :force => true)
+        FileUtils.rm_rf(nonexistent_directory)
+        @opts = { :output_dir => nonexistent_directory }
+      end
+
+      after do
+        FileUtils.rm_rf(nonexistent_directory)
       end
 
       context "for a text file" do
