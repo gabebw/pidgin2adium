@@ -124,25 +124,6 @@ module Pidgin2Adium
 
         # When the chat started, in Adium's format
         @adium_chat_time_start = start_time.strftime('%Y-%m-%dT%H:%M:%S%Z')
-
-        first_line_variables = [@service,
-                                @user_SN,
-                                @partner_SN,
-                                @basic_time_info,
-                                @adium_chat_time_start]
-        if first_line_variables.all?
-          true
-        else
-          # Print an informative error message
-          unset_variable_names = []
-          unset_variable_names << 'service' if @service.nil?
-          unset_variable_names << 'user_SN' if @user_SN.nil?
-          unset_variable_names << 'partner_SN' if @partner_SN.nil?
-          unset_variable_names << 'basic_time_info' if @basic_time_info.nil?
-          unset_variable_names << 'adium_chat_time_start' if @adium_chat_time_start.nil?
-          Pidgin2Adium.warn("Couldn't set these variables: #{unset_variable_names.join(', ')}")
-          false
-        end
       end
     end
 
