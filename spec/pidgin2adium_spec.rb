@@ -13,10 +13,6 @@ end
 describe Pidgin2Adium, "utility methods" do
   include_context "fake logger"
 
-  before(:all) do
-    @nonexistent_logfile_path = "./nonexistent_logfile_path/"
-  end
-
   before do
     # "Kernel gets mixed in to an object, so you need to stub [its methods] on the object
     # itself." - http://www.ruby-forum.com/topic/128619
@@ -37,28 +33,9 @@ describe Pidgin2Adium, "utility methods" do
     end
   end
 
-  describe ".warn" do
-    it "delegates to the logger" do
-      Pidgin2Adium.warn('hi')
-      stubbed_logger.should have_received(:warn).with('hi')
-    end
-  end
-
-  describe ".error" do
-    it "delegates to the logger" do
-      error = 'hi'
-      Pidgin2Adium.error('hi')
-      stubbed_logger.should have_received(:error).with('hi')
-    end
-  end
-
-  describe ".log" do
-    it "delegates to the logger" do
-      log = 'hi'
-      Pidgin2Adium.log('hi')
-      stubbed_logger.should have_received(:log).with('hi')
-    end
-  end
+  it { should delegate(:error).to(:logger).with_arguments('hi') }
+  it { should delegate(:warn).to(:logger).with_arguments('hi') }
+  it { should delegate(:log).to(:logger).with_arguments('hi') }
 
   describe "#delete_search_indexes" do
     before do
