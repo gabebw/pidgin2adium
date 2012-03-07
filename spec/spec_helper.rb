@@ -8,7 +8,6 @@ rescue LoadError
 end
 
 require 'fileutils'
-require 'time'
 require 'pidgin2adium'
 require 'bourne'
 
