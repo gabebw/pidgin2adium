@@ -79,13 +79,7 @@ module Pidgin2Adium
     output_dir = opts[:output_dir] || ADIUM_LOG_DIR
 
     unless File.directory?(output_dir)
-      error("Output log directory (#{output_dir}) does not exist or is not a directory.")
-      begin
-        FileUtils.mkdir_p(output_dir)
-      rescue Errno::EACCES
-        error("Permission denied, could not create output directory (#{output_dir})")
-        return false
-      end
+      FileUtils.mkdir_p(output_dir)
     end
 
     logfile_obj = parse(logfile_path, my_aliases, force_conversion)
