@@ -156,20 +156,20 @@ describe Pidgin2Adium, "#parse_and_generate" do
           context "for an HTM file" do
             before do
               FileUtils.mkdir_p(File.dirname(@htm_output_file_path))
-              File.new(@htm_output_file_path, 'w').close # create file
+              FileUtils.touch(@htm_output_file_path)
             end
             it "should return FILE_EXISTS" do
-              Pidgin2Adium.parse_and_generate(@htm_logfile_path,
-                                              aliases,
-                                              @opts).should == Pidgin2Adium::FILE_EXISTS
+              result = Pidgin2Adium.parse_and_generate(@htm_logfile_path, aliases, @opts)
+              result.should == Pidgin2Adium::FILE_EXISTS
             end
           end
 
           context "for an HTML file" do
             before do
               FileUtils.mkdir_p(File.dirname(@html_output_file_path))
-              File.new(@html_output_file_path, 'w').close # create file
+              FileUtils.touch(@html_output_file_path)
             end
+
             it "should return FILE_EXISTS" do
               Pidgin2Adium.parse_and_generate(@html_logfile_path,
                                               aliases,
