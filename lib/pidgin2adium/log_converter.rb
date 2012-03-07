@@ -60,7 +60,6 @@ module Pidgin2Adium
     end
 
     def get_all_chat_files
-      # recurse into each subdir
       Dir.glob("#{@pidgin_log_dir}/**/*.{htm,html,txt}") - BAD_DIRS
     end
   end
