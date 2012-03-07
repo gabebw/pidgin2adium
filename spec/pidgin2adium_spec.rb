@@ -119,24 +119,20 @@ describe Pidgin2Adium, "#parse_and_generate" do
                                       "aolsystemmsg",
                                       "aolsystemmsg (2008-01-15T07:14:45EST).chatlog",
                                       "aolsystemmsg (2008-01-15T07:14:45EST).xml")
-    @nonexistent_output_dir = File.join(@current_dir, "nonexistent_output_dir/")
   end
 
   describe "failure" do
     describe "when output_dir does not exist" do
+      let(:nonexistent_directory) { File.join(@spec_directory, "i-am-not-here") }
+
       before do
-        @opts = { :output_dir => @nonexistent_output_dir }
-        FileUtils.rm_r(@nonexistent_output_dir, :force => true)
+        FileUtils.rm_rf(nonexistent_directory)
+        @opts = { :output_dir => nonexistent_directory }
       end
 
-      after do
-        `chmod +w #{@current_dir}`
-      end
-
-      it "returns false when it can't create the output dir" do
-        `chmod -w #{@current_dir}` # prevent creation of output_dir
-        result = Pidgin2Adium.parse_and_generate(create_chat_file('log.txt'), '', @opts)
-        result.should be_false
+      it "creates the output directory" do
+        Pidgin2Adium.parse_and_generate(create_chat_file('log.txt'), '', @opts)
+        File.directory?(nonexistent_directory).should be_true
       end
     end
 
