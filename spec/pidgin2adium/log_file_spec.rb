@@ -84,8 +84,7 @@ describe "LogFile" do
 
     describe "when file does not exist" do
       before do
-        FileUtils.rm_r(File.join(@output_dir, 'AIM.gabebw'),
-                       :force => true)
+        FileUtils.rm_rf(File.join(@output_dir, 'AIM.gabebw'))
         @output_file = @logfile.write_out(false, @output_dir)
       end
 
@@ -128,7 +127,7 @@ describe "LogFile" do
     describe "permissions problems" do
       describe "with output dir" do
         before do
-          FileUtils.rm_r(@output_dir, :force => true)
+          FileUtils.rm_rf(@output_dir)
           `chmod -w #{File.dirname(@output_dir)}`
         end
 

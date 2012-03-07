@@ -27,12 +27,10 @@ describe Pidgin2Adium::ParserFactory do
   end
 
   context 'when passed a non-HTML, non-text file' do
-    let(:logfile_path){ 'foo.bar' }
-
     it "returns falsy" do
       Pidgin2Adium.logger.stubs(:error)
       factory = Pidgin2Adium::ParserFactory.new(aliases, force_conversion)
-      factory.parser_for(logfile_path).should be_false
+      factory.parser_for('foo.bar').should be_false
     end
   end
 end
