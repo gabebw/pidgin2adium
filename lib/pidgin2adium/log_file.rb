@@ -74,16 +74,19 @@ module Pidgin2Adium
         return false
       end
 
-      # no \n before </chat> because to_s has it already
-      outfile.printf('<?xml version="1.0" encoding="UTF-8" ?>'<<"\n"+
-                     '<chat xmlns="http://purl.org/net/ulf/ns/0.4-02" account="%s" service="%s">'<<"\n"<<'%s</chat>',
-                     @user_SN, @service, to_s)
+      outfile.printf(chat_string)
       outfile.close
 
       return output_path
     end
 
     private
+
+    def chat_string
+      # no \n before </chat> because to_s has it already
+      %(<?xml version="1.0" encoding="UTF-8" ?>\n) +
+        %(<chat xmlns="http://purl.org/net/ulf/ns/0.4-02" account="#{@user_SN}" service="#{@service}">\n#{to_s}</chat>)
+    end
 
     def service_name_map
       # key is for Pidgin, value is for Adium
