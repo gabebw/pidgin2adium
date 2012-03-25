@@ -86,11 +86,12 @@ describe "LogFile" do
       it "writes out the correct header" do
         header = %(<?xml version="1.0" encoding="UTF-8" ?>\n) +
                   %(<chat xmlns="http://purl.org/net/ulf/ns/0.4-02" account="gabebw" service="AIM">\n)
-        IO.read(@output_file).should =~ /^#{Regexp.escape(header)}/
+        first_two_lines = IO.readlines(@output_file)[0..1].join
+        first_two_lines.should == header
       end
 
       it "writes out the closing </chat> tag" do
-        IO.read(@output_file).should =~ %r{</chat>$}
+        IO.read(@output_file).end_with?('</chat>').should be_true
       end
 
       it "writes to the correct path" do
