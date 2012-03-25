@@ -110,7 +110,7 @@ module Pidgin2Adium
     # * @adium_chat_time_start
     # Returns true if none of these variables are false or nil.
     def pre_parse!
-      metadata = Metadata.new(@first_line)
+      metadata = Metadata.new(FirstLineParser.new(@first_line).parse)
       if metadata.invalid?
         raise InvalidFirstLineError
       else

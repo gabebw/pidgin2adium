@@ -4,6 +4,7 @@
 # them in the Adium log directory.
 
 require 'fileutils'
+require 'date'
 require 'time'
 
 require 'pidgin2adium/version'
@@ -13,6 +14,7 @@ require 'pidgin2adium/logger'
 require 'pidgin2adium/parser_factory'
 require 'pidgin2adium/time_parser'
 require 'pidgin2adium/metadata'
+require 'pidgin2adium/first_line_parser'
 
 module Pidgin2Adium
   # Returned by LogFile.write_out if the output logfile already exists.
