@@ -85,7 +85,7 @@ class HtmlChatBuilder < ChatBuilder
   def first_line(options = {})
     @first_line ||= begin
       to = options[:to] || "TO_SN"
-      time = options[:time] || Time.now.strftime("%m/%d/%Y %l:%M:%S %p")
+      time = options[:time] || Time.now.strftime("%m/%d/%Y %I:%M:%S %p")
       protocol = options[:protocol] || "aim"
       # Need to track this so we can set the message font color correctly.
       @from = options[:from] || DEFAULT_FROM
