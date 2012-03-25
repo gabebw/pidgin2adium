@@ -1,57 +1,11 @@
 require 'spec_helper'
 
 describe Pidgin2Adium::BasicParser do
-  describe "#create_adium_time" do
-    before do
-      @bp = Pidgin2Adium::BasicParser.new(create_chat_file, '')
-    end
-
-    it "parses a first line time correctly" do
-      first_line_time = "4/18/2007 11:02:00 AM"
-      time = @bp.create_adium_time(first_line_time)
-      time.should include '2007-04-18T11:02:00'
-    end
-
-    it "parses a normal time correctly" do
-      normal_time = "2007-08-20 12:33:13"
-      time = @bp.create_adium_time(normal_time)
-      time.should include '2007-08-20T12:33:13'
-    end
-
-    it "parses a minimal time correctly" do
-      minimal_time = "04:22:05 AM"
-      path = create_chat_file('minimal.html') do |b|
-        b.first_line :time => "1/15/2008 7:14:45 AM"
-      end
-      parser = Pidgin2Adium::BasicParser.new(path, '')
-      time = parser.create_adium_time(minimal_time)
-      time.should include '2008-01-15T04:22:05'
-    end
-
-    it "parses a minimal time without AM/PM correctly" do
-      minimal_time_without_ampm = "04:22:05"
-      path = create_chat_file('minimal.html') do |b|
-        b.first_line :time => "1/15/2008 7:14:45 AM"
-      end
-      parser = Pidgin2Adium::BasicParser.new(path, '')
-      time = parser.create_adium_time(minimal_time_without_ampm)
-      time.should include '2008-01-15T04:22:05'
-    end
-
-    it "returns nil for an invalid time" do
-      invalid_time = "Hammer time!"
-      time = @bp.create_adium_time(invalid_time)
-      time.should be_nil
-    end
-  end
-
-  describe "#pre_parse!" do
-    it "raises an error for an empty file" do
+  describe "#pre_parse" do
+    it "returns false for an empty file" do
       path = File.join(@spec_directory, "logfiles", "invalid-first-line.txt")
       bp =  Pidgin2Adium::BasicParser.new(path, '')
-      lambda do
-        bp.pre_parse!()
-      end.should raise_error(Pidgin2Adium::InvalidFirstLineError)
+      bp.pre_parse.should be_false
     end
 
     it "returns true when everything can be parsed" do
@@ -59,7 +13,7 @@ describe Pidgin2Adium::BasicParser do
         b.first_line
       end
       parser = Pidgin2Adium::BasicParser.new(path, '')
-      parser.pre_parse!.should be_true
+      parser.pre_parse.should be_true
     end
 
     describe "correctly setting variables" do
@@ -70,7 +24,7 @@ describe Pidgin2Adium::BasicParser do
         end
 
         @bp =  Pidgin2Adium::BasicParser.new(path, '')
-        @bp.pre_parse!
+        @bp.pre_parse
       end
 
       it "correctly sets @service" do
@@ -102,24 +56,25 @@ describe Pidgin2Adium::BasicParser do
         b.message :from_alias => "Gabe B-W"
         b.message :from_alias => "Leola Farber III"
       end
+      @metadata = Pidgin2Adium::Metadata.new(Pidgin2Adium::FirstLineParser.new(File.readlines(path).first).parse)
       @my_alias = "Gabe B-W"
-      @my_SN =  "awesomesn" # normalized from "awesome SN"
 
       @partner_alias = "Leola Farber III"
-      @partner_SN = "BUDDY_PERSON" # not normalized
+
       @bp = Pidgin2Adium::BasicParser.new(path, 'Gabe B-W')
+      @bp.pre_parse
     end
 
     it "returns my SN when passed my alias" do
-      @bp.get_sender_by_alias(@my_alias).should == @my_SN
+      @bp.get_sender_by_alias(@my_alias).should == @metadata.sender_screen_name
     end
 
     it "returns my SN when passed my alias with an action" do
-      @bp.get_sender_by_alias("***#{@my_alias}").should == @my_SN
+      @bp.get_sender_by_alias("***#{@my_alias}").should == @metadata.sender_screen_name
     end
 
     it "returns partner's SN when passed partner's alias" do
-      @bp.get_sender_by_alias(@partner_alias).should == @partner_SN
+      @bp.get_sender_by_alias(@partner_alias).should == @metadata.receiver_screen_name
     end
   end
 
@@ -139,8 +94,8 @@ describe Pidgin2Adium::BasicParser do
       @auto_reply_matches[2] = '<AUTO-REPLY>'
 
       @bp = Pidgin2Adium::BasicParser.new(create_chat_file, "Gabe B-W")
+      @bp.pre_parse
     end
-
 
     it "returns XMLMessage class for a normal message" do
       @bp.create_msg(@matches).should
@@ -182,6 +137,7 @@ describe Pidgin2Adium::BasicParser do
       @ignored_event_msg = "Gabe B-W is now known as gbw.<br/>"
 
       @bp = Pidgin2Adium::BasicParser.new(create_chat_file, @alias)
+      @bp.pre_parse
     end
 
     it "maps statuses correctly" do

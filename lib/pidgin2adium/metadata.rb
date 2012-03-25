@@ -10,15 +10,11 @@ module Pidgin2Adium
     attr_reader :service, :sender_screen_name, :receiver_screen_name,
       :start_time
 
-    def invalid?
-      ! valid?
-    end
-
-    private
-
     def valid?
       [receiver_screen_name, sender_screen_name, service, start_time].all?
     end
+
+    private
 
     def normalize_screen_name(screen_name)
       screen_name && screen_name.downcase.gsub(' ', '')

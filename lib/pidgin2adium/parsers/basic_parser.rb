@@ -10,17 +10,12 @@ require 'pidgin2adium/log_file'
 require 'pidgin2adium/messages/all'
 
 module Pidgin2Adium
-  # Empty class. Raise'd by LogParser if the first line of a log is not
-  # parseable.
-  class InvalidFirstLineError < StandardError; end
-
   # BasicParser is a base class. Its subclasses are TextLogParser and
   # HtmlLogParser.
   #
   # Please use Pidgin2Adium.parse or Pidgin2Adium.parse_and_generate instead of
   # using this class directly.
   class BasicParser
-    # Time regexes must be set before pre_parse!().
     # "2007-04-17 12:33:13" => %w(2007 04 17)
     TIME_REGEX = /^(\d{4})-(\d{2})-(\d{2}) \d{2}:\d{2}:\d{2}$/
 
@@ -28,7 +23,7 @@ module Pidgin2Adium
     def initialize(src_path, user_aliases, force_conversion = false)
       @src_path = src_path
       # Whitespace is removed for easy matching later on.
-      @user_aliases = user_aliases.split(',').map!{|x| x.downcase.gsub(/\s+/,'') }.uniq
+      @user_aliases = user_aliases.split(',').map{|x| x.downcase.gsub(/\s+/,'') }.uniq
 
       @force_conversion = force_conversion
       # @user_alias is set each time get_sender_by_alias is called. It is a non-normalized
@@ -36,68 +31,35 @@ module Pidgin2Adium
       # Set an initial value just in case the first message doesn't give
       # us an alias.
       @user_alias = user_aliases.split(',')[0]
-
-      @log_file_is_valid = read_source_file
-
-      begin
-        successfully_set_variables = pre_parse!
-        if ! successfully_set_variables
-          Pidgin2Adium.error("Failed to set some key variables: #{@src_path}")
-          @log_file_is_valid = false
-          return
-        end
-      rescue InvalidFirstLineError
-        # The first line isn't parseable
-        @log_file_is_valid = false
-        Pidgin2Adium.error("Failed to parse, invalid first line: #{@src_path}")
-        return # stop processing
-      end
     end
 
     # This method returns a LogFile instance, or false if an error occurred.
     def parse
-      return false unless @log_file_is_valid
+      if pre_parse
+        cleaned_file_content = cleanup(@file_content).split("\n")
 
-      cleaned_file_content = cleanup(@file_content).split("\n")
-
-      messages = cleaned_file_content.map do |line|
-        # "next" returns nil which is removed by compact
-        next if line =~ /^\s+$/
-        if line =~ @line_regex
-          create_msg($~.captures)
-        elsif line =~ @line_regex_status
-          msg = create_status_or_event_msg($~.captures)
-          if msg == false
-            if force_conversion?
-              nil # will get compacted out
-            else
-              # Error occurred while parsing
-              return false
+        messages = cleaned_file_content.map do |line|
+          # "next" returns nil which is removed by compact
+          next if line =~ /^\s+$/
+          if line =~ @line_regex
+            create_msg($~.captures)
+          elsif line =~ @line_regex_status
+            msg = create_status_or_event_msg($~.captures)
+            if msg == false
+              if force_conversion?
+                nil # will get compacted out
+              else
+                # Error occurred while parsing
+                return false
+              end
             end
+          else
+            error "Could not parse line:"
+            p line
+            return false
           end
-        else
-          error "Could not parse line:"
-          p line
-          return false
-        end
-      end.compact
-      LogFile.new(messages, @service, @user_SN, @partner_SN, @adium_chat_time_start)
-    end
-
-    # Converts a pidgin datestamp to an Adium one.
-    # Returns a string representation of _time_ or
-    # nil if it couldn't parse the provided _time_.
-    def create_adium_time(time_string)
-      if time_string.nil?
-        nil
-      else
-        time = time_parser.parse_into_adium_format(time_string)
-        if time.nil?
-          Pidgin2Adium.warn("#{time} couldn't be parsed. Please open an issue on GitHub: https://github.com/gabebw/pidgin2adium/issues")
-          nil
-        else
-          time
-        end
+        end.compact
+        LogFile.new(messages, @service, @user_SN, @partner_SN, @adium_chat_time_start)
       end
     end
 
@@ -109,11 +71,10 @@ module Pidgin2Adium
     # * @basic_time_info
     # * @adium_chat_time_start
     # Returns true if none of these variables are false or nil.
-    def pre_parse!
+    def pre_parse
+      read_source_file
       metadata = Metadata.new(FirstLineParser.new(@first_line).parse)
-      if metadata.invalid?
-        raise InvalidFirstLineError
-      else
+      if metadata.valid?
         @service = metadata.service
         @user_SN = metadata.sender_screen_name
         @partner_SN = metadata.receiver_screen_name
@@ -204,19 +165,6 @@ module Pidgin2Adium
 
     def printed_conversion_error!
       @printed_conversion_error = true
-    end
-
-    def read_source_file
-      begin
-        open(@src_path) do |f|
-          @first_line = f.readline
-          @file_content = f.read
-        end
-      rescue Errno::ENOENT
-        Pidgin2Adium.warn("#{@src_path} doesn't exist! Continuing...")
-        @log_file_is_valid = false
-        nil
-      end
     end
 
     def ignorable_event?(str)
@@ -350,6 +298,21 @@ module Pidgin2Adium
         sender = get_sender_by_alias(buddy_alias)
       end
       msg = Event.new(sender, time, buddy_alias, string, event_type)
+    end
+
+    def create_adium_time(time_string)
+      if time_string
+        time_parser.parse_into_adium_format(time_string)
+      end
+    end
+
+    def read_source_file
+      if File.exist?(@src_path)
+        open(@src_path) do |f|
+          @first_line = f.readline
+          @file_content = f.read
+        end
+      end
     end
   end
 end

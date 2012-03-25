@@ -30,18 +30,18 @@ describe Pidgin2Adium::Metadata do
     end
   end
 
-  context '#invalid?' do
-    it 'is false when all attributes are provided' do
+  context '#valid?' do
+    it 'is true when all attributes are provided' do
       metadata = Pidgin2Adium::Metadata.new({ :service => '',
         :sender_screen_name => '',
         :receiver_screen_name => '',
         :start_time => '' })
-      metadata.should_not be_invalid
+      metadata.should be_valid
     end
 
     [:sender_screen_name, :receiver_screen_name, :service, :start_time].each do |attribute|
-      it 'is true when #{attribute} cannot be detected' do
-        Pidgin2Adium::Metadata.new(attribute => nil).should be_invalid
+      it "is false when #{attribute} cannot be detected" do
+        Pidgin2Adium::Metadata.new(attribute => nil).should_not be_valid
       end
     end
   end
