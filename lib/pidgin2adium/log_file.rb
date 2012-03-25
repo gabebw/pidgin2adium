@@ -68,16 +68,15 @@ module Pidgin2Adium
       end
 
       begin
-        outfile = File.new(output_path, 'w')
+        open(output_path, 'w') do |f|
+          f.print(chat_string)
+        end
       rescue => bang
         Pidgin2Adium.error "Could not open log file for writing. (Details: #{bang.class}: #{bang.message})"
         return false
       end
 
-      outfile.printf(chat_string)
-      outfile.close
-
-      return output_path
+      output_path
     end
 
     private
