@@ -76,7 +76,7 @@ describe "LogFile" do
     describe "when file does not exist" do
       before do
         FileUtils.rm_rf(File.join(@output_dir, 'AIM.gabebw'))
-        @output_file = @logfile.write_out(false, @output_dir)
+        @output_file = @logfile.write_out(@output_dir)
       end
 
       it "writes out the correct content" do
@@ -105,13 +105,8 @@ describe "LogFile" do
       end
 
       it "returns FILE_EXISTS" do
-        output_file = @logfile.write_out(false, @output_dir)
+        output_file = @logfile.write_out(@output_dir)
         output_file.should == Pidgin2Adium::FILE_EXISTS
-      end
-
-      it "returns output file path if overwrite is true" do
-        output_file = @logfile.write_out(true, @output_dir)
-        output_file.should == @output_file_path
       end
     end
 
@@ -127,7 +122,7 @@ describe "LogFile" do
         end
 
         it "returns false if it can't create the output dir" do
-          @logfile.write_out(false, @output_dir).should be_false
+          @logfile.write_out(@output_dir).should be_false
         end
       end
 
@@ -146,7 +141,7 @@ describe "LogFile" do
         end
 
         it "returns false if it can't open the output file for writing" do
-          @logfile.write_out(false, @output_dir).should be_false
+          @logfile.write_out(@output_dir).should be_false
         end
       end
     end

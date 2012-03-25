@@ -65,16 +65,11 @@ individual messages, use Pidgin2Adium.parse.
       end
 
       success = logfile.write_out()
-      # To overwrite file if it exists:
-      # logfile.write_out(overwrite = true)
       # To specify your own output dir (default = Pidgin2Adium::ADIUM_LOG_DIR):
-      # logfile.write_out(false, output_dir = my_dir)
-      # Or combine them:
-      # logfile.write_out(true, my_dir)
+      # logfile.write_out(my_dir)
       if success == false
         puts "An error occurred!"
       elsif success == Pidgin2Adium::FILE_EXISTS
-        # Not returned if overwrite set to true
         puts "File already exists."
       else
         puts "Successfully wrote out log file!"
@@ -95,7 +90,7 @@ Note: For batch processing, use LogConverter.
     require 'pidgin2adium'
     # Both options are optional; without :output_dir, writes to Adium log dir
     # (which is usually what you want anyway).
-    opts = {:overwrite => true, :output_dir => "/my/output/dir"}
+    opts = {:output_dir => "/my/output/dir"}
     path_to_converted_log = Pidgin2Adium.parse_and_generate("/path/to/log/file.html", "gabe,gbw,gabeb-w", opts)
 
 ## REQUIREMENTS:

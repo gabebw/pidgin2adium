@@ -43,12 +43,6 @@ oparser = OptionParser.new do |opts|
     options[:output_dir] = out
   end
 
-  opts.on('-f', '--force', 'If this is set, then logs in the Adium log',
-          'folder that have the same name as converted',
-          'logs will be overwritten.') do |f|
-    options[:force] = f
-  end
-
   opts.on('-c', '--continue', "Continue converting after hitting unparseable lines. Will print the problem lines and log at the end.") do |c|
     options[:force_conversion] = c
   end
@@ -98,7 +92,7 @@ if need_opts
   exit 1
 end
 
-extra_opts = {:overwrite => options[:force]}
+extra_opts = {}
 
 extra_opts[:output_dir] = options[:output_dir]
 extra_opts[:force_conversion] = options[:force_conversion]

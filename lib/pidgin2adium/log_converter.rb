@@ -6,8 +6,6 @@ module Pidgin2Adium
   class LogConverter
     # You can add options using the _opts_ hash, which can have the
     # following keys, all of which are optional:
-    # * *overwrite*: If true, then overwrite even if log is found.
-    #   Defaults to false.
     # * *output_dir*: The top-level dir to put the logs in.
     #   Logs under output_dir are still each in their own folders, etc.
     #   Defaults to Pidgin2Adium::ADIUM_LOG_DIR

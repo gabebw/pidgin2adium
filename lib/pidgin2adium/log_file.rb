@@ -34,12 +34,11 @@ module Pidgin2Adium
       @chat_lines.each(&block)
     end
 
-    # Set overwrite=true to create a logfile even if logfile already exists.
     # Returns one of:
     # * false (if an error occurred),
-    # * Pidgin2Adium::FILE_EXISTS if the file to be generated already exists and overwrite=false, or
+    # * Pidgin2Adium::FILE_EXISTS if the file to be generated already exists, or
     # * the path to the new Adium log file.
-    def write_out(overwrite = false, output_dir_base = ADIUM_LOG_DIR)
+    def write_out(output_dir_base = ADIUM_LOG_DIR)
       # output_dir_base + "/buddyname (2009-08-04T18.38.50-0700).chatlog"
       output_dir = File.join(output_dir_base, "#{@service}.#{@user_SN}", @partner_SN, "#{@partner_SN} (#{@adium_chat_time_start}).chatlog")
       # output_dir + "/buddyname (2009-08-04T18.38.50-0700).chatlog/buddyname (2009-08-04T18.38.50-0700).xml"
@@ -51,20 +50,8 @@ module Pidgin2Adium
         Pidgin2Adium.error "Could not create destination directory for log file. (Details: #{bang.class}: #{bang.message})"
         return false
       end
-      if overwrite
-        unless File.exist?(output_path)
-          # File doesn't exist, but maybe it does with a different
-          # time zone. Check for a file that differs only in time
-          # zone and, if found, change @output_path to target it.
-          maybe_matches = Dir.glob(output_dir_base + '/' << File.basename(output_path).sub(/-\d{4}\)\.chatlog$/, '') << '/*')
-          unless maybe_matches.empty?
-            output_path = maybe_matches[0]
-          end
-        end
-      else
-        if File.exist?(output_path)
-          return FILE_EXISTS
-        end
+      if File.exist?(output_path)
+        return FILE_EXISTS
       end
 
       begin

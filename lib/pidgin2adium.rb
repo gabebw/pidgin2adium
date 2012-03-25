@@ -63,19 +63,15 @@ module Pidgin2Adium
   # Returns:
   #  * true if it successfully converted and wrote out the log,
   #  * false if an error occurred, or
-  #  * Pidgin2Adium::FILE_EXISTS if file already exists AND
-  #    opts[:overwrite] = false.
+  #  * Pidgin2Adium::FILE_EXISTS if file already exists
   #
   # You can add options using the _opts_ hash, which can have the following
   # keys, all of which are optional:
-  # * *overwrite*: If true, then overwrite even if log is found.
-  #	Defaults to false.
   # * *output_dir*: The top-level dir to put the logs in.
   #   Logs under output_dir are still each in their own folders, etc.
   #   Defaults to Pidgin2Adium::ADIUM_LOG_DIR
   def self.parse_and_generate(logfile_path, my_aliases, opts = {})
     opts = {} unless opts.is_a?(Hash)
-    overwrite = !!opts[:overwrite]
     force_conversion = !!opts[:force_conversion]
     output_dir = opts[:output_dir] || ADIUM_LOG_DIR
 
@@ -83,7 +79,7 @@ module Pidgin2Adium
 
     logfile_obj = parse(logfile_path, my_aliases, force_conversion)
     if logfile_obj
-      dest_file_path = logfile_obj.write_out(overwrite, output_dir)
+      dest_file_path = logfile_obj.write_out(output_dir)
 
       if dest_file_path == false
         error("Successfully parsed file, but failed to write it out. Path: #{logfile_path}.")
