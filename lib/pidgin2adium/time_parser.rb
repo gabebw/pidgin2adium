@@ -70,10 +70,9 @@ module Pidgin2Adium
         nil
       else
         date_hash = fill_in_year_month_day_if_absent(date_hash)
-        time = Time.local(date_hash[:year], date_hash[:mon], date_hash[:mday],
-                          date_hash[:hour], date_hash[:min], date_hash[:sec],
-                          date_hash[:sec_fraction], date_hash[:zone])
-        time
+        Time.local(date_hash[:year], date_hash[:mon], date_hash[:mday],
+                   date_hash[:hour], date_hash[:min], date_hash[:sec],
+                   date_hash[:sec_fraction], date_hash[:zone])
       end
     end
 
