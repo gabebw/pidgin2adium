@@ -153,12 +153,11 @@ module Pidgin2Adium
       sender = get_sender_by_alias(buddy_alias)
       body = matches[3]
       if matches[2] # auto-reply
-        msg = AutoReplyMessage.new(sender, time, buddy_alias, body)
+        AutoReplyMessage.new(sender, time, buddy_alias, body)
       else
         # normal message
-        msg = XMLMessage.new(sender, time, buddy_alias, body)
+        XMLMessage.new(sender, time, buddy_alias, body)
       end
-      return msg
     end
 
     #--
@@ -216,7 +215,7 @@ module Pidgin2Adium
       rescue Errno::ENOENT
         Pidgin2Adium.warn("#{@src_path} doesn't exist! Continuing...")
         @log_file_is_valid = false
-        return nil
+        nil
       end
     end
 
