@@ -42,10 +42,10 @@ module Pidgin2Adium
           # "next" returns nil which is removed by compact
           next if line =~ /^\s+$/
           if line =~ @line_regex
-            create_msg($~.captures)
+            create_message($~.captures)
           elsif line =~ @line_regex_status
-            msg = create_status_or_event_msg($~.captures)
-            if msg == false
+            message = create_status_or_event_message($~.captures)
+            if message == false
               if force_conversion?
                 nil # will get compacted out
               else
@@ -100,13 +100,12 @@ module Pidgin2Adium
     end
 
     #--
-    # create_msg takes an array of captures from matching against
+    # create_message takes an array of captures from matching against
     # @line_regex and returns a Message object or one of its subclasses.
     # It can be used for TextLogParser and HtmlLogParser because both of
     # they return data in the same indexes in the matches array.
     #++
-    def create_msg(matches)
-      msg = nil
+    def create_message(matches)
       # Either a regular message line or an auto-reply/away message.
       time = create_adium_time(matches[0])
       return nil if time.nil?
@@ -122,12 +121,12 @@ module Pidgin2Adium
     end
 
     #--
-    # create_status_or_event_msg takes an array of +MatchData+ captures from
+    # create_status_or_event_message takes an array of +MatchData+ captures from
     # matching against @line_regex_status and returns an Event or Status.
     # Returns nil if it's a message that should be ignored, or false if an
     # error occurred.
     #++
-    def create_status_or_event_msg(matches)
+    def create_status_or_event_message(matches)
       # ["22:58:00", "BuddyName logged in."]
       # 0: time
       # 1: status message or event
@@ -176,7 +175,7 @@ module Pidgin2Adium
       if regex && status
         buddy_alias = regex.match(str)[1]
         sender = get_sender_by_alias(buddy_alias)
-        msg = StatusMessage.new(sender, time, buddy_alias, status)
+        message = StatusMessage.new(sender, time, buddy_alias, status)
       end
     end
 
@@ -297,7 +296,7 @@ module Pidgin2Adium
         buddy_alias = regex_matches[1]
         sender = get_sender_by_alias(buddy_alias)
       end
-      msg = Event.new(sender, time, buddy_alias, string, event_type)
+      message = Event.new(sender, time, buddy_alias, string, event_type)
     end
 
     def create_adium_time(time_string)

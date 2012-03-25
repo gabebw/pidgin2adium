@@ -19,7 +19,7 @@ describe Pidgin2Adium::BasicParser do
     describe "correctly setting variables" do
       before do
         path = create_chat_file('blah.html') do |b|
-          b.first_line :from => 'othersn', :to => 'aolsystemmsg',
+          b.first_line :from => 'othersn', :to => 'aolsystemmessage',
             :time => '1/15/2008 7:14:45 AM', :service => 'aim'
         end
 
@@ -36,7 +36,7 @@ describe Pidgin2Adium::BasicParser do
       end
 
       it "correctly sets partner_SN" do
-        @bp.instance_variable_get('@partner_SN').should == 'aolsystemmsg'
+        @bp.instance_variable_get('@partner_SN').should == 'aolsystemmessage'
       end
 
       it "correctly sets basic_time_info" do
@@ -78,7 +78,7 @@ describe Pidgin2Adium::BasicParser do
     end
   end
 
-  describe "#create_msg" do
+  describe "#create_message" do
     before do
       body = "Your screen name (otherSN) is now signed into " +
         "AOL(R) Instant Messenger (TM) in 2 locations. " +
@@ -86,7 +86,7 @@ describe Pidgin2Adium::BasicParser do
         "<a href='http://www.aim.com/password/routing.adp'>here</a> " +
         "for more information."
       @matches = ['2008-01-15T07.14.45-05:00', # time
-                  'AOL System Msg', # alias
+                  'AOL System message', # alias
                   nil, # not an auto-reply
                   body # message body
                  ]
@@ -98,22 +98,22 @@ describe Pidgin2Adium::BasicParser do
     end
 
     it "returns XMLMessage class for a normal message" do
-      @bp.create_msg(@matches).should
+      @bp.create_message(@matches).should
         be_instance_of(Pidgin2Adium::XMLMessage)
     end
 
     it "returns AutoReplyMessage class for an auto reply" do
-      @bp.create_msg(@auto_reply_matches).should
+      @bp.create_message(@auto_reply_matches).should
         be_instance_of(Pidgin2Adium::AutoReplyMessage)
     end
 
     it "returns nil if the time is nil" do
       @matches[0] = nil
-      @bp.create_msg(@matches).should be_nil
+      @bp.create_message(@matches).should be_nil
     end
   end
 
-  describe "#create_status_or_event_msg" do
+  describe "#create_status_or_event_message" do
     before do
       # not yet converted to Adium format
       @time = "2007-08-20 12:33:13"
@@ -130,11 +130,11 @@ describe Pidgin2Adium::BasicParser do
       }
 
       # Small subset of all events
-      @libpurple_event_msg = "Starting transfer of cute kitties.jpg from Gabe B-W"
-      @event_msg =  "You missed 8 messages from Gabe B-W because they were too large"
+      @libpurple_event_message = "Starting transfer of cute kitties.jpg from Gabe B-W"
+      @event_message =  "You missed 8 messages from Gabe B-W because they were too large"
       @event_type = 'chat-error'
 
-      @ignored_event_msg = "Gabe B-W is now known as gbw.<br/>"
+      @ignored_event_message = "Gabe B-W is now known as gbw.<br/>"
 
       @bp = Pidgin2Adium::BasicParser.new(create_chat_file, @alias)
       @bp.pre_parse
@@ -142,7 +142,7 @@ describe Pidgin2Adium::BasicParser do
 
     it "maps statuses correctly" do
       @status_map.each do |message, status|
-        return_value = @bp.create_status_or_event_msg([@time,
+        return_value = @bp.create_status_or_event_message([@time,
                                                      message])
         return_value.should be_instance_of(Pidgin2Adium::StatusMessage)
         return_value.status.should == status
@@ -150,22 +150,22 @@ describe Pidgin2Adium::BasicParser do
     end
 
     it "maps libpurple events correctly" do
-      return_val = @bp.create_status_or_event_msg([@time,
-                                                  @libpurple_event_msg])
+      return_val = @bp.create_status_or_event_message([@time,
+                                                  @libpurple_event_message])
       return_val.should be_instance_of(Pidgin2Adium::Event)
       return_val.event_type.should == 'libpurpleEvent'
     end
 
     it "maps non-libpurple events correctly" do
-      return_val = @bp.create_status_or_event_msg([@time,
-                                                  @event_msg])
+      return_val = @bp.create_status_or_event_message([@time,
+                                                  @event_message])
       return_val.should be_instance_of(Pidgin2Adium::Event)
       return_val.event_type.should == @event_type
     end
 
     it "returns nil for ignored events" do
-      return_val = @bp.create_status_or_event_msg([@time,
-                                                  @ignored_event_msg])
+      return_val = @bp.create_status_or_event_message([@time,
+                                                  @ignored_event_message])
       return_val.should be_nil
     end
   end
