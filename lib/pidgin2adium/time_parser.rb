@@ -27,15 +27,6 @@ module Pidgin2Adium
       end
     end
 
-    def parse_into_adium_format(time_string)
-      parsed = parse(time_string)
-      if parsed
-        parsed.strftime('%Y-%m-%dT%H:%M:%S%Z')
-      else
-        nil
-      end
-    end
-
     private
 
     def parse_time_with_date(time_string)

@@ -11,7 +11,7 @@ module Pidgin2Adium
     attr_reader :event_type
 
     def to_s
-      %(<event type="#{@event_type}" sender="#{@sender_screen_name}" time="#{@time}" alias="#{@sender_alias}">#{@styled_body}</event>)
+      %(<event type="#{@event_type}" sender="#{@sender_screen_name}" time="#{adium_formatted_time}" alias="#{@sender_alias}">#{@styled_body}</event>)
     end
   end
 end

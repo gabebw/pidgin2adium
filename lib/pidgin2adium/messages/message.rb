@@ -6,10 +6,9 @@ module Pidgin2Adium
   class Message
     include Comparable
 
-    def initialize(sender_screen_name, adium_formatted_time, sender_alias)
+    def initialize(sender_screen_name, time, sender_alias)
       @sender_screen_name = sender_screen_name
-      @time = adium_formatted_time
-      @time_object = Time.parse(@time)
+      @time = time
       @sender_alias = sender_alias
     end
 
@@ -17,13 +16,13 @@ module Pidgin2Adium
 
     # Compare this Message to +other_message+, based on their timestamps.
     def <=>(other_message)
-      @time_object - other_message.time_object
+      @time <=> other_message.time
     end
 
-    protected
+    private
 
-    def time_object
-      @time_object
+    def adium_formatted_time
+      @time.strftime('%Y-%m-%dT%H:%M:%S%Z')
     end
   end
 end

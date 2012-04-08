@@ -42,7 +42,7 @@ describe Pidgin2Adium::TextLogParser do
       msg.sender_screen_name.should == "awesomesn"
       msg.body.should == "what are you doing tomorrow?"
       msg.sender_alias.should == "Gabe B-W"
-      msg.time.should include '2006-12-21T22:36:11'
+      msg.time.should == Time.parse('2006-12-21 22:36:11').utc
     end
   end
 

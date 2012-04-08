@@ -62,7 +62,7 @@ module Pidgin2Adium
     #++
     def create_message(matches)
       # Either a regular message line or an auto-reply/away message.
-      time = create_adium_time(matches[0])
+      time = parse_time(matches[0])
       if time
         sender_alias = matches[1]
         sender_screen_name = get_sender_by_alias(sender_alias)
@@ -86,7 +86,7 @@ module Pidgin2Adium
       # ["22:58:00", "BuddyName logged in."]
       # 0: time
       # 1: status message or event
-      time = create_adium_time(matches[0])
+      time = parse_time(matches[0])
       str = matches[1]
 
       if time && ! ignorable_event?(str)
@@ -216,9 +216,9 @@ module Pidgin2Adium
       Event.new(sender_screen_name, time, sender_alias, string, event_type)
     end
 
-    def create_adium_time(time_string)
+    def parse_time(time_string)
       if time_string
-        time_parser.parse_into_adium_format(time_string)
+        time_parser.parse(time_string)
       end
     end
 

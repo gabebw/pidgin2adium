@@ -8,9 +8,10 @@ describe Pidgin2Adium::Event, '#to_s' do
   end
 
   it 'has the correct time' do
-    time = Time.now.strftime('%H:%M:%S')
+    time = Time.now
+    formatted_time = time.strftime('%Y-%m-%dT%H:%M:%S%Z')
     result = create_event(:time => time).to_s
-    result.should include %(time="#{time}")
+    result.should include %(time="#{formatted_time}")
   end
 
   it 'has the correct alias' do
@@ -32,7 +33,7 @@ describe Pidgin2Adium::Event, '#to_s' do
 
   def create_event(opts = {})
     opts[:sender_screen_name] ||= 'jim_sender'
-    opts[:time] ||= Time.now.strftime('%H:%M:%S')
+    opts[:time] ||= Time.now
     opts[:sender_alias] ||= 'jane_alias'
     opts[:body] ||= 'body'
     opts[:event_type] ||= 'libPurpleEvent'

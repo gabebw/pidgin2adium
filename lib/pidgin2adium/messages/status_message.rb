@@ -9,7 +9,7 @@ module Pidgin2Adium
     attr_reader :status
 
     def to_s
-      %(<status type="#{@status}" sender="#{@sender_screen_name}" time="#{@time}" alias="#{@sender_alias}"/>\n)
+      %(<status type="#{@status}" sender="#{@sender_screen_name}" time="#{adium_formatted_time}" alias="#{@sender_alias}"/>\n)
     end
   end
 end

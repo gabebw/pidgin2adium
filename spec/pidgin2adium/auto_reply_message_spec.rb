@@ -1,21 +1,27 @@
 require 'spec_helper'
 
 describe Pidgin2Adium::AutoReplyMessage, '#to_s' do
-  let(:sender) { 'jim_sender' }
-  let(:time) { Time.now.strftime('%H:%M:%S') }
-  let(:buddy_alias) { 'jane_alias' }
+  let(:sender_screen_name) { 'jim_sender' }
+  let(:time) { Time.now }
+  let(:sender_alias) { 'jane_alias' }
   let(:body) { 'body' }
 
   let(:auto_reply_message) do
-    Pidgin2Adium::AutoReplyMessage.new(sender, time, buddy_alias, body)
+    Pidgin2Adium::AutoReplyMessage.new(sender_screen_name, time, sender_alias, body)
   end
 
-  it 'has the correct sender' do
-    auto_reply_message.to_s.should include %(sender="#{sender}")
+  it 'has the correct sender_screen_name' do
+    auto_reply_message.to_s.should include %(sender="#{sender_screen_name}")
   end
 
   it 'has the correct alias' do
-    auto_reply_message.to_s.should include %(alias="#{buddy_alias}")
+    auto_reply_message.to_s.should include %(alias="#{sender_alias}")
+  end
+
+  it 'has the correct time' do
+    formatted_time = time.strftime('%Y-%m-%dT%H:%M:%S%Z')
+    result = auto_reply_message.to_s
+    result.should include %(time="#{formatted_time}")
   end
 
   it 'has the correct body' do

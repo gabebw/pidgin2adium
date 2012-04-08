@@ -12,9 +12,9 @@ describe "LogFile" do
     times = [@start_time,
              "2010-08-10T22:55:12-0500",
              "2010-08-10T22:55:17-0500",
-             "2010-08-10T22:55:22-0500"]
+             "2010-08-10T22:55:22-0500"].map { |string| Time.parse(string) }
 
-    message_1 = Pidgin2Adium::XMLMessage.new(@sender_screen_name, @start_time,
+    message_1 = Pidgin2Adium::XMLMessage.new(@sender_screen_name, times[0],
                                              @user_alias, "Hello!")
     message_2 = Pidgin2Adium::StatusMessage.new(@receiver_screen_name, times[1],
                                                 @partner_alias, "Matz has gone away")
