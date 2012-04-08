@@ -3,8 +3,8 @@
 
 module Pidgin2Adium
   class TextLogParser < BasicParser
-    def initialize(src_path, user_aliases)
-      super(src_path, user_aliases)
+    def initialize(source_file_path, user_aliases)
+      super(source_file_path, user_aliases)
       @timestamp_rx = '\((\d{1,2}:\d{1,2}:\d{1,2})\)'
 
       # @line_regex matches a line in a TXT log file other than the first

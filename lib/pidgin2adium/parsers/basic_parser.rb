@@ -5,8 +5,8 @@ module Pidgin2Adium
   # BasicParser is a base class. Its subclasses are TextLogParser and
   # HtmlLogParser.
   class BasicParser
-    def initialize(src_path, user_aliases)
-      @src_path = src_path
+    def initialize(source_file_path, user_aliases)
+      @source_file_path = source_file_path
       # Whitespace is removed for easy matching later on.
       @user_aliases = user_aliases.split(',').map{|x| x.downcase.gsub(/\s+/,'') }.uniq
 
@@ -223,8 +223,8 @@ module Pidgin2Adium
     end
 
     def read_source_file
-      if File.exist?(@src_path)
-        open(@src_path) do |f|
+      if File.exist?(@source_file_path)
+        open(@source_file_path) do |f|
           @first_line = f.readline
           @file_content = f.read
         end

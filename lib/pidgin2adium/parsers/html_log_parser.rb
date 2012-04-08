@@ -3,8 +3,8 @@
 
 module Pidgin2Adium
   class HtmlLogParser < BasicParser
-    def initialize(src_path, user_aliases)
-      super(src_path, user_aliases)
+    def initialize(source_file_path, user_aliases)
+      super(source_file_path, user_aliases)
       @timestamp_rx = '\(((?:\d{4}-\d{2}-\d{2} )?\d{1,2}:\d{1,2}:\d{1,2}(?: [AP]M)?)\)'
 
       # @line_regex matches a line in an HTML log file other than the
