@@ -1,11 +1,3 @@
-# Contains the BasicParser class.
-# For its subclasses, see html_log_parser.rb and text_log_parser.rb.
-# The subclasses parse the file passed into it and return a LogFile object.
-# The BasicParser class just provides some common functionality.
-#
-# Please use Pidgin2Adium.parse or Pidgin2Adium.parse_and_generate instead of
-# using these classes directly.
-
 require 'pidgin2adium/log_file'
 require 'pidgin2adium/messages/all'
 
