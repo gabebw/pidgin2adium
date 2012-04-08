@@ -60,7 +60,7 @@ module Pidgin2Adium
     # Returns true if none of these variables are false or nil.
     def pre_parse
       read_source_file
-      metadata = Metadata.new(FirstLineParser.new(@first_line).parse)
+      metadata = Metadata.new(MetadataParser.new(@first_line).parse)
       if metadata.valid?
         @service = metadata.service
         @user_SN = metadata.sender_screen_name

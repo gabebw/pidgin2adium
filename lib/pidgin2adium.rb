@@ -12,7 +12,7 @@ require 'pidgin2adium/tag_balancer'
 require 'pidgin2adium/parser_factory'
 require 'pidgin2adium/time_parser'
 require 'pidgin2adium/metadata'
-require 'pidgin2adium/first_line_parser'
+require 'pidgin2adium/metadata_parser'
 
 module Pidgin2Adium
   # Parses the provided log.

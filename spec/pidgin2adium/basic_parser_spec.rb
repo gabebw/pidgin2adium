@@ -56,7 +56,7 @@ describe Pidgin2Adium::BasicParser do
         b.message :from_alias => "Gabe B-W"
         b.message :from_alias => "Leola Farber III"
       end
-      @metadata = Pidgin2Adium::Metadata.new(Pidgin2Adium::FirstLineParser.new(File.readlines(path).first).parse)
+      @metadata = Pidgin2Adium::Metadata.new(Pidgin2Adium::MetadataParser.new(File.readlines(path).first).parse)
       @my_alias = "Gabe B-W"
 
       @partner_alias = "Leola Farber III"

@@ -1,12 +1,12 @@
 require 'spec_helper'
 
-describe Pidgin2Adium::FirstLineParser do
+describe Pidgin2Adium::MetadataParser do
   context '#parse' do
     it 'finds the correct service' do
       path = create_chat_file('log.html') do |b|
         b.first_line :service => 'aim'
       end
-      metadata = Pidgin2Adium::FirstLineParser.new(first_line_of(path)).parse
+      metadata = Pidgin2Adium::MetadataParser.new(first_line_of(path)).parse
       metadata[:service].should == 'aim'
     end
 
@@ -14,7 +14,7 @@ describe Pidgin2Adium::FirstLineParser do
       path = create_chat_file('log.html') do |b|
         b.first_line :from => 'JIM'
       end
-      metadata = Pidgin2Adium::FirstLineParser.new(first_line_of(path)).parse
+      metadata = Pidgin2Adium::MetadataParser.new(first_line_of(path)).parse
       metadata[:sender_screen_name].should == 'JIM'
     end
 
@@ -22,7 +22,7 @@ describe Pidgin2Adium::FirstLineParser do
       path = create_chat_file('log.html') do |b|
         b.first_line :to => 'lady anne'
       end
-      metadata = Pidgin2Adium::FirstLineParser.new(first_line_of(path)).parse
+      metadata = Pidgin2Adium::MetadataParser.new(first_line_of(path)).parse
       metadata[:receiver_screen_name].should == 'lady anne'
     end
 
@@ -31,7 +31,7 @@ describe Pidgin2Adium::FirstLineParser do
       path = create_chat_file('log.html') do |b|
         b.first_line :time => time_string
       end
-      metadata = Pidgin2Adium::FirstLineParser.new(first_line_of(path)).parse
+      metadata = Pidgin2Adium::MetadataParser.new(first_line_of(path)).parse
       metadata[:start_time].should == DateTime.parse(time_string)
     end
 
@@ -41,17 +41,17 @@ describe Pidgin2Adium::FirstLineParser do
       path = create_chat_file('log.html') do |b|
         b.first_line :time => time_string
       end
-      metadata = Pidgin2Adium::FirstLineParser.new(first_line_of(path)).parse
+      metadata = Pidgin2Adium::MetadataParser.new(first_line_of(path)).parse
       metadata[:start_time].should == expected_time
     end
 
     it 'sets all attributes to nil when initialized with an empty string' do
-      metadata = Pidgin2Adium::FirstLineParser.new('').parse
+      metadata = Pidgin2Adium::MetadataParser.new('').parse
       assert_all_attributes_nil(metadata)
     end
 
     it 'sets all attributes to nil when initialized with nil' do
-      metadata = Pidgin2Adium::FirstLineParser.new(nil).parse
+      metadata = Pidgin2Adium::MetadataParser.new(nil).parse
       assert_all_attributes_nil(metadata)
     end
 
@@ -59,7 +59,7 @@ describe Pidgin2Adium::FirstLineParser do
       path = create_file('nonstandard.html') do |f|
         f.write '<HTML><BODY BGCOLOR="#ffffff"><B><FONT COLOR="#ff0000" LANG="0">jiggerific bug<!-- (3:22:29 PM)--></B></FONT><FONT COLOR="#ff0000" BACK="#ffffff">:</FONT><FONT COLOR="#000000"> try direct IM now</FONT><BR>'
       end
-      metadata = Pidgin2Adium::FirstLineParser.new(path).parse
+      metadata = Pidgin2Adium::MetadataParser.new(path).parse
       assert_all_attributes_nil(metadata)
     end
   end
