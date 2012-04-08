@@ -33,7 +33,7 @@ module Pidgin2Adium
       # Add the <br/> after converting to &lt; etc so we
       # don't escape the tag.
       text.gsub!(/\n(?!(#{@timestamp_rx}|\Z))/, '<br/>')
-      return text
+      text
     end
   end # END TextLogParser class
 end

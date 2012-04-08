@@ -117,7 +117,7 @@ module Pidgin2Adium
       if text.gsub!('<em>', '<span style="font-style: italic;">')
         text.gsub!('</em>', '</span>')
       end
-      return text
+      text
     end
   end # END HtmlLogParser class
 end
