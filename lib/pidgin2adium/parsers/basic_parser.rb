@@ -5,16 +5,16 @@ module Pidgin2Adium
   # BasicParser is a base class. Its subclasses are TextLogParser and
   # HtmlLogParser.
   class BasicParser
-    def initialize(source_file_path, user_aliases)
+    def initialize(source_file_path, sender_aliases)
       @source_file_path = source_file_path
       # Whitespace is removed for easy matching later on.
-      @user_aliases = user_aliases.split(',').map{|x| x.downcase.gsub(/\s+/,'') }.uniq
+      @sender_aliases = sender_aliases.split(',').map{|x| x.downcase.gsub(/\s+/,'') }.uniq
 
-      # @user_alias is set each time get_sender_by_alias is called. It is a non-normalized
+      # @sender_alias is set each time get_sender_by_alias is called. It is a non-normalized
       # alias.
       # Set an initial value just in case the first message doesn't give
       # us an alias.
-      @user_alias = user_aliases.split(',')[0]
+      @sender_alias = sender_aliases.split(',')[0]
     end
 
     # This method returns a LogFile instance, or false if an error occurred.
@@ -45,9 +45,9 @@ module Pidgin2Adium
 
     def get_sender_by_alias(alias_name)
       no_action = alias_name.sub(/^\*{3}/, '')
-      if @user_aliases.include?(no_action.downcase.gsub(/\s+/, ''))
-        # Set the current alias being used of the ones in @user_aliases
-        @user_alias = no_action
+      if @sender_aliases.include?(no_action.downcase.gsub(/\s+/, ''))
+        # Set the current alias being used of the ones in @sender_aliases
+        @sender_alias = no_action
         @metadata.sender_screen_name
       else
         @metadata.receiver_screen_name
@@ -64,14 +64,14 @@ module Pidgin2Adium
       # Either a regular message line or an auto-reply/away message.
       time = create_adium_time(matches[0])
       if time
-        buddy_alias = matches[1]
-        sender = get_sender_by_alias(buddy_alias)
+        sender_alias = matches[1]
+        sender_screen_name = get_sender_by_alias(sender_alias)
         body = matches[3]
         if matches[2] # auto-reply
-          AutoReplyMessage.new(sender, time, buddy_alias, body)
+          AutoReplyMessage.new(sender_screen_name, time, sender_alias, body)
         else
           # normal message
-          XMLMessage.new(sender, time, buddy_alias, body)
+          XMLMessage.new(sender_screen_name, time, sender_alias, body)
         end
       end
     end
@@ -107,9 +107,9 @@ module Pidgin2Adium
     def create_status_message(str, time)
       regex, status = status_map.detect{|rxp, stat| str =~ rxp}
       if regex && status
-        buddy_alias = regex.match(str)[1]
-        sender = get_sender_by_alias(buddy_alias)
-        message = StatusMessage.new(sender, time, buddy_alias, status)
+        sender_alias = regex.match(str)[1]
+        sender_screen_name = get_sender_by_alias(sender_alias)
+        message = StatusMessage.new(sender_screen_name, time, sender_alias, status)
       end
     end
 
@@ -207,13 +207,13 @@ module Pidgin2Adium
       regex_matches = regex.match(string)
       if regex_matches.size == 1
         # No alias - this means it's the user
-        buddy_alias = @user_alias
-        sender = @metadata.sender_screen_name
+        sender_alias = @sender_alias
+        sender_screen_name = @metadata.sender_screen_name
       else
-        buddy_alias = regex_matches[1]
-        sender = get_sender_by_alias(buddy_alias)
+        sender_alias = regex_matches[1]
+        sender_screen_name = get_sender_by_alias(sender_alias)
       end
-      Event.new(sender, time, buddy_alias, string, event_type)
+      Event.new(sender_screen_name, time, sender_alias, string, event_type)
     end
 
     def create_adium_time(time_string)
