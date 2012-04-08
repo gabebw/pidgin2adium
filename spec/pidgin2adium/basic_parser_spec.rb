@@ -27,12 +27,12 @@ describe Pidgin2Adium::BasicParser do
         @bp.pre_parse
       end
 
-      it "correctly sets user_SN" do
-        @bp.instance_variable_get('@user_SN').should == 'othersn'
+      it "correctly sets sender_screen_name" do
+        @bp.instance_variable_get('@sender_screen_name').should == 'othersn'
       end
 
-      it "correctly sets partner_SN" do
-        @bp.instance_variable_get('@partner_SN').should == 'aolsystemmessage'
+      it "correctly sets receiver_screen_name" do
+        @bp.instance_variable_get('@receiver_screen_name').should == 'aolsystemmessage'
       end
 
       it "correctly sets basic_time_info" do

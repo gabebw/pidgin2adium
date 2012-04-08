@@ -2,10 +2,10 @@ require 'spec_helper'
 
 describe "LogFile" do
   before do
-    @user_SN = "gabebw"
+    @sender_screen_name = "gabebw"
     @user_alias = "Gabe B-W"
 
-    @partner_SN = "matz"
+    @receiver_screen_name = "matz"
     @partner_alias = "Yukihiro Matsumoto"
 
     @start_time = "2010-08-10T22:55:07-0500"
@@ -14,15 +14,15 @@ describe "LogFile" do
              "2010-08-10T22:55:17-0500",
              "2010-08-10T22:55:22-0500"]
 
-    message_1 = Pidgin2Adium::XMLMessage.new(@user_SN, @start_time,
+    message_1 = Pidgin2Adium::XMLMessage.new(@sender_screen_name, @start_time,
                                              @user_alias, "Hello!")
-    message_2 = Pidgin2Adium::StatusMessage.new(@partner_SN, times[1],
+    message_2 = Pidgin2Adium::StatusMessage.new(@receiver_screen_name, times[1],
                                                 @partner_alias, "Matz has gone away")
 
-    message_3 = Pidgin2Adium::Event.new(@user_SN, times[2], @user_alias,
+    message_3 = Pidgin2Adium::Event.new(@sender_screen_name, times[2], @user_alias,
                                         "gabebw logged in.", 'online')
 
-    message_4 = Pidgin2Adium::AutoReplyMessage.new(@partner_SN, times[3],
+    message_4 = Pidgin2Adium::AutoReplyMessage.new(@receiver_screen_name, times[3],
                                                    @partner_alias,
                                                    "This is an away message")
 
