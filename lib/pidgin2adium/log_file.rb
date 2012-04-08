@@ -21,7 +21,7 @@ module Pidgin2Adium
 
     # Returns contents of log file
     def to_s
-      @chat_lines.map(&:to_s).join
+      map(&:to_s).join
     end
 
     def each(&block)
