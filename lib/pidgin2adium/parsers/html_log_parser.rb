@@ -64,11 +64,6 @@ module Pidgin2Adium
       # For spans, removes a space after the final declaration if it exists.
       text.gsub!(/<span style='([^']+?;) ?'>/, '<span style="\1">')
       text.gsub!(/([a-z]+=)'(.+?)'/, '\1"\2"')
-=begin
-      text.gsub!(/<a href='(.+?)'>/, '<a href="\1">')
-      text.gsub!(/<img src='([^']+?)'/, '<img src="\1"')
-      text.gsub!(/ alt='([^']+?)'/, ' alt="\1"')
-=end
       text.gsub!("'", '&apos;')
 
       # This actually does match stuff, but doesn't group it correctly. :(
@@ -80,8 +75,6 @@ module Pidgin2Adium
         # style = style declaration
         # innertext = text inside <span>
         style, innertext = $1, $2
-        # TODO: replace double quotes with "&quot;", but only outside tags; may still be tags inside spans
-        # innertext.gsub!("")
 
         styleparts = style.split(/; ?/)
         styleparts.map! do |p|
@@ -117,5 +110,5 @@ module Pidgin2Adium
       end
       text
     end
-  end # END HtmlLogParser class
+  end
 end
