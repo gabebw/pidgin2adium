@@ -1,15 +1,5 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
-describe Pidgin2Adium, "constants" do
-  it "should set ADIUM_LOG_DIR correctly" do
-    Pidgin2Adium::ADIUM_LOG_DIR.should == File.expand_path('~/Library/Application Support/Adium 2.0/Users/Default/Logs/') + '/'
-  end
-
-  it "should set BAD_DIRS correctly" do
-    Pidgin2Adium::BAD_DIRS.should == %w{. .. .DS_Store Thumbs.db .system}
-  end
-end
-
 describe Pidgin2Adium, "utility methods" do
   include_context "fake logger"
 

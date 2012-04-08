@@ -17,12 +17,6 @@ require 'pidgin2adium/metadata'
 require 'pidgin2adium/first_line_parser'
 
 module Pidgin2Adium
-  # Returned by LogFile.write_out if the output logfile already exists.
-  FILE_EXISTS = 42
-  ADIUM_LOG_DIR = File.expand_path('~/Library/Application Support/Adium 2.0/Users/Default/Logs/') << '/'
-  # These files/directories show up in Dir.entries()
-  BAD_DIRS = %w{. .. .DS_Store Thumbs.db .system}
-
   def self.logger
     @@logger ||= Pidgin2Adium::Logger.new
   end
