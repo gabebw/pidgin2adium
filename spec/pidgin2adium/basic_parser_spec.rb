@@ -15,30 +15,6 @@ describe Pidgin2Adium::BasicParser do
       parser = Pidgin2Adium::BasicParser.new(path, '')
       parser.pre_parse.should be_true
     end
-
-    describe "correctly setting variables" do
-      before do
-        path = create_chat_file('blah.html') do |b|
-          b.first_line :from => 'othersn', :to => 'aolsystemmessage',
-            :time => '1/15/2008 7:14:45 AM'
-        end
-
-        @bp =  Pidgin2Adium::BasicParser.new(path, '')
-        @bp.pre_parse
-      end
-
-      it "correctly sets sender_screen_name" do
-        @bp.instance_variable_get('@sender_screen_name').should == 'othersn'
-      end
-
-      it "correctly sets receiver_screen_name" do
-        @bp.instance_variable_get('@receiver_screen_name').should == 'aolsystemmessage'
-      end
-
-      it "correctly sets basic_time_info" do
-        @bp.instance_variable_get('@basic_time_info').should == {:year=>2008, :month=>1, :day=>15}
-      end
-    end
   end
 
   describe "#get_sender_by_alias" do

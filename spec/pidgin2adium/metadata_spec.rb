@@ -15,11 +15,27 @@ describe Pidgin2Adium::Metadata do
     end
   end
 
-  context '#start_time' do
-    it 'returns the start time' do
+  context '#start_month' do
+    it 'returns the start month' do
       start_time = Time.now
       metadata = Pidgin2Adium::Metadata.new(:start_time => start_time)
-      metadata.start_time.should == start_time
+      metadata.start_month.should == start_time.mon
+    end
+  end
+
+  context '#start_year' do
+    it 'returns the start year' do
+      start_time = Time.now
+      metadata = Pidgin2Adium::Metadata.new(:start_time => start_time)
+      metadata.start_year.should == start_time.year
+    end
+  end
+
+  context '#start_mday' do
+    it 'returns the start mday' do
+      start_time = Time.now
+      metadata = Pidgin2Adium::Metadata.new(:start_time => start_time)
+      metadata.start_mday.should == start_time.mday
     end
   end
 

@@ -6,10 +6,22 @@ module Pidgin2Adium
       @start_time = metadata_hash[:start_time]
     end
 
-    attr_reader :sender_screen_name, :receiver_screen_name, :start_time
+    attr_reader :sender_screen_name, :receiver_screen_name
 
     def valid?
-      [receiver_screen_name, sender_screen_name, start_time].all?
+      [@receiver_screen_name, @sender_screen_name, @start_time].all?
+    end
+
+    def start_year
+      @start_time.year
+    end
+
+    def start_month
+      @start_time.mon
+    end
+
+    def start_mday
+      @start_time.mday
     end
 
     private

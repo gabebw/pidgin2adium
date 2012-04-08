@@ -45,22 +45,12 @@ module Pidgin2Adium
       end
     end
 
-    # Extract required data from the file. Run by parse. Sets these
-    # variables:
-    # * @sender_screen_name
-    # * @receiver_screen_name
-    # * @basic_time_info
-    # Returns true if none of these variables are false or nil.
+    # Extract required data from the file. Run by parse.
     def pre_parse
       read_source_file
       metadata = Metadata.new(MetadataParser.new(@first_line).parse)
       if metadata.valid?
-        @sender_screen_name = metadata.sender_screen_name
-        @receiver_screen_name = metadata.receiver_screen_name
-        start_time = metadata.start_time
-        @basic_time_info = {:year => start_time.year,
-                            :month => start_time.mon,
-                            :day => start_time.mday}
+        @metadata = metadata
       end
     end
 
@@ -69,9 +59,9 @@ module Pidgin2Adium
       if @user_aliases.include?(no_action.downcase.gsub(/\s+/, ''))
         # Set the current alias being used of the ones in @user_aliases
         @user_alias = no_action
-        @sender_screen_name
+        @metadata.sender_screen_name
       else
-        @receiver_screen_name
+        @metadata.receiver_screen_name
       end
     end
 
@@ -118,7 +108,7 @@ module Pidgin2Adium
     end
 
     def time_parser
-      @time_parser ||= TimeParser.new(@basic_time_info[:year], @basic_time_info[:month], @basic_time_info[:day])
+      @time_parser ||= TimeParser.new(@metadata.start_year, @metadata.start_month, @metadata.start_mday)
     end
 
     protected
@@ -231,7 +221,7 @@ module Pidgin2Adium
       if regex_matches.size == 1
         # No alias - this means it's the user
         buddy_alias = @user_alias
-        sender = @sender_screen_name
+        sender = @metadata.sender_screen_name
       else
         buddy_alias = regex_matches[1]
         sender = get_sender_by_alias(buddy_alias)
