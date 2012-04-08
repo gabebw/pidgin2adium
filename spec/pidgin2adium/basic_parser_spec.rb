@@ -20,15 +20,11 @@ describe Pidgin2Adium::BasicParser do
       before do
         path = create_chat_file('blah.html') do |b|
           b.first_line :from => 'othersn', :to => 'aolsystemmessage',
-            :time => '1/15/2008 7:14:45 AM', :service => 'aim'
+            :time => '1/15/2008 7:14:45 AM'
         end
 
         @bp =  Pidgin2Adium::BasicParser.new(path, '')
         @bp.pre_parse
-      end
-
-      it "correctly sets @service" do
-        @bp.instance_variable_get('@service').should == 'aim'
       end
 
       it "correctly sets user_SN" do

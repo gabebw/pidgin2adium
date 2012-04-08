@@ -8,8 +8,7 @@ module Pidgin2Adium
     end
 
     def parse
-      {:service => service,
-        :sender_screen_name => sender_screen_name,
+      { :sender_screen_name => sender_screen_name,
         :receiver_screen_name => receiver_screen_name,
         :start_time => start_time}
     end
@@ -40,15 +39,6 @@ module Pidgin2Adium
         if match
           time_string = match[1]
           parse_time(time_string)
-        end
-      end
-    end
-
-    def service
-      if line_is_present?
-        match = @first_line.match(/\(([a-z]+)\)/)
-        if match
-          match[1]
         end
       end
     end

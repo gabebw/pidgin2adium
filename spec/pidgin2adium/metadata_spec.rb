@@ -1,13 +1,6 @@
 require 'spec_helper'
 
 describe Pidgin2Adium::Metadata do
-  context '#service' do
-    it 'returns the correct service' do
-      metadata = Pidgin2Adium::Metadata.new(:service => 'aim')
-      metadata.service.should == 'aim'
-    end
-  end
-
   context '#sender_screen_name' do
     it "returns the sender's normalized screen name" do
       metadata = Pidgin2Adium::Metadata.new(:sender_screen_name => 'JIM BOB')
@@ -32,14 +25,13 @@ describe Pidgin2Adium::Metadata do
 
   context '#valid?' do
     it 'is true when all attributes are provided' do
-      metadata = Pidgin2Adium::Metadata.new({ :service => '',
-        :sender_screen_name => '',
+      metadata = Pidgin2Adium::Metadata.new({ :sender_screen_name => '',
         :receiver_screen_name => '',
         :start_time => '' })
       metadata.should be_valid
     end
 
-    [:sender_screen_name, :receiver_screen_name, :service, :start_time].each do |attribute|
+    [:sender_screen_name, :receiver_screen_name, :start_time].each do |attribute|
       it "is false when #{attribute} cannot be detected" do
         Pidgin2Adium::Metadata.new(attribute => nil).should_not be_valid
       end

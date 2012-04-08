@@ -2,14 +2,6 @@ require 'spec_helper'
 
 describe Pidgin2Adium::MetadataParser do
   context '#parse' do
-    it 'finds the correct service' do
-      path = create_chat_file('log.html') do |b|
-        b.first_line :service => 'aim'
-      end
-      metadata = Pidgin2Adium::MetadataParser.new(first_line_of(path)).parse
-      metadata[:service].should == 'aim'
-    end
-
     it "finds the sender's screen name" do
       path = create_chat_file('log.html') do |b|
         b.first_line :from => 'JIM'
@@ -70,7 +62,6 @@ describe Pidgin2Adium::MetadataParser do
 
   def assert_all_attributes_nil(metadata)
     metadata[:start_time].should be_nil
-    metadata[:service].should be_nil
     metadata[:receiver_screen_name].should be_nil
     metadata[:sender_screen_name].should be_nil
   end

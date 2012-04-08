@@ -52,7 +52,6 @@ module Pidgin2Adium
 
     # Extract required data from the file. Run by parse. Sets these
     # variables:
-    # * @service
     # * @user_SN
     # * @partner_SN
     # * @basic_time_info
@@ -61,7 +60,6 @@ module Pidgin2Adium
       read_source_file
       metadata = Metadata.new(MetadataParser.new(@first_line).parse)
       if metadata.valid?
-        @service = metadata.service
         @user_SN = metadata.sender_screen_name
         @partner_SN = metadata.receiver_screen_name
         start_time = metadata.start_time

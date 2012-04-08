@@ -105,7 +105,7 @@ describe "HtmlLogParser" do
     before do
       @path = path = create_chat_file('parse.html') do |b|
         b.first_line :from => 'otherSN', :to => 'aolsystemmsg',
-          :time => '1/15/2008 7:14:45 AM', :service => 'aim'
+          :time => '1/15/2008 7:14:45 AM'
         b.message :time => '2008-01-15 07:14:45',
           :from_alias => 'AOL System Msg',
           :text => %{Your screen name (otherSN) is now signed into AOL(R) Instant Messenger (TM) in 2 locations. To sign off the other location(s), reply to this message with the number 1. Click <a href='http://www.aim.com/password/routing.adp'>here</a> for more information.},
