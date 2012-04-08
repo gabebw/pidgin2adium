@@ -11,8 +11,6 @@ module Pidgin2Adium
         HtmlLogParser.new(logfile_path, @aliases, @force_conversion)
       when /\.txt$/i
         TextLogParser.new(logfile_path, @aliases, @force_conversion)
-      else
-        false
       end
     end
   end
