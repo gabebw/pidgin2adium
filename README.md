@@ -1,6 +1,7 @@
 # pidgin2adium [![Build Status](https://secure.travis-ci.org/gabebw/pidgin2adium.png)](http://travis-ci.org/gabebw/pidgin2adium)
-A fast, easy way to convert [Pidgin](http://pidgin.im/) (formerly gaim) logs to the
-[Adium](http://adium.im/) format.
+
+A fast, easy way to convert [Pidgin](http://pidgin.im/) (formerly gaim) logs to
+the [Adium](http://adium.im/) format.
 
 ## SYNOPSIS:
 
@@ -11,11 +12,10 @@ for yourself, so that you show up in chats as (for example) `Me` instead of as
 
 However, Pidgin then uses aliases in the log file instead of the actual screen
 name, which complicates things. To parse properly, this gem needs to know which
-aliases belong to you so it can map them to the correct screen name.
-If it encounters an alias that you did not list,  it assumes that it belongs to
-the person to whom you are chatting.
-Note that aliases are lower-cased and space is removed, so providing 
-`Gabe B-W, GBW` is the same as providing `gabeb-w,gbw`.
+aliases belong to you so it can map them to the correct screen name. If it
+encounters an alias that you did not list,  it assumes that it belongs to the
+person to whom you are chatting. Note that aliases are lower-cased and space is
+removed, so providing `Gabe B-W, GBW` is the same as providing `gabeb-w,gbw`.
 
 You do not need to provide your screenname in the alias list.
 
@@ -50,8 +50,7 @@ This parses a log file and loops through the returned LogFile.
     gem install pidgin2adium
 
 ## THANKS
-With thanks to Li Ma, whose blog post at
-http://li-ma.blogspot.com/2008/10/pidgin-log-file-to-adium-log-converter.html
+With thanks to Li Ma, whose [blog post](http://li-ma.blogspot.com/2008/10/pidgin-log-file-to-adium-log-converter.html)
 helped tremendously.
 
 ## Note on Patches/Pull Requests
