@@ -23,9 +23,6 @@ module Pidgin2Adium
 
     factory =  ParserFactory.new(my_aliases)
     parser = factory.parser_for(logfile_path)
-
-    if parser
-      parser.parse
-    end
+    parser.parse
   end
 end

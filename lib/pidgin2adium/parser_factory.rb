@@ -5,12 +5,16 @@ module Pidgin2Adium
     end
 
     def parser_for(logfile_path)
-      case logfile_path
-      when /\.html?$/i
-        HtmlLogParser.new(logfile_path, @aliases)
-      when /\.txt$/i
-        TextLogParser.new(logfile_path, @aliases)
-      end
+      parser_class = case logfile_path
+                     when /\.html?$/i
+                       HtmlLogParser
+                     when /\.txt$/i
+                       TextLogParser
+                     else
+                       NullParser
+                     end
+
+      parser_class.new(logfile_path, @aliases)
     end
   end
 end

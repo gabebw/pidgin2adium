@@ -26,9 +26,9 @@ describe Pidgin2Adium::ParserFactory do
   end
 
   context 'when passed a non-HTML, non-text file' do
-    it "returns falsy" do
+    it 'returns something that responds to parse' do
       factory = Pidgin2Adium::ParserFactory.new(aliases)
-      factory.parser_for('foo.bar').should be_false
+      factory.parser_for('foo.bar').should respond_to(:parse)
     end
   end
 end
