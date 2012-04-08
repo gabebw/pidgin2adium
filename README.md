@@ -1,14 +1,10 @@
 # pidgin2adium [![Build Status](https://secure.travis-ci.org/gabebw/pidgin2adium.png)](http://travis-ci.org/gabebw/pidgin2adium)
 A fast, easy way to convert Pidgin (formerly gaim) logs to the
-Adium format. Note that it assumes a Mac OS X environment with Adium installed.
-
-## FEATURES/PROBLEMS:
-* No problems (well, hopefully).
+Adium format.
 
 ## SYNOPSIS:
 
-There are two ways you can use this gem: as a script or as a library.
-Both require you to provide aliases, which may require a bit of explanation.
+This library needs access to aliases to work correctly, which may require a bit of explanation.
 Adium and Pidgin allow you to set aliases for buddies as well as for yourself,
 so that you show up in chats as (for example) "Me" instead of as
 "best\_screen\_name\_ever\_018845".
@@ -22,20 +18,6 @@ Note that aliases are lower-cased and space is removed, so providing "Gabe B-W,
 GBW" is the same as providing "gabeb-w,gbw".
 
 You do not need to provide your screenname in the alias list.
-
-### Example (using script)
-Assuming that:
-
-* your Pidgin log files are in the "pidgin-logs" folder
-* your various aliases in your chats are "Gabe", "Gabe B-W", and "gbw"
-
-Then run (at the command line)
-
-    $ pidgin2adium -i pidgin-logs -a "Gabe, Gabe B-W, gbw"
-
-Or:
-
-    $ pidgin2adium -i pidgin-logs -a gabe,gabeb-w,gbw
 
 ### Example (using library)
 The library style allows you to parse a log file and get back a LogFile instance
@@ -63,38 +45,7 @@ individual messages, use Pidgin2Adium.parse.
         # Prints out the message in Adium log format
         puts message.to_s
       end
-
-      success = logfile.write_out()
-      # To specify your own output dir (default = Pidgin2Adium::ADIUM_LOG_DIR):
-      # logfile.write_out(my_dir)
-      if success == false
-        puts "An error occurred!"
-      elsif success == Pidgin2Adium::FILE_EXISTS
-        puts "File already exists."
-      else
-        puts "Successfully wrote out log file!"
-        puts "Path to output file: #{success}"
-      end
-      # This deletes search indexes so Adium re-indexes the new chat logs.
-      # It is not automatically called after log_file.write_out()
-      # Call it after converting all the logs, since it takes up a bit of
-      # processing power.
-      Pidgin2Adium.delete_search_indexes()
     end
-
-### Example 2 (using library)
-If you want to parse the file and write it out instead of just parsing it, use Pidgin2Adium.parse\_and\_generate.
-
-Note: For batch processing, use LogConverter.
-
-    require 'pidgin2adium'
-    # Both options are optional; without :output_dir, writes to Adium log dir
-    # (which is usually what you want anyway).
-    opts = {:output_dir => "/my/output/dir"}
-    path_to_converted_log = Pidgin2Adium.parse_and_generate("/path/to/log/file.html", "gabe,gbw,gabeb-w", opts)
-
-## REQUIREMENTS:
-* None
 
 ## INSTALL
 
