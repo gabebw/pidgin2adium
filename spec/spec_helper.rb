@@ -25,6 +25,4 @@ RSpec.configure do |config|
   end
 end
 
-Dir['spec/support/**/*.rb'].each do |f|
-  require File.expand_path(f)
-end
+Dir['spec/support/**/*.rb'].each { |f| require File.expand_path(f) }

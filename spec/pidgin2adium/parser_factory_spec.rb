@@ -17,7 +17,8 @@ describe Pidgin2Adium::ParserFactory do
   %w(txt TXT).each do |text_extension|
     context "when passed a .#{text_extension} file" do
       let(:logfile_path) {  }
-      it 'returns an TextLogParser' do
+
+      it 'returns a TextLogParser' do
         logfile_path = "whatever.#{text_extension}"
         factory = Pidgin2Adium::ParserFactory.new(aliases)
         factory.parser_for(logfile_path).should be_a Pidgin2Adium::TextLogParser
