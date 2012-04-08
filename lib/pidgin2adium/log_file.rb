@@ -1,15 +1,6 @@
 module Pidgin2Adium
-  # A holding object for the result of LogParser.parse.  It makes the
-  # instance variable @chat_lines available, which is an array of Message
-  # subclass instances (XMLMessage, Event, etc.)
-  # Here is a list of the instance variables for each class in @chat_lines:
-  #
-  # <b>All of these variables are read/write.</b>
-  # All::		 sender, time, buddy_alias
-  # XMLMessage::	 body
-  # AutoReplyMessage:: body
-  # Event::		 body, event_type
-  # StatusMessage::	 status
+  # A holding object for the parsed chat. LogFile#each will
+  # iterate over each Message in the chat.
   class LogFile
     include Enumerable
 
