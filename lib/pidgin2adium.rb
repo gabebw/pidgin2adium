@@ -20,7 +20,7 @@ module Pidgin2Adium
   def self.parse(logfile_path, my_aliases)
     logfile_path = File.expand_path(logfile_path)
 
-    factory =  ParserFactory.new(my_aliases)
+    factory = ParserFactory.new(my_aliases)
     parser = factory.parser_for(logfile_path)
     parser.parse
   end

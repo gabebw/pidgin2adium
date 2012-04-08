@@ -28,7 +28,7 @@ describe Pidgin2Adium::XMLMessage, '#to_s' do
 
     it 'removes *** from the beginning of the buddy alias' do
       alias_with_stars = '***Jim'
-      alias_without_stars =  'Jim'
+      alias_without_stars = 'Jim'
       xml_message = Pidgin2Adium::XMLMessage.new(sender, time, alias_with_stars, body)
       xml_message.to_s.should include %(alias="#{alias_without_stars}")
     end
