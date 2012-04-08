@@ -100,9 +100,7 @@ module Pidgin2Adium
       time = create_adium_time(matches[0])
       str = matches[1]
 
-      if time.nil? || ignorable_event?(str)
-        nil
-      else
+      if time && ! ignorable_event?(str)
         create_status_message(str, time) || create_event_message(str, time)
       end
     end
@@ -114,7 +112,7 @@ module Pidgin2Adium
     protected
 
     def ignorable_event?(str)
-      ignore_events.detect{|regex| str =~ regex }
+      ignore_events.detect { |regex| str =~ regex }
     end
 
     def create_status_message(str, time)
