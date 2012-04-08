@@ -6,16 +6,14 @@ module Pidgin2Adium
   class Message
     include Comparable
 
-    def initialize(sender, adium_formatted_time, buddy_alias)
-      # The sender's screen name
-      @sender = sender
+    def initialize(sender_screen_name, adium_formatted_time, sender_alias)
+      @sender_screen_name = sender_screen_name
       @time = adium_formatted_time
       @time_object = Time.parse(@time)
-      # The receiver's alias (NOT screen name)
-      @buddy_alias = buddy_alias
+      @sender_alias = sender_alias
     end
 
-    attr_reader :sender, :time, :buddy_alias
+    attr_reader :sender_screen_name, :time, :sender_alias
 
     # Compare this Message to +other_message+, based on their timestamps.
     def <=>(other_message)

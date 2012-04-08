@@ -1,8 +1,7 @@
 module Pidgin2Adium
-  # An auto reply message.
   class AutoReplyMessage < XMLMessage
     def to_s
-      %(<message sender="#{sender}" time="#{@time}" auto="true" alias="#{@buddy_alias}">#{@styled_body}</message>\n)
+      %(<message sender="#{sender_screen_name}" time="#{@time}" auto="true" alias="#{@sender_alias}">#{@styled_body}</message>\n)
     end
   end
 end

@@ -1,10 +1,10 @@
 require 'spec_helper'
 
 describe Pidgin2Adium::Event, '#to_s' do
-  it 'has the correct sender' do
-    sender = 'bob'
-    result = create_event(:sender => sender).to_s
-    result.should include %(sender="#{sender}")
+  it 'has the correct sender screen name' do
+    sender_screen_name = 'bob'
+    result = create_event(:sender_screen_name => sender_screen_name).to_s
+    result.should include %(sender="#{sender_screen_name}")
   end
 
   it 'has the correct time' do
@@ -14,9 +14,9 @@ describe Pidgin2Adium::Event, '#to_s' do
   end
 
   it 'has the correct alias' do
-    buddy_alias = 'jane_alias'
-    result = create_event(:buddy_alias => buddy_alias).to_s
-    result.should include %(alias="#{buddy_alias}")
+    sender_alias = 'jane_alias'
+    result = create_event(:sender_alias => sender_alias).to_s
+    result.should include %(alias="#{sender_alias}")
   end
 
   it 'has the correct body' do
@@ -31,12 +31,12 @@ describe Pidgin2Adium::Event, '#to_s' do
   end
 
   def create_event(opts = {})
-    opts[:sender] ||= 'jim_sender'
+    opts[:sender_screen_name] ||= 'jim_sender'
     opts[:time] ||= Time.now.strftime('%H:%M:%S')
-    opts[:buddy_alias] ||= 'jane_alias'
+    opts[:sender_alias] ||= 'jane_alias'
     opts[:body] ||= 'body'
     opts[:event_type] ||= 'libPurpleEvent'
 
-    Pidgin2Adium::Event.new(opts[:sender], opts[:time], opts[:buddy_alias], opts[:body], opts[:event_type])
+    Pidgin2Adium::Event.new(opts[:sender_screen_name], opts[:time], opts[:sender_alias], opts[:body], opts[:event_type])
   end
 end

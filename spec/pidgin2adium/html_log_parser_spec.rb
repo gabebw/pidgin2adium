@@ -139,8 +139,8 @@ describe "HtmlLogParser" do
       second_msg = @logfile.chat_lines[1]
       third_msg = @logfile.chat_lines[2]
 
-      first_msg.sender.should == "aolsystemmsg"
-      first_msg.buddy_alias.should == "AOL System Msg"
+      first_msg.sender_screen_name.should == "aolsystemmsg"
+      first_msg.sender_alias.should == "AOL System Msg"
       # Use regex to ignore time zone
       first_msg.time.should =~ /^2008-01-15T07:14:45[-+]\d{2}:00$/
       # This fails due to balance_tags_c().
@@ -149,13 +149,13 @@ describe "HtmlLogParser" do
         %Q{Click <a href="http://www.aim.com/password/routing.adp">here</a> for more information.}
       first_msg.body.should == good_body
 
-      second_msg.sender.should == "othersn"
-      second_msg.buddy_alias.should == "Gabe B-W"
+      second_msg.sender_screen_name.should == "othersn"
+      second_msg.sender_alias.should == "Gabe B-W"
       second_msg.time.should =~ /^2008-01-15T07:14:48[-+]\d{2}:00$/
       second_msg.body.should == "1"
 
-      third_msg.sender.should == "aolsystemmsg"
-      third_msg.buddy_alias.should == "AOL System Msg"
+      third_msg.sender_screen_name.should == "aolsystemmsg"
+      third_msg.sender_alias.should == "AOL System Msg"
       # Use regex to ignore time zone
       third_msg.time.should =~ /^2008-01-15T07:14:48[-+]\d{2}:00$/
       third_msg.body.should == "Your other AIM sessions have been signed-off.  You are now signed-on from 1 location(s)."

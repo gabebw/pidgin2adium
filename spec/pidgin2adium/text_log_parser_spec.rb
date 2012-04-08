@@ -39,9 +39,9 @@ describe Pidgin2Adium::TextLogParser do
       end
       logfile = create_parser_for(path, 'Gabe B-W').parse
       msg = logfile.chat_lines[0]
-      msg.sender.should == "awesomesn"
+      msg.sender_screen_name.should == "awesomesn"
       msg.body.should == "what are you doing tomorrow?"
-      msg.buddy_alias.should == "Gabe B-W"
+      msg.sender_alias.should == "Gabe B-W"
       msg.time.should include '2006-12-21T22:36:11'
     end
   end
