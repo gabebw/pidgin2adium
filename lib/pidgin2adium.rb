@@ -45,73 +45,14 @@ module Pidgin2Adium
 
   # Parses the provided log.
   # Returns a LogFile instance or false if an error occurred.
-  def self.parse(logfile_path, my_aliases, force_conversion = false)
+  def self.parse(logfile_path, my_aliases)
     logfile_path = File.expand_path(logfile_path)
 
-    factory =  ParserFactory.new(my_aliases, force_conversion)
+    factory =  ParserFactory.new(my_aliases)
     parser = factory.parser_for(logfile_path)
 
     if parser
       parser.parse
-    else
-      Pidgin2Adium.error("No parser found for the given path (is it an HTML or text file?):#{logfile_path}")
-      false
     end
-  end
-
-  # Parses the provided log and writes out the log in Adium format.
-  # Returns:
-  #  * true if it successfully converted and wrote out the log,
-  #  * false if an error occurred, or
-  #  * Pidgin2Adium::FILE_EXISTS if file already exists
-  #
-  # You can add options using the _opts_ hash, which can have the following
-  # keys, all of which are optional:
-  # * *output_dir*: The top-level dir to put the logs in.
-  #   Logs under output_dir are still each in their own folders, etc.
-  #   Defaults to Pidgin2Adium::ADIUM_LOG_DIR
-  def self.parse_and_generate(logfile_path, my_aliases, opts = {})
-    opts = {} unless opts.is_a?(Hash)
-    force_conversion = !!opts[:force_conversion]
-    output_dir = opts[:output_dir] || ADIUM_LOG_DIR
-
-    FileUtils.mkdir_p(output_dir)
-
-    logfile_obj = parse(logfile_path, my_aliases, force_conversion)
-    if logfile_obj
-      dest_file_path = logfile_obj.write_out(output_dir)
-
-      if dest_file_path == false
-        error("Successfully parsed file, but failed to write it out. Path: #{logfile_path}.")
-        false
-      elsif dest_file_path == FILE_EXISTS
-        log("File already exists.")
-        FILE_EXISTS
-      else
-        log("Output to: #{dest_file_path}")
-        true
-      end
-    else
-      false
-    end
-  end
-
-  # Newly-converted logs are viewable in the Adium Chat Transcript
-  # Viewer, but are not indexed, so a search of the logs doesn't give
-  # results from the converted logs. To fix this, we delete the cached log
-  # indexes, which forces Adium to re-index.
-  #
-  # Note: This function is run by LogConverter after converting all of its
-  # files.  LogFile.write_out intentionally does _not_ run it in order to
-  # allow for batch-processing of files. Thus, you will probably want to run
-  # Pidgin2Adium.delete_search_indexes after running LogFile.write_out in
-  # your own scripts.
-  def self.delete_search_indexes
-    log "Deleting log search indexes in order to force re-indexing of imported logs..."
-    dirty_file = File.expand_path("~/Library/Caches/Adium/Default/DirtyLogs.plist")
-    log_index_file = File.expand_path("~/Library/Caches/Adium/Default/Logs.index")
-    [dirty_file, log_index_file].each { |file| FileUtils.rm_f(file) }
-    log "...done."
-    log "When you next start the Adium Chat Transcript Viewer, it will re-index the logs, which may take a while."
   end
 end

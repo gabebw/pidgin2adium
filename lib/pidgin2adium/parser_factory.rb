@@ -1,16 +1,15 @@
 module Pidgin2Adium
   class ParserFactory
-    def initialize(aliases, force_conversion)
+    def initialize(aliases)
       @aliases = aliases
-      @force_conversion = force_conversion
     end
 
     def parser_for(logfile_path)
       case logfile_path
       when /\.html?$/i
-        HtmlLogParser.new(logfile_path, @aliases, @force_conversion)
+        HtmlLogParser.new(logfile_path, @aliases)
       when /\.txt$/i
-        TextLogParser.new(logfile_path, @aliases, @force_conversion)
+        TextLogParser.new(logfile_path, @aliases)
       end
     end
   end

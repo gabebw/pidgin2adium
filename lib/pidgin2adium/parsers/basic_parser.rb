@@ -12,20 +12,15 @@ require 'pidgin2adium/messages/all'
 module Pidgin2Adium
   # BasicParser is a base class. Its subclasses are TextLogParser and
   # HtmlLogParser.
-  #
-  # Please use Pidgin2Adium.parse or Pidgin2Adium.parse_and_generate instead of
-  # using this class directly.
   class BasicParser
     # "2007-04-17 12:33:13" => %w(2007 04 17)
     TIME_REGEX = /^(\d{4})-(\d{2})-(\d{2}) \d{2}:\d{2}:\d{2}$/
 
-    #  force_conversion: Should we continue to convert after hitting an unparseable line?
-    def initialize(src_path, user_aliases, force_conversion = false)
+    def initialize(src_path, user_aliases)
       @src_path = src_path
       # Whitespace is removed for easy matching later on.
       @user_aliases = user_aliases.split(',').map{|x| x.downcase.gsub(/\s+/,'') }.uniq
 
-      @force_conversion = force_conversion
       # @user_alias is set each time get_sender_by_alias is called. It is a non-normalized
       # alias.
       # Set an initial value just in case the first message doesn't give
@@ -46,20 +41,12 @@ module Pidgin2Adium
           elsif line =~ @line_regex_status
             message = create_status_or_event_message($~.captures)
             if message == false
-              if force_conversion?
-                nil # will get compacted out
-              else
-                # Error occurred while parsing
-                return false
-              end
+              # Error occurred while parsing
+              return false
             end
-          else
-            error "Could not parse line:"
-            p line
-            return false
           end
         end.compact
-        LogFile.new(messages, @service, @user_SN, @partner_SN, @adium_chat_time_start)
+        LogFile.new(messages)
       end
     end
 
@@ -146,26 +133,6 @@ module Pidgin2Adium
 
     protected
 
-    # Should we continue to convert after hitting an unparseable line?
-    def force_conversion?
-      !! @force_conversion
-    end
-
-    def print_conversion_error
-      if ! printed_conversion_error?
-        Pidgin2Adium.error("#{@src_path} was converted with the following errors:")
-        printed_conversion_error!
-      end
-    end
-
-    def printed_conversion_error?
-      @printed_conversion_error == true
-    end
-
-    def printed_conversion_error!
-      @printed_conversion_error = true
-    end
-
     def ignorable_event?(str)
       ignore_events.detect{|regex| str =~ regex }
     end
@@ -180,24 +147,7 @@ module Pidgin2Adium
     end
 
     def create_event_message(string, time)
-      message = create_lib_purple_event_message(string, time) || create_non_lib_purple_event_message(string, time)
-
-      if message
-        message
-      else
-        if force_conversion?
-          print_conversion_error
-        end
-
-        indent = if force_conversion?
-                   "\t"
-                 else
-                   ""
-                 end
-
-        Pidgin2Adium.error("#{indent}Error parsing status or event message, no status or event found: #{string.inspect}")
-        false
-      end
+      create_lib_purple_event_message(string, time) || create_non_lib_purple_event_message(string, time)
     end
 
     def status_map
@@ -296,7 +246,7 @@ module Pidgin2Adium
         buddy_alias = regex_matches[1]
         sender = get_sender_by_alias(buddy_alias)
       end
-      message = Event.new(sender, time, buddy_alias, string, event_type)
+      Event.new(sender, time, buddy_alias, string, event_type)
     end
 
     def create_adium_time(time_string)
