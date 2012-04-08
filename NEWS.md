@@ -47,6 +47,7 @@ Bugfix release.
   segfaults (commit #733ce88b0836256e14f0, fixes #27811)
 
 Non-user-facing stuff:
+
 * Switched to Jeweler, RSpec, and Bundler
 * Rakefile now doesn't choke if Hanna gem isn't installed
 
