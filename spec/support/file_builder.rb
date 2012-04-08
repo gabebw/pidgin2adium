@@ -1,3 +1,5 @@
+require 'fileutils'
+
 module FileBuilderHelpers
   SPEC_DIR = File.dirname(File.dirname(__FILE__))
   OUTPUT_PATH = File.join(SPEC_DIR, 'built-files')

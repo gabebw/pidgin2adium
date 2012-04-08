@@ -3,7 +3,6 @@
 # A ruby program to convert Pidgin log files to Adium log files, then place
 # them in the Adium log directory.
 
-require 'fileutils'
 require 'date'
 require 'time'
 
