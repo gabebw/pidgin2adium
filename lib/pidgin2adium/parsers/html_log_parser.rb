@@ -1,11 +1,9 @@
-# HtmlLogParser class, a subclass of BasicParser.
-# Used for parse()ing HTML logs.
-
 module Pidgin2Adium
   class HtmlLogParser < BasicParser
+    TIMESTAMP_REGEX = '\(((?:\d{4}-\d{2}-\d{2} )?\d{1,2}:\d{1,2}:\d{1,2}(?: [AP]M)?)\)'
+
     def initialize(source_file_path, user_aliases)
       super(source_file_path, user_aliases)
-      @timestamp_rx = '\(((?:\d{4}-\d{2}-\d{2} )?\d{1,2}:\d{1,2}:\d{1,2}(?: [AP]M)?)\)'
 
       # @line_regex matches a line in an HTML log file other than the
       # first time matches on either "2008-11-17 14:12" or "14:12"
@@ -15,12 +13,12 @@ module Pidgin2Adium
       # 2: "&lt;AUTO-REPLY&gt;" or nil
       # 3: message body
       # The ":" is optional to allow for strings like "(17:12:21) <b>***Gabe B-W</b> is confused<br/>"
-      @line_regex = /#{@timestamp_rx} ?<b>(.+?) ?(&lt;AUTO-REPLY&gt;)?:?<\/b> ?(.+)<br ?\/>/o
+      @line_regex = /#{TIMESTAMP_REGEX} ?<b>(.+?) ?(&lt;AUTO-REPLY&gt;)?:?<\/b> ?(.+)<br ?\/>/o
       # @line_regex_status matches a status line
       # @line_regex_status match obj:
       # 0: timestamp
       # 1: status message
-      @line_regex_status = /#{@timestamp_rx} ?<b> (.+)<\/b><br ?\/>/o
+      @line_regex_status = /#{TIMESTAMP_REGEX} ?<b> (.+)<\/b><br ?\/>/o
     end
 
     # Returns a cleaned string.
@@ -55,7 +53,7 @@ module Pidgin2Adium
 
       # Replace newlines with "<br/>" unless they end a chat line.
       # This must go after we remove <font> tags.
-      text.gsub!(/\n(?!#{@timestamp_rx})/, '<br/>')
+      text.gsub!(/\n(?!#{TIMESTAMP_REGEX})/, '<br/>')
 
       # These empty links are sometimes appended to every line in a chat,
       # for some weird reason. Remove them.
