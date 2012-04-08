@@ -1,22 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
-describe Pidgin2Adium, "utility methods" do
-  include_context "fake logger"
-
-  context '.logger getters and setters' do
-    it 'gets/sets the logger' do
-      Pidgin2Adium.logger = 'hi'
-      Pidgin2Adium.logger.should == 'hi'
-    end
-  end
-
-  it { should delegate(:error).to(:logger).with_arguments('hi') }
-  it { should delegate(:warn).to(:logger).with_arguments('hi') }
-  it { should delegate(:log).to(:logger).with_arguments('hi') }
-end
-
 describe Pidgin2Adium, "#parse" do
-  include_context "fake logger"
   let(:aliases) { '' }
 
   context "on failure" do

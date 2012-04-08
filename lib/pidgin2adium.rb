@@ -10,33 +10,12 @@ require 'time'
 require 'pidgin2adium/version'
 require 'pidgin2adium/parsers/all'
 require 'pidgin2adium/tag_balancer'
-require 'pidgin2adium/logger'
 require 'pidgin2adium/parser_factory'
 require 'pidgin2adium/time_parser'
 require 'pidgin2adium/metadata'
 require 'pidgin2adium/first_line_parser'
 
 module Pidgin2Adium
-  def self.logger
-    @@logger ||= Pidgin2Adium::Logger.new
-  end
-
-  def self.logger=(new_logger)
-    @@logger = new_logger
-  end
-
-  def self.log(str)
-    Pidgin2Adium.logger.log(str)
-  end
-
-  def self.warn(str)
-    Pidgin2Adium.logger.warn(str)
-  end
-
-  def self.error(str)
-    Pidgin2Adium.logger.error(str)
-  end
-
   # Parses the provided log.
   # Returns a LogFile instance or false if an error occurred.
   def self.parse(logfile_path, my_aliases)

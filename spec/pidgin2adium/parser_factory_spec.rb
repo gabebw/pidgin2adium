@@ -27,7 +27,6 @@ describe Pidgin2Adium::ParserFactory do
 
   context 'when passed a non-HTML, non-text file' do
     it "returns falsy" do
-      Pidgin2Adium.logger.stubs(:error)
       factory = Pidgin2Adium::ParserFactory.new(aliases)
       factory.parser_for('foo.bar').should be_false
     end
