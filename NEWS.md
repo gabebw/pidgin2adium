@@ -3,35 +3,35 @@
 
 ### 3.2.3 / 2010-11-08
 * Be more liberal in what Pidgin2Adium accepts when parsing the date and
-getting basic time info for the first line. Thanks to Matthew Jakubowski for
-helping me fix this bug.
+  getting basic time info for the first line. Thanks to Matthew Jakubowski for
+  helping me fix this bug.
 
 ### 3.2.2 / 2010-11-08
 * Use DateTime#strftime to get dates in xmlschema format. DateTime#xmlschema
-doesn't exist in Ruby 1.8, and Ruby 1.9 has DateTime#iso8601, not
-DateTime#xmlschema. Just use strftime. Thanks to Matthew Jakubowski for
-pointing this bug out.
+  doesn't exist in Ruby 1.8, and Ruby 1.9 has DateTime#iso8601, not
+  DateTime#xmlschema. Just use strftime. Thanks to Matthew Jakubowski for
+  pointing this bug out.
 
 ### 3.2.1 / 2010-11-08
 * Use straight `DateTime.parse` when possible, and only fall back on hacky
-`Date._strptime` when we have to.
+  `Date._strptime` when we have to.
 
 ### 3.2.0 / 2010-10-12
 * Last release broke 1.8 compatibility due to use of strptime. 1.8 and 1.9
-both work in 3.2.0.
+  both work in 3.2.0.
 * Moved Pidgin2Adium::VERSION to its own file
 
 ### 3.1.1 / 2010-08-13
-* Moved BasicParser and its subclasses into parsers/ subdir
-  - You can now do "require 'pidgin2adium/parsers/all'",
-    though the old "require 'pidgin2adium/log_parser" will still work
+* Moved BasicParser and its subclasses into parsers/ subdir.
+  - You can now do `require 'pidgin2adium/parsers/all'`,
+    though the old `require 'pidgin2adium/log_parser'` will still work
 * Moved Message and its subclasses into messages/ subdir
-  - You can now do "require 'pidgin2adium/messages/all'",
-    though the old "require 'pidgin2adium/message" will still work
+  - You can now do `require 'pidgin2adium/messages/all'`,
+    though the old `require 'pidgin2adium/message'` will still work
 
 ### 3.1.0 / 2010-08-13
 * Compatible with Ruby 1.9!
-  - removed dependency on "parsedate" library, which 1.9 doesn't have
+  - removed dependency on `parsedate` library, which 1.9 doesn't have
 * `log_parser.rb` has been split into separate files (1 per class, more or less)
   - `require pidgin2adium/log_parser` will still pull in all of the split-up
     classes
@@ -41,9 +41,11 @@ both work in 3.2.0.
 * Fully tested (except bin/pidgin2adium, which remains tricky)
 
 ### 3.0.1 / 2010-08-07
-Bugfix release:
+Bugfix release.
+
 * `balance_tags_c.c`: Use `rb_eval_string` instead of `rb_reg_regcomp` to avoid
   segfaults (commit #733ce88b0836256e14f0, fixes #27811)
+
 Non-user-facing stuff:
 * Switched to Jeweler, RSpec, and Bundler
 * Rakefile now doesn't choke if Hanna gem isn't installed
