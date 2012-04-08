@@ -102,8 +102,8 @@ describe "HtmlLogParser" do
   end
 
   describe "#parse" do
-    before do
-      @path = path = create_chat_file('parse.html') do |b|
+    let(:path) do
+      create_chat_file('parse.html') do |b|
         b.first_line :from => 'otherSN', :to => 'aolsystemmsg',
           :time => '1/15/2008 7:14:45 AM'
         b.message :time => '2008-01-15 07:14:45',
@@ -118,7 +118,9 @@ describe "HtmlLogParser" do
           :text => %{Your other AIM sessions have been signed-off.  You are now signed-on from 1 location(s).},
           :font_color => 'A82F2F'
       end
+    end
 
+    before do
       @logfile = create_parser_for(path, 'Gabe B-W').parse
     end
 
