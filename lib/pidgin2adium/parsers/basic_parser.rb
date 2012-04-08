@@ -32,20 +32,15 @@ module Pidgin2Adium
     def parse
       if pre_parse
         cleaned_file_content = cleanup(@file_content).split("\n")
+        cleaned_file_content.reject! { |line| line.strip.empty? }
 
         messages = cleaned_file_content.map do |line|
-          # "next" returns nil which is removed by compact
-          next if line =~ /^\s+$/
           if line =~ @line_regex
             create_message($~.captures)
           elsif line =~ @line_regex_status
             message = create_status_or_event_message($~.captures)
-            if message == false
-              # Error occurred while parsing
-              return false
-            end
           end
-        end.compact
+        end
         LogFile.new(messages)
       end
     end
@@ -89,15 +84,16 @@ module Pidgin2Adium
     def create_message(matches)
       # Either a regular message line or an auto-reply/away message.
       time = create_adium_time(matches[0])
-      return nil if time.nil?
-      buddy_alias = matches[1]
-      sender = get_sender_by_alias(buddy_alias)
-      body = matches[3]
-      if matches[2] # auto-reply
-        AutoReplyMessage.new(sender, time, buddy_alias, body)
-      else
-        # normal message
-        XMLMessage.new(sender, time, buddy_alias, body)
+      if time
+        buddy_alias = matches[1]
+        sender = get_sender_by_alias(buddy_alias)
+        body = matches[3]
+        if matches[2] # auto-reply
+          AutoReplyMessage.new(sender, time, buddy_alias, body)
+        else
+          # normal message
+          XMLMessage.new(sender, time, buddy_alias, body)
+        end
       end
     end
 
