@@ -1,6 +1,6 @@
 # pidgin2adium [![Build Status](https://secure.travis-ci.org/gabebw/pidgin2adium.png)](http://travis-ci.org/gabebw/pidgin2adium)
-A fast, easy way to convert Pidgin (formerly gaim) logs to the
-Adium format.
+A fast, easy way to convert [Pidgin](http://pidgin.im/) (formerly gaim) logs to the
+[Adium](http://adium.im/) format.
 
 ## SYNOPSIS:
 
