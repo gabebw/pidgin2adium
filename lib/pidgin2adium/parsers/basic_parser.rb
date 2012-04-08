@@ -13,9 +13,6 @@ module Pidgin2Adium
   # BasicParser is a base class. Its subclasses are TextLogParser and
   # HtmlLogParser.
   class BasicParser
-    # "2007-04-17 12:33:13" => %w(2007 04 17)
-    TIME_REGEX = /^(\d{4})-(\d{2})-(\d{2}) \d{2}:\d{2}:\d{2}$/
-
     def initialize(src_path, user_aliases)
       @src_path = src_path
       # Whitespace is removed for easy matching later on.
