@@ -5,7 +5,6 @@ describe Pidgin2Adium::ParserFactory do
 
   %w(html htm HTML).each do |html_extension|
     context "when passed a .#{html_extension} file" do
-      let(:logfile_path) {  }
       it 'returns an HtmlLogParser' do
         logfile_path = "whatever.#{html_extension}"
         factory = Pidgin2Adium::ParserFactory.new(aliases)
@@ -16,8 +15,6 @@ describe Pidgin2Adium::ParserFactory do
 
   %w(txt TXT).each do |text_extension|
     context "when passed a .#{text_extension} file" do
-      let(:logfile_path) {  }
-
       it 'returns a TextLogParser' do
         logfile_path = "whatever.#{text_extension}"
         factory = Pidgin2Adium::ParserFactory.new(aliases)
