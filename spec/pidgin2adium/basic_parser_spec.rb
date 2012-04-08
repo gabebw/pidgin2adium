@@ -42,10 +42,6 @@ describe Pidgin2Adium::BasicParser do
       it "correctly sets basic_time_info" do
         @bp.instance_variable_get('@basic_time_info').should == {:year=>2008, :month=>1, :day=>15}
       end
-
-      it "correctly sets adium_chat_time_start" do
-        @bp.instance_variable_get('@adium_chat_time_start').should include '2008-01-15T07:14:45'
-      end
     end
   end
 

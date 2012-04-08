@@ -56,7 +56,6 @@ module Pidgin2Adium
     # * @user_SN
     # * @partner_SN
     # * @basic_time_info
-    # * @adium_chat_time_start
     # Returns true if none of these variables are false or nil.
     def pre_parse
       read_source_file
@@ -69,9 +68,6 @@ module Pidgin2Adium
         @basic_time_info = {:year => start_time.year,
                             :month => start_time.mon,
                             :day => start_time.mday}
-
-        # When the chat started, in Adium's format
-        @adium_chat_time_start = start_time.strftime('%Y-%m-%dT%H:%M:%S%Z')
       end
     end
 
