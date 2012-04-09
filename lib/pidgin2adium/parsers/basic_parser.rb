@@ -2,8 +2,6 @@ require 'pidgin2adium/log_file'
 require 'pidgin2adium/messages/all'
 
 module Pidgin2Adium
-  # BasicParser is a base class. Its subclasses are TextLogParser and
-  # HtmlLogParser.
   class BasicParser
     def initialize(source_file_path, sender_aliases)
       @source_file_path = source_file_path
