@@ -12,7 +12,7 @@ module Pidgin2Adium
       # alias.
       # Set an initial value just in case the first message doesn't give
       # us an alias.
-      @sender_alias = sender_aliases.split(',')[0]
+      @sender_alias = @sender_aliases.first
     end
 
     # This method returns a LogFile instance, or false if an error occurred.
