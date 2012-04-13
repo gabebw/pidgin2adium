@@ -1,25 +1,10 @@
 # pidgin2adium [![Build Status](https://secure.travis-ci.org/gabebw/pidgin2adium.png)](http://travis-ci.org/gabebw/pidgin2adium)
 
-A fast, easy way to convert [Pidgin](http://pidgin.im/) (formerly gaim) logs to
-the [Adium](http://adium.im/) format.
+Convert [Pidgin](http://pidgin.im/) (formerly gaim) logs to the
+[Adium](http://adium.im/) format.
 
-## SYNOPSIS:
+## For the impatient
 
-This library needs access to aliases to work correctly, which may require a bit
-of explanation. Adium and Pidgin allow you to set aliases for buddies as well as
-for yourself, so that you show up in chats as (for example) `Me` instead of as
-`best_screen_name_ever_018845`.
-
-However, Pidgin then uses aliases in the log file instead of the actual screen
-name, which complicates things. To parse properly, this gem needs to know which
-aliases belong to you so it can map them to the correct screen name. If it
-encounters an alias that you did not list,  it assumes that it belongs to the
-person to whom you are chatting. Note that aliases are lower-cased and space is
-removed, so providing `Gabe B-W, GBW` is the same as providing `gabeb-w,gbw`.
-
-You do not need to provide your screenname in the alias list.
-
-### Example
 This parses a log file and loops through the returned LogFile.
 
     require 'pidgin2adium'
@@ -44,6 +29,23 @@ This parses a log file and loops through the returned LogFile.
     else
       puts "Oh no! Could not parse!"
     end
+
+## The fine print
+
+This library needs access to aliases to work correctly, which may require a bit
+of explanation. Adium and Pidgin allow you to set aliases for buddies as well as
+for yourself, so that you show up in chats as (for example) `Me` instead of as
+`best_screen_name_ever_018845`.
+
+However, Pidgin then uses aliases in the log file instead of the actual screen
+name, which complicates things. To parse properly, this gem needs to know which
+aliases belong to you so it can map them to the correct screen name. If it
+encounters an alias that you did not list,  it assumes that it belongs to the
+person to whom you are chatting. Note that aliases are lower-cased and space is
+removed, so providing `Gabe B-W, GBW` is the same as providing `gabeb-w,gbw`.
+
+You do not need to provide your screenname in the alias list.
+
 
 ## INSTALL
 
