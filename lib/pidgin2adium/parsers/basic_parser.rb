@@ -99,7 +99,7 @@ module Pidgin2Adium
     protected
 
     def ignorable_event?(str)
-      ignore_events.detect { |regex| str =~ regex }
+      ignore_events.any? { |regex| str =~ regex }
     end
 
     def create_status_message(str, time)
