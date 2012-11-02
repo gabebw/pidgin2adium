@@ -24,23 +24,23 @@ describe Pidgin2Adium, "#parse" do
 
   context "on success" do
     context "for a text file" do
-      it "returns a LogFile instance" do
+      it "returns a Chat instance" do
         result = Pidgin2Adium.parse(@text_logfile_path, aliases)
-        result.should be_instance_of(Pidgin2Adium::LogFile)
+        result.should be_instance_of(Pidgin2Adium::Chat)
       end
     end
 
     context "for an htm file" do
-      it "returns a LogFile instance" do
+      it "returns a Chat instance" do
         result = Pidgin2Adium.parse(@htm_logfile_path, aliases)
-        result.should be_instance_of(Pidgin2Adium::LogFile)
+        result.should be_instance_of(Pidgin2Adium::Chat)
       end
     end
 
     context "for an html file" do
-      it "returns a LogFile instance" do
+      it "returns a Chat instance" do
         result = Pidgin2Adium.parse(@html_logfile_path, aliases)
-        result.should be_instance_of(Pidgin2Adium::LogFile)
+        result.should be_instance_of(Pidgin2Adium::Chat)
       end
     end
   end

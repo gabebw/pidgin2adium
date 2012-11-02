@@ -121,25 +121,25 @@ describe "HtmlLogParser" do
     end
 
     before do
-      @logfile = create_parser_for(path, 'Gabe B-W').parse
+      @chat = create_parser_for(path, 'Gabe B-W').parse
     end
 
-    it "should return a LogFile instance" do
-      @logfile.should be_instance_of(Pidgin2Adium::LogFile)
+    it "should return a Chat instance" do
+      @chat.should be_instance_of(Pidgin2Adium::Chat)
     end
 
-    it "should return a LogFile with the correct number of chat_lines" do
-      @logfile.chat_lines.size.should == 3
+    it "should return a Chat with the correct number of lines" do
+      @chat.lines.size.should == 3
     end
 
-    it "should return a LogFile with the correct message type" do
-      @logfile.chat_lines.map(&:class).should == [Pidgin2Adium::XMLMessage] * 3
+    it "should return a Chat with the correct message type" do
+      @chat.lines.map(&:class).should == [Pidgin2Adium::XMLMessage] * 3
     end
 
-    it "should return a LogFile with the correct data" do
-      first_msg = @logfile.chat_lines[0]
-      second_msg = @logfile.chat_lines[1]
-      third_msg = @logfile.chat_lines[2]
+    it "should return a Chat with the correct data" do
+      first_msg = @chat.lines[0]
+      second_msg = @chat.lines[1]
+      third_msg = @chat.lines[2]
 
       first_msg.sender_screen_name.should == "aolsystemmsg"
       first_msg.sender_alias.should == "AOL System Msg"

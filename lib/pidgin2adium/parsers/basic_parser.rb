@@ -1,4 +1,4 @@
-require 'pidgin2adium/log_file'
+require 'pidgin2adium/chat'
 require 'pidgin2adium/messages/all'
 
 module Pidgin2Adium
@@ -15,7 +15,7 @@ module Pidgin2Adium
       @sender_alias = @sender_aliases.first
     end
 
-    # This method returns a LogFile instance, or false if an error occurred.
+    # This method returns a Chat instance, or false if an error occurred.
     def parse
       if pre_parse
         cleaned_file_content = cleanup(@file_content).split("\n")
@@ -28,7 +28,7 @@ module Pidgin2Adium
             message = create_status_or_event_message($~.captures)
           end
         end
-        LogFile.new(messages)
+        Chat.new(messages)
       end
     end
 

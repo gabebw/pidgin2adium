@@ -11,7 +11,7 @@ require 'pidgin2adium/metadata_parser'
 
 module Pidgin2Adium
   # Parses the provided log.
-  # Returns a LogFile instance.
+  # Returns a Chat instance.
   def self.parse(logfile_path, my_aliases)
     logfile_path = File.expand_path(logfile_path)
 
