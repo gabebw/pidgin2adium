@@ -22,7 +22,7 @@ module Pidgin2Adium
     private
 
     def adium_formatted_time
-      @time.strftime('%Y-%m-%dT%H:%M:%S%Z')
+      @time.xmlschema
     end
   end
 end

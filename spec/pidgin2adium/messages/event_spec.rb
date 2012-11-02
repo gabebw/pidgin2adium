@@ -7,7 +7,7 @@ describe Pidgin2Adium::Event, '#to_s' do
 
   it 'has the correct time' do
     time = Time.now
-    formatted_time = time.strftime('%Y-%m-%dT%H:%M:%S%Z')
+    formatted_time = time.xmlschema
     result = create_event(:time => time).to_s
     result.should include %(time="#{formatted_time}")
   end
