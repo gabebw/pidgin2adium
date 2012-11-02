@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.version               = Pidgin2Adium::VERSION
   s.platform              = Gem::Platform::RUBY
   s.authors               = ["Gabe Berke-Williams"]
-  s.email                 = "gbw@brandeis.edu"
+  s.email                 = "gabe@thoughtbot.com"
   s.description           = "Pidgin2Adium is a fast, easy way to convert Pidgin (formerly gaim) logs to the Adium format."
   s.summary               = "Pidgin2Adium is a fast, easy way to convert Pidgin (formerly gaim) logs to the Adium format"
   s.files                 = `git ls-files`.split("\n")
