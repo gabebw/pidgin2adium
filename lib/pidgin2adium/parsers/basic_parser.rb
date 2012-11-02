@@ -10,7 +10,7 @@ module Pidgin2Adium
     def initialize(source_file_path, sender_aliases)
       # Whitespace is removed for easy matching later on.
       @sender_aliases = sender_aliases.split(',')#.map{|x| x.downcase.gsub(/\s+/,'') }.uniq
-      @registry = AliasRegistry.new
+      @alias_registry = AliasRegistry.new
 
       # @sender_alias is set each time sender_from_alias is called. It is a non-normalized
       # alias.
@@ -43,16 +43,16 @@ module Pidgin2Adium
       if metadata.valid?
         @metadata = metadata
         @sender_aliases.each do |sender_alias|
-          @registry[sender_alias] = @metadata.sender_screen_name
+          @alias_registry[sender_alias] = @metadata.sender_screen_name
         end
       end
     end
 
     def sender_from_alias(alias_name)
-      if @registry.key?(alias_name)
-        @registry[alias_name]
+      if @alias_registry.key?(alias_name)
+        @alias_registry[alias_name]
       else
-        @registry[alias_name] = @metadata.receiver_screen_name
+        @alias_registry[alias_name] = @metadata.receiver_screen_name
       end
     end
 
