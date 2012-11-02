@@ -100,7 +100,7 @@ module Pidgin2Adium
       @time_parser ||= TimeParser.new(@metadata.start_year, @metadata.start_month, @metadata.start_mday)
     end
 
-    protected
+    private
 
     def ignorable_event?(str)
       ignore_events.any? { |regex| str =~ regex }
