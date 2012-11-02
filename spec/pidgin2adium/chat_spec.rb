@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe Pidgin2Adium::Chat do
   describe '#to_s' do
     it 'converts all lines to strings and joins them' do

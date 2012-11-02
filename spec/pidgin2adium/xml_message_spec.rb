@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe Pidgin2Adium::XMLMessage, '#to_s' do
   it 'has the correct sender_screen_name' do
     create_xml_message(:sender_screen_name => 'jim').to_s.should include %(sender="jim")

@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe Pidgin2Adium::Metadata do
   context '#sender_screen_name' do
     it "returns the sender's normalized screen name" do

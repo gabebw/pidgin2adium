@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe Pidgin2Adium::AliasRegistry do
   it 'keeps track of aliases' do
     alias_registry['My Cool Alias'] = 'screen_name88'

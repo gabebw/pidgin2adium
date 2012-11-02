@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe Pidgin2Adium::NullParser do
   context '#parse' do
     it 'does nothing' do

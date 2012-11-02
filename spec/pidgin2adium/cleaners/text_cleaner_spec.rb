@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe Pidgin2Adium::Cleaners::TextCleaner, '.clean' do
   it 'removes \r' do
     clean("\r").should == ''

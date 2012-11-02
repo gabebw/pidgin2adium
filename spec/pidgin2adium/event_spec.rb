@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe Pidgin2Adium::Event, '#to_s' do
   it 'has the correct sender screen name' do
     sender_screen_name = 'bob'

@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe Pidgin2Adium::BasicParser do
   describe "#pre_parse" do
     it "returns false for an empty file" do

@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe Pidgin2Adium::MetadataParser do
   context '#parse' do
     it "finds the sender's screen name" do

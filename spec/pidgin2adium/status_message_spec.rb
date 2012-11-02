@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe Pidgin2Adium::StatusMessage, '#to_s' do
   it 'has the correct sender' do
     sender_screen_name = 'bob'

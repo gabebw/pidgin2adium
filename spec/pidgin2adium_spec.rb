@@ -1,6 +1,4 @@
-require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
-
-describe Pidgin2Adium, "#parse" do
+describe Pidgin2Adium, ".parse" do
   let(:aliases) { '' }
 
   context "on failure" do

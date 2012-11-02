@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe Pidgin2Adium::Cleaners::HtmlCleaner, ".clean" do
   it "removes html, body, and font tags" do
     clean_text = 'clean'

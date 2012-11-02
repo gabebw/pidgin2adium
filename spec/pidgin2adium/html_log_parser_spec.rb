@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe Pidgin2Adium::HtmlLogParser do
   describe "#parse" do
     let(:path) do

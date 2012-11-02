@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe Pidgin2Adium::TextLogParser do
   describe "#parse" do
     it "should return a Chat instance" do

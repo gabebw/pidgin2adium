@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe Pidgin2Adium::AutoReplyMessage, '#to_s' do
   it 'has the correct sender_screen_name' do
     auto_reply_message(:sender_screen_name => "hello").to_s.should include 'sender="hello"'
