@@ -1,35 +1,45 @@
 require 'spec_helper'
 
 describe Pidgin2Adium::AutoReplyMessage, '#to_s' do
-  let(:sender_screen_name) { 'jim_sender' }
-  let(:time) { Time.now }
-  let(:sender_alias) { 'jane_alias' }
-  let(:body) { 'body' }
-
-  let(:auto_reply_message) do
-    Pidgin2Adium::AutoReplyMessage.new(sender_screen_name, time, sender_alias, body)
-  end
-
   it 'has the correct sender_screen_name' do
-    auto_reply_message.to_s.should include %(sender="#{sender_screen_name}")
+    auto_reply_message(:sender_screen_name => "hello").to_s.should include 'sender="hello"'
   end
 
   it 'has the correct alias' do
-    auto_reply_message.to_s.should include %(alias="#{sender_alias}")
+    auto_reply_message(:sender_alias => "garner").to_s.should
+      include 'alias="garner"'
   end
 
   it 'has the correct time' do
+    time = Time.now
     formatted_time = time.strftime('%Y-%m-%dT%H:%M:%S%Z')
-    result = auto_reply_message.to_s
-    result.should include %(time="#{formatted_time}")
+    auto_reply_message(:time => time).to_s.should include
+      %(time="#{formatted_time}")
   end
 
   it 'has the correct body' do
+    body = "hello"
     styled_body = %(<div><span style="font-family: Helvetica; font-size: 12pt;">#{body}</span></div>)
-    auto_reply_message.to_s.should include styled_body
+    auto_reply_message(:body => body).to_s.should include styled_body
   end
 
   it 'has the auto attribute set to true' do
     auto_reply_message.to_s.should include 'auto="true"'
+  end
+
+
+  def auto_reply_message(options = {})
+    options = default_options.merge(options)
+    Pidgin2Adium::AutoReplyMessage.new(options[:sender_screen_name],
+      options[:time], options[:sender_alias], options[:body])
+  end
+
+  def default_options
+    {
+      :sender_screen_name => 'jim_sender',
+      :time => Time.now,
+      :sender_alias => 'jim alias',
+      :body => 'body'
+    }
   end
 end
