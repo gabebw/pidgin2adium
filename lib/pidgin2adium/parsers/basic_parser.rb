@@ -10,9 +10,10 @@ module Pidgin2Adium
     def initialize(source_file_path, sender_aliases)
       @source_file_path = source_file_path
       # Whitespace is removed for easy matching later on.
-      @sender_aliases = sender_aliases.split(',').map{|x| x.downcase.gsub(/\s+/,'') }.uniq
+      @sender_aliases = sender_aliases.split(',')#.map{|x| x.downcase.gsub(/\s+/,'') }.uniq
+      @registry = AliasRegistry.new
 
-      # @sender_alias is set each time get_sender_by_alias is called. It is a non-normalized
+      # @sender_alias is set each time sender_from_alias is called. It is a non-normalized
       # alias.
       # Set an initial value just in case the first message doesn't give
       # us an alias.
@@ -42,17 +43,17 @@ module Pidgin2Adium
       metadata = Metadata.new(MetadataParser.new(@first_line).parse)
       if metadata.valid?
         @metadata = metadata
+        @sender_aliases.each do |sender_alias|
+          @registry[sender_alias] = @metadata.sender_screen_name
+        end
       end
     end
 
-    def get_sender_by_alias(alias_name)
-      no_action = alias_name.sub(/^\*{3}/, '')
-      if @sender_aliases.include?(no_action.downcase.gsub(/\s+/, ''))
-        # Set the current alias being used of the ones in @sender_aliases
-        @sender_alias = no_action
-        @metadata.sender_screen_name
+    def sender_from_alias(alias_name)
+      if @registry.key?(alias_name)
+        @registry[alias_name]
       else
-        @metadata.receiver_screen_name
+        @registry[alias_name] = @metadata.receiver_screen_name
       end
     end
 
@@ -67,7 +68,7 @@ module Pidgin2Adium
       time = parse_time(matches[0])
       if time
         sender_alias = matches[1]
-        sender_screen_name = get_sender_by_alias(sender_alias)
+        sender_screen_name = sender_from_alias(sender_alias)
         body = matches[3]
         if matches[2] # auto-reply
           AutoReplyMessage.new(sender_screen_name, time, sender_alias, body)
@@ -110,7 +111,7 @@ module Pidgin2Adium
       regex, status = status_map.detect{|rxp, stat| str =~ rxp}
       if regex && status
         sender_alias = regex.match(str)[1]
-        sender_screen_name = get_sender_by_alias(sender_alias)
+        sender_screen_name = sender_from_alias(sender_alias)
         message = StatusMessage.new(sender_screen_name, time, sender_alias, status)
       end
     end
@@ -213,7 +214,7 @@ module Pidgin2Adium
         sender_screen_name = @metadata.sender_screen_name
       else
         sender_alias = regex_matches[1]
-        sender_screen_name = get_sender_by_alias(sender_alias)
+        sender_screen_name = sender_from_alias(sender_alias)
       end
       Event.new(sender_screen_name, time, sender_alias, string, event_type)
     end

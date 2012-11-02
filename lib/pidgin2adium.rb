@@ -11,15 +11,13 @@ require 'pidgin2adium/parsers/html_log_parser'
 require 'pidgin2adium/time_parser'
 require 'pidgin2adium/metadata'
 require 'pidgin2adium/metadata_parser'
+require 'pidgin2adium/alias_registry'
 
 module Pidgin2Adium
-  # Parses the provided log.
-  # Returns a Chat instance.
-  def self.parse(logfile_path, my_aliases)
-    logfile_path = File.expand_path(logfile_path)
-
-    factory = ParserFactory.new(my_aliases)
-    parser = factory.parser_for(logfile_path)
+  # Parses the log at the given path into a Chat.
+  def self.parse(logfile_path, sender_aliases)
+    factory = ParserFactory.new(sender_aliases)
+    parser = factory.parser_for(File.expand_path(logfile_path))
     parser.parse
   end
 end
