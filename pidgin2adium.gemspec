@@ -19,7 +19,7 @@ Gem::Specification.new do |s|
   s.homepage         = "http://github.com/gabebw/pidgin2adium"
   s.require_paths    = ["lib"]
 
-  s.add_development_dependency(%q<rspec>, ["~> 2.6.0"])
-  s.add_development_dependency(%q<bourne>, ["~> 1.1.1"])
-  s.add_development_dependency('rake')
+  s.add_development_dependency("bourne", "~> 1.1.1")
+  s.add_development_dependency("rspec", "~> 2.6.0")
+  s.add_development_dependency("rake")
 end

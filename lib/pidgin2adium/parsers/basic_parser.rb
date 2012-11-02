@@ -8,7 +8,6 @@ require 'pidgin2adium/messages/status_message'
 module Pidgin2Adium
   class BasicParser
     def initialize(source_file_path, sender_aliases)
-      @source_file_path = source_file_path
       # Whitespace is removed for easy matching later on.
       @sender_aliases = sender_aliases.split(',')#.map{|x| x.downcase.gsub(/\s+/,'') }.uniq
       @registry = AliasRegistry.new
@@ -18,29 +17,29 @@ module Pidgin2Adium
       # Set an initial value just in case the first message doesn't give
       # us an alias.
       @sender_alias = @sender_aliases.first
+
+      @file_reader = FileReader.new(source_file_path, Cleaners::HtmlCleaner)
     end
 
     # This method returns a Chat instance, or false if an error occurred.
     def parse
       if pre_parse
-        cleaned_file_content = cleanup(@file_content).split("\n")
-        cleaned_file_content.reject! { |line| line.strip.empty? }
-
-        messages = cleaned_file_content.map do |line|
+        messages = @file_reader.other_lines.map do |line|
           if line =~ @line_regex
             create_message($~.captures)
           elsif line =~ @line_regex_status
             message = create_status_or_event_message($~.captures)
           end
         end
+
         Chat.new(messages)
       end
     end
 
     # Extract required data from the file. Run by parse.
     def pre_parse
-      read_source_file
-      metadata = Metadata.new(MetadataParser.new(@first_line).parse)
+      @file_reader.read
+      metadata = Metadata.new(MetadataParser.new(@file_reader.first_line).parse)
       if metadata.valid?
         @metadata = metadata
         @sender_aliases.each do |sender_alias|
@@ -222,15 +221,6 @@ module Pidgin2Adium
     def parse_time(time_string)
       if time_string
         time_parser.parse(time_string)
-      end
-    end
-
-    def read_source_file
-      if File.exist?(@source_file_path)
-        open(@source_file_path) do |f|
-          @first_line = f.readline
-          @file_content = f.read
-        end
       end
     end
   end

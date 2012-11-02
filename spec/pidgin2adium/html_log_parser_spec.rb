@@ -1,106 +1,6 @@
 require 'spec_helper'
 
-describe "HtmlLogParser" do
-  describe "#cleanup" do
-    it "should remove html, body, and font tags" do
-      clean_text = 'clean'
-      dirty_text = %Q{<html><body type="ichat"><font color="red">#{clean_text}</font></body></html>}
-      create_parser.cleanup(dirty_text).should == clean_text
-    end
-
-    it "should remove those weird <FONT HSPACE> tags" do
-      clean_text = 'clean'
-      dirty_text = %Q{&lt;/FONT HSPACE='2'>#{clean_text}}
-      create_parser.cleanup(dirty_text).should == clean_text
-    end
-
-    it "should remove \\r" do
-      clean_text = 'clean'
-      dirty_text = [clean_text, clean_text, clean_text].join("\r")
-      create_parser.cleanup(dirty_text).should == clean_text * 3
-    end
-
-    it "should remove empty lines" do
-      clean_text = 'clean'
-      dirty_text = "#{clean_text}\n\n"
-      create_parser.cleanup(dirty_text).should == clean_text
-    end
-
-    it "should replace newlines with <br/>" do
-      clean_text = "<br/>clean"
-      dirty_text = "\nclean"
-      parser = Pidgin2Adium::HtmlLogParser.new(create_chat_file('dirty.html'), '')
-      parser.cleanup(dirty_text).should == clean_text
-    end
-
-    it "should remove empty links" do
-      clean_text = 'clean' * 2
-      dirty_text = %Q{<a href="awesomelink">   </a>clean}
-      dirty_text += %Q{<a href='awesomelink'></a>clean}
-      create_parser.cleanup(dirty_text).should == clean_text
-    end
-
-    describe "with <span>s" do
-      it "should remove font-family" do
-        clean_text = 'clean'
-        dirty_text = %Q{<span style='font-family: Helvetica;'>#{clean_text}</span>}
-        create_parser.cleanup(dirty_text).should == clean_text
-      end
-
-      it "should remove font-size" do
-        clean_text = 'clean'
-        dirty_text = %Q{<span style="font-size: 6;">#{clean_text}</span>}
-        create_parser.cleanup(dirty_text).should == clean_text
-      end
-
-      it "should remove background" do
-        clean_text = 'clean'
-        dirty_text = %Q{<span style="background: #00afaf;">#{clean_text}</span>}
-        create_parser.cleanup(dirty_text).should == clean_text
-      end
-
-      it "should remove color=#00000" do
-        clean_text = 'clean'
-        dirty_text = %Q{<span style="color: #000000;">#{clean_text}</span>}
-        create_parser.cleanup(dirty_text).should == clean_text
-      end
-
-      it "should not remove color != #00000" do
-        dirty_text = %Q{<span style="color: #01ABcdef;">whatever</span>}
-        create_parser.cleanup(dirty_text).should == dirty_text
-      end
-
-      it "should remove improperly-formatted colors" do
-        clean_text = 'clean'
-        dirty_text = %Q{<span style="color: #0;">#{clean_text}</span>}
-        create_parser.cleanup(dirty_text).should == clean_text
-      end
-
-      it "should replace <em> with italic font-style" do
-        text = 'whatever'
-        dirty_text = "<em>#{text}</em>"
-        clean_text = %Q{<span style="font-style: italic;">#{text}</span>}
-        create_parser.cleanup(dirty_text).should == clean_text
-      end
-
-      it "shouldn't modify clean text" do
-        create_parser.cleanup('clean').should == 'clean'
-      end
-
-      # This implicitly tests a lot of other things, but they've been tested
-      # before this too.
-      it "should remove a trailing space after style declaration and replace double quotes" do
-        dirty_span_open = "<span style='color: #afaf00; font-size: 14pt; font-weight: bold; '>"
-        # Replaced double quotes, removed space before ">"
-        clean_span_open = '<span style="color: #afaf00;">'
-        text = 'whatever'
-        dirty_text = "#{dirty_span_open}#{text}</span>"
-        clean_text = "#{clean_span_open}#{text}</span>"
-        create_parser.cleanup(dirty_text).should == clean_text
-      end
-    end
-  end
-
+describe Pidgin2Adium::HtmlLogParser do
   describe "#parse" do
     let(:path) do
       create_chat_file('parse.html') do |b|
@@ -124,19 +24,19 @@ describe "HtmlLogParser" do
       @chat = create_parser_for(path, 'Gabe B-W').parse
     end
 
-    it "should return a Chat instance" do
+    it "returns a Chat instance" do
       @chat.should be_instance_of(Pidgin2Adium::Chat)
     end
 
-    it "should return a Chat with the correct number of lines" do
+    it "returns a Chat with the correct number of lines" do
       @chat.lines.size.should == 3
     end
 
-    it "should return a Chat with the correct message type" do
+    it "returns a Chat with the correct message type" do
       @chat.lines.map(&:class).should == [Pidgin2Adium::XMLMessage] * 3
     end
 
-    it "should return a Chat with the correct data" do
+    it "returns a Chat with the correct data" do
       first_msg = @chat.lines[0]
       second_msg = @chat.lines[1]
       third_msg = @chat.lines[2]

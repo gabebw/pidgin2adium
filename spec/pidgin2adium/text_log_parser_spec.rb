@@ -1,15 +1,6 @@
 require 'spec_helper'
 
 describe Pidgin2Adium::TextLogParser do
-  it "should cleanup text correctly" do
-    time = '(04:20:06)'
-    dirty_text = %Q{\r\n#{time}&<b>Hello!</b> "Hi!" 'Oh no'\n}
-    # "\n" not removed if it ends a line or is followed by
-    # a timestamp
-    clean_text = %Q{\n#{time}&amp;&lt;b&gt;Hello!&lt;/b&gt; &quot;Hi!&quot; &apos;Oh no&apos;\n}
-    create_parser.cleanup(dirty_text).should == clean_text
-  end
-
   describe "#parse" do
     it "should return a Chat instance" do
       create_parser.parse.should be_instance_of(Pidgin2Adium::Chat)

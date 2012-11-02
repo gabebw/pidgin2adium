@@ -12,6 +12,9 @@ require 'pidgin2adium/time_parser'
 require 'pidgin2adium/metadata'
 require 'pidgin2adium/metadata_parser'
 require 'pidgin2adium/alias_registry'
+require 'pidgin2adium/file_reader'
+require 'pidgin2adium/cleaners/html_cleaner'
+require 'pidgin2adium/cleaners/text_cleaner'
 
 module Pidgin2Adium
   # Parses the log at the given path into a Chat.

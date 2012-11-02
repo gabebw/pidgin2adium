@@ -11,6 +11,8 @@ require 'fileutils'
 require 'pidgin2adium'
 require 'bourne'
 
+Dir['spec/support/**/*.rb'].each { |f| require File.expand_path(f) }
+
 RSpec.configure do |config|
   config.mock_with :mocha
   config.before(:all) do
@@ -24,5 +26,3 @@ RSpec.configure do |config|
     @output_dir = File.join(@spec_directory, "output-dir/")
   end
 end
-
-Dir['spec/support/**/*.rb'].each { |f| require File.expand_path(f) }
