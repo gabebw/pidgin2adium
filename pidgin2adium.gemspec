@@ -11,7 +11,6 @@ Gem::Specification.new do |s|
   s.email            = "gbw@brandeis.edu"
   s.description      = "Pidgin2Adium is a fast, easy way to convert Pidgin (formerly gaim) logs to the Adium format."
   s.summary          = "Pidgin2Adium is a fast, easy way to convert Pidgin (formerly gaim) logs to the Adium format"
-  s.extensions       = ["ext/balance_tags_c/extconf.rb"]
   s.extra_rdoc_files = ["ChangeLog", "LICENSE", "README.rdoc" ]
   s.files            = `git ls-files`.split("\n")
   s.test_files       = `git ls-files -- {test,spec,features}/*`.split("\n")
