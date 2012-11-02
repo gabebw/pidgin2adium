@@ -1,5 +1,9 @@
 require 'pidgin2adium/chat'
-require 'pidgin2adium/messages/all'
+require 'pidgin2adium/messages/message'
+require 'pidgin2adium/messages/xml_message'
+require 'pidgin2adium/messages/auto_reply_message'
+require 'pidgin2adium/messages/event'
+require 'pidgin2adium/messages/status_message'
 
 module Pidgin2Adium
   class BasicParser
