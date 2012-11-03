@@ -1,8 +1,7 @@
 module Pidgin2Adium
   class BasicParser
     def initialize(source_file_path, sender_aliases)
-      # Whitespace is removed for easy matching later on.
-      @sender_aliases = sender_aliases.split(',')#.map{|x| x.downcase.gsub(/\s+/,'') }.uniq
+      @sender_aliases = sender_aliases.split(',')
       @alias_registry = AliasRegistry.new
 
       # @sender_alias is set each time sender_from_alias is called. It is a non-normalized
