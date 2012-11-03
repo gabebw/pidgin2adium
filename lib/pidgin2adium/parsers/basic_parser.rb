@@ -96,11 +96,11 @@ module Pidgin2Adium
     private
 
     def ignorable_event?(str)
-      ignore_events.any? { |regex| str =~ regex }
+      Event::IGNORE.any? { |regex| str =~ regex }
     end
 
     def create_status_message(str, time)
-      regex, status = status_map.detect{|rxp, stat| str =~ rxp}
+      regex, status = StatusMessage::MAP.detect { |rxp, stat| str =~ rxp }
       if regex && status
         sender_alias = regex.match(str)[1]
         sender_screen_name = sender_from_alias(sender_alias)
@@ -112,79 +112,8 @@ module Pidgin2Adium
       create_lib_purple_event_message(string, time) || create_non_lib_purple_event_message(string, time)
     end
 
-    def status_map
-      {
-        /(.+) logged in\.$/ => 'online',
-        /(.+) logged out\.$/ => 'offline',
-        /(.+) has signed on\.$/ => 'online',
-        /(.+) has signed off\.$/ => 'offline',
-        /(.+) has gone away\.$/ => 'away',
-        /(.+) is no longer away\.$/ => 'available',
-        /(.+) has become idle\.$/ => 'idle',
-        /(.+) is no longer idle\.$/ => 'available'
-      }
-    end
-
-    def lib_purple_events
-      # All of event_type libPurple.
-      [
-        # file transfer
-        /Starting transfer of .+ from (.+)/,
-        /^Offering to send .+ to (.+)$/,
-        /(.+) is offering to send file/,
-        /^Transfer of file .+ complete$/,
-        /Error reading|writing|accessing .+: .+/,
-        /You cancell?ed the transfer of/,
-        /File transfer cancelled/,
-        /(.+?) cancell?ed the transfer of/,
-        /(.+?) cancelled the file transfer/,
-        # Direct IM - actual (dis)connect events are their own types
-        /^Attempting to connect to (.+) at .+ for Direct IM\./,
-        /^Asking (.+) to connect to us at .+ for Direct IM\./,
-        /^Attempting to connect via proxy server\.$/,
-        /^Direct IM with (.+) failed/,
-        # encryption
-        /Received message encrypted with wrong key/,
-        /^Requesting key\.\.\.$/,
-        /^Outgoing message lost\.$/,
-        /^Conflicting Key Received!$/,
-        /^Error in decryption- asking for resend\.\.\.$/,
-        /^Making new key pair\.\.\.$/,
-        # sending errors
-        /^Last outgoing message not received properly- resetting$/,
-        /Resending\.\.\./,
-        # connection errors
-        /Lost connection with the remote user:.+/,
-        # chats
-        /^.+ entered the room\.$/,
-        /^.+ left the room\.$/
-      ]
-    end
-
-    def event_map
-      # Each key maps to an event_type string. The keys will be matched against
-      # a line of chat and the partner's alias will be in regex group 1, IF the
-      # alias is matched.
-      {
-        # .+ is not an alias, it's a proxy server so no grouping
-        /^Attempting to connect to .+\.$/ => 'direct-im-connect',
-        # NB: pidgin doesn't track when Direct IM is disconnected, AFAIK
-        /^Direct IM established$/ => 'directIMConnected',
-        /Unable to send message/ => 'chat-error',
-        /You missed .+ messages from (.+) because they were too large/ => 'chat-error',
-        /User information not available/ => 'chat-error'
-      }
-    end
-
-    def ignore_events
-      [
-        # Adium ignores SN/alias changes.
-        /^.+? is now known as .+?\.<br\/?>$/
-      ]
-    end
-
     def create_lib_purple_event_message(str, time)
-      regex = lib_purple_events.detect{|rxp| str =~ rxp }
+      regex = Event::LIB_PURPLE.detect { |rxp| str =~ rxp }
       if regex
         event_type = 'libpurpleEvent'
         create_event_message_from(regex, str, time, event_type)
@@ -192,7 +121,7 @@ module Pidgin2Adium
     end
 
     def create_non_lib_purple_event_message(string, time)
-      regex, event_type = event_map.detect{|rxp,ev_type| string =~ rxp}
+      regex, event_type = Event::MAP.detect { |rxp,ev_type| string =~ rxp }
       if regex && event_type
         create_event_message_from(regex, string, time, event_type)
       end
