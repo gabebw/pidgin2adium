@@ -1,11 +1,7 @@
+require 'simplecov'
+
 $LOAD_PATH.unshift(File.expand_path('..',  __FILE__))
 $LOAD_PATH.unshift(File.expand_path('../lib', __FILE__))
-
-begin
-  require 'simplecov'
-rescue LoadError
-  # Ignore, we're probably on 1.8.7
-end
 
 require 'fileutils'
 require 'pidgin2adium'
