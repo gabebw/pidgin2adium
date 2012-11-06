@@ -1,24 +1,24 @@
 describe Pidgin2Adium::AutoReplyMessage, '#to_s' do
   it 'has the correct sender_screen_name' do
-    auto_reply_message(:sender_screen_name => "hello").to_s.should include 'sender="hello"'
+    auto_reply_message(sender_screen_name: "hello").to_s.should include 'sender="hello"'
   end
 
   it 'has the correct alias' do
-    auto_reply_message(:sender_alias => "garner").to_s.should
+    auto_reply_message(sender_alias: "garner").to_s.should
       include 'alias="garner"'
   end
 
   it 'has the correct time' do
     time = Time.now
     formatted_time = time.xmlschema
-    auto_reply_message(:time => time).to_s.should include
+    auto_reply_message(time: time).to_s.should include
       %(time="#{formatted_time}")
   end
 
   it 'has the correct body' do
     body = "hello"
     styled_body = %(<div><span style="font-family: Helvetica; font-size: 12pt;">#{body}</span></div>)
-    auto_reply_message(:body => body).to_s.should include styled_body
+    auto_reply_message(body: body).to_s.should include styled_body
   end
 
   it 'has the auto attribute set to true' do
@@ -34,10 +34,10 @@ describe Pidgin2Adium::AutoReplyMessage, '#to_s' do
 
   def default_options
     {
-      :sender_screen_name => 'jim_sender',
-      :time => Time.now,
-      :sender_alias => 'jim alias',
-      :body => 'body'
+      sender_screen_name: 'jim_sender',
+      time: Time.now,
+      sender_alias: 'jim alias',
+      body: 'body'
     }
   end
 end

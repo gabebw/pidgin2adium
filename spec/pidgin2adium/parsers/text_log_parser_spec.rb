@@ -22,9 +22,9 @@ describe Pidgin2Adium::TextLogParser do
 
     it "should return a Chat with the correct data" do
       path = create_chat_file('chat.txt') do |b|
-        b.first_line :time => '2006-12-21 22:36:06', :from => 'awesome SN'
-        b.message :from_alias => 'Gabe B-W', :time => '22:36:11',
-          :text => "what are you doing tomorrow?"
+        b.first_line time: '2006-12-21 22:36:06', from: 'awesome SN'
+        b.message from_alias: 'Gabe B-W', time: '22:36:11',
+          text: "what are you doing tomorrow?"
       end
       chat = create_parser_for(path, 'Gabe B-W').parse
       msg = chat.lines[0]

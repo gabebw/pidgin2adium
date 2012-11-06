@@ -68,7 +68,7 @@ module Pidgin2Adium
     end
 
     def fill_in_year_month_day_if_absent(date_hash)
-      { :year => @year, :mon => @month, :mday => @day }.merge(date_hash)
+      { year: @year, mon: @month, mday: @day }.merge(date_hash)
     end
 
     def remove_time_zone(time_string)

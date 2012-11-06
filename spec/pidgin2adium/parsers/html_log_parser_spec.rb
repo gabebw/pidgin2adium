@@ -2,19 +2,19 @@ describe Pidgin2Adium::HtmlLogParser do
   describe "#parse" do
     let(:path) do
       create_chat_file('parse.html') do |b|
-        b.first_line :from => 'otherSN', :to => 'aolsystemmsg',
-          :time => '1/15/2008 7:14:45 AM'
-        b.message :time => '2008-01-15 07:14:45',
-          :from_alias => 'AOL System Msg',
-          :text => %{Your screen name (otherSN) is now signed into AOL(R) Instant Messenger (TM) in 2 locations. To sign off the other location(s), reply to this message with the number 1. Click <a href='http://www.aim.com/password/routing.adp'>here</a> for more information.},
-          :font_color => 'A82F2F'
-        b.message :time => '2008-01-15 07:14:48', :from_alias => 'Gabe B-W',
-          :text => %{<span style='color: #000000;'>1</span>},
-          :font_color => '16569E'
-        b.message :time => '2008-01-15 07:14:48',
-          :from_alias => 'AOL System Msg',
-          :text => %{Your other AIM sessions have been signed-off.  You are now signed-on from 1 location(s).},
-          :font_color => 'A82F2F'
+        b.first_line from: 'otherSN', to: 'aolsystemmsg',
+          time: '1/15/2008 7:14:45 AM'
+        b.message time: '2008-01-15 07:14:45',
+          from_alias: 'AOL System Msg',
+          text: %{Your screen name (otherSN) is now signed into AOL(R) Instant Messenger (TM) in 2 locations. To sign off the other location(s), reply to this message with the number 1. Click <a href='http://www.aim.com/password/routing.adp'>here</a> for more information.},
+          font_color: 'A82F2F'
+        b.message time: '2008-01-15 07:14:48', from_alias: 'Gabe B-W',
+          text: %{<span style='color: #000000;'>1</span>},
+          font_color: '16569E'
+        b.message time: '2008-01-15 07:14:48',
+          from_alias: 'AOL System Msg',
+          text: %{Your other AIM sessions have been signed-off.  You are now signed-on from 1 location(s).},
+          font_color: 'A82F2F'
       end
     end
 

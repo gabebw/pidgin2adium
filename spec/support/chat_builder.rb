@@ -5,10 +5,10 @@ Ideally it'll work something like this:
 # determine format from passed-in file
 ChatBuilder.new('file.html') do |b|
   b.first_line
-  b.message :from => "name1", :from_alias => "Gabe B-W",
-         :time => '2010-01-30', :text => "blarg balrg"
-  b.message :from => "name2", :from_alias => "another name",
-         :text => "balrg blarg", :time => '2010-01-30'
+  b.message from: "name1", from_alias: "Gabe B-W",
+         time: '2010-01-30', text: "blarg balrg"
+  b.message from: "name2", from_alias: "another name",
+         text: "balrg blarg", time: '2010-01-30'
   b.away_message
   b.status_message
 end

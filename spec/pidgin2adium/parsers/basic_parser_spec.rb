@@ -18,9 +18,9 @@ describe Pidgin2Adium::BasicParser do
   describe "#sender_from_alias" do
     before do
       path = create_chat_file('sender.txt') do |b|
-        b.first_line :from => "awesome SN", :to => "BUDDY_PERSON"
-        b.message :from_alias => "Gabe B-W"
-        b.message :from_alias => "Jack"
+        b.first_line from: "awesome SN", to: "BUDDY_PERSON"
+        b.message from_alias: "Gabe B-W"
+        b.message from_alias: "Jack"
       end
 
       @bp = Pidgin2Adium::BasicParser.new(path, 'Gabe B-W')
