@@ -67,4 +67,4 @@ helped tremendously.
 
 ## Copyright
 
-Copyright (c) 2011 Gabe Berke-Williams. See LICENSE for details.
+Copyright (c) 2009-2012 Gabe Berke-Williams. See LICENSE for details.

@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe Pidgin2Adium::TimeParser, "#parse" do
   context 'when the given time does have a date' do
     let(:time_parser) { Pidgin2Adium::TimeParser.new(2011, 4, 28) }

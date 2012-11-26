@@ -1,6 +1,6 @@
 module Pidgin2Adium
   class MetadataParser
-    # "4/18/2007 11:02:00 AM" => %w(4 18 2007)
+    # "4/18/2007 11:02:00 AM" becomes %w(4 18 2007)
     TIME_REGEX_FIRST_LINE = %r{^(\d{1,2})/(\d{1,2})/(\d{4}) \d{1,2}:\d{2}:\d{2} [AP]M$}
 
     def initialize(first_line)
@@ -8,38 +8,42 @@ module Pidgin2Adium
     end
 
     def parse
-      { :sender_screen_name => sender_screen_name,
-        :receiver_screen_name => receiver_screen_name,
-        :start_time => start_time}
+      if line_is_present?
+        {
+          sender_screen_name: sender_screen_name,
+          receiver_screen_name: receiver_screen_name,
+          start_time: start_time
+        }
+      else
+        {
+          sender_screen_name: nil,
+          receiver_screen_name: nil,
+          start_time: nil
+        }
+      end
     end
 
     private
 
     def receiver_screen_name
-      if line_is_present?
-        match = @first_line.match(/Conversation with (.+?) at/)
-        if match
-          match[1]
-        end
+      match = @first_line.match(/Conversation with (.+?) at/)
+      if match
+        match[1]
       end
     end
 
     def sender_screen_name
-      if line_is_present?
-        match = @first_line.match(/ on ([^()]+) /)
-        if match
-          match[1]
-        end
+      match = @first_line.match(/ on ([^()]+) /)
+      if match
+        match[1]
       end
     end
 
     def start_time
-      if line_is_present?
-        match = @first_line.match(%r{ at ([-\d/APM: ]+) on})
-        if match
-          time_string = match[1]
-          parse_time(time_string)
-        end
+      match = @first_line.match(%r{ at ([-\d/APM: ]+) on})
+      if match
+        time_string = match[1]
+        parse_time(time_string)
       end
     end
 

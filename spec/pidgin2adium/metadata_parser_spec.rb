@@ -1,10 +1,8 @@
-require 'spec_helper'
-
 describe Pidgin2Adium::MetadataParser do
   context '#parse' do
     it "finds the sender's screen name" do
       path = create_chat_file('log.html') do |b|
-        b.first_line :from => 'JIM'
+        b.first_line from: 'JIM'
       end
       metadata = Pidgin2Adium::MetadataParser.new(first_line_of(path)).parse
       metadata[:sender_screen_name].should == 'JIM'
@@ -12,7 +10,7 @@ describe Pidgin2Adium::MetadataParser do
 
     it "finds the receiver's screen name" do
       path = create_chat_file('log.html') do |b|
-        b.first_line :to => 'lady anne'
+        b.first_line to: 'lady anne'
       end
       metadata = Pidgin2Adium::MetadataParser.new(first_line_of(path)).parse
       metadata[:receiver_screen_name].should == 'lady anne'
@@ -21,7 +19,7 @@ describe Pidgin2Adium::MetadataParser do
     it 'finds the start time' do
       time_string = '2008-04-01 22:36:06'
       path = create_chat_file('log.html') do |b|
-        b.first_line :time => time_string
+        b.first_line time: time_string
       end
       metadata = Pidgin2Adium::MetadataParser.new(first_line_of(path)).parse
       metadata[:start_time].should == DateTime.parse(time_string)
@@ -31,7 +29,7 @@ describe Pidgin2Adium::MetadataParser do
       time_string = "1/15/2008 7:14:45 AM"
       expected_time = Time.parse('2008-01-15 07:14:45')
       path = create_chat_file('log.html') do |b|
-        b.first_line :time => time_string
+        b.first_line time: time_string
       end
       metadata = Pidgin2Adium::MetadataParser.new(first_line_of(path)).parse
       metadata[:start_time].should == expected_time

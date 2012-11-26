@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe Pidgin2Adium::TagBalancer do
   describe "text without tags" do
     it "should be left untouched" do

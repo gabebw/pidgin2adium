@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe Pidgin2Adium::BasicParser do
   describe "#pre_parse" do
     it "returns false for an empty file" do
@@ -17,32 +15,28 @@ describe Pidgin2Adium::BasicParser do
     end
   end
 
-  describe "#get_sender_by_alias" do
+  describe "#sender_from_alias" do
     before do
       path = create_chat_file('sender.txt') do |b|
-        b.first_line :from => "awesome SN", :to => "BUDDY_PERSON"
-        b.message :from_alias => "Gabe B-W"
-        b.message :from_alias => "Leola Farber III"
+        b.first_line from: "awesome SN", to: "BUDDY_PERSON"
+        b.message from_alias: "Gabe B-W"
+        b.message from_alias: "Jack"
       end
-      @metadata = Pidgin2Adium::Metadata.new(Pidgin2Adium::MetadataParser.new(File.readlines(path).first).parse)
-      @my_alias = "Gabe B-W"
-
-      @partner_alias = "Leola Farber III"
 
       @bp = Pidgin2Adium::BasicParser.new(path, 'Gabe B-W')
       @bp.pre_parse
     end
 
     it "returns my SN when passed my alias" do
-      @bp.get_sender_by_alias(@my_alias).should == @metadata.sender_screen_name
+      @bp.sender_from_alias("Gabe B-W").should == "awesomesn"
     end
 
     it "returns my SN when passed my alias with an action" do
-      @bp.get_sender_by_alias("***#{@my_alias}").should == @metadata.sender_screen_name
+      @bp.sender_from_alias("***Gabe B-W").should == "awesomesn"
     end
 
     it "returns partner's SN when passed partner's alias" do
-      @bp.get_sender_by_alias(@partner_alias).should == @metadata.receiver_screen_name
+      @bp.sender_from_alias("Jack").should == "BUDDY_PERSON"
     end
   end
 

@@ -1,15 +1,13 @@
+require 'simplecov'
+
 $LOAD_PATH.unshift(File.expand_path('..',  __FILE__))
 $LOAD_PATH.unshift(File.expand_path('../lib', __FILE__))
-
-begin
-  require 'simplecov'
-rescue LoadError
-  # Ignore, we're probably on 1.8.7
-end
 
 require 'fileutils'
 require 'pidgin2adium'
 require 'bourne'
+
+Dir['spec/support/**/*.rb'].each { |f| require File.expand_path(f) }
 
 RSpec.configure do |config|
   config.mock_with :mocha
@@ -24,5 +22,3 @@ RSpec.configure do |config|
     @output_dir = File.join(@spec_directory, "output-dir/")
   end
 end
-
-Dir['spec/support/**/*.rb'].each { |f| require File.expand_path(f) }

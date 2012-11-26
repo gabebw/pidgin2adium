@@ -17,21 +17,8 @@ module Pidgin2Adium
       # 0: timestamp
       # 1: status message
       @line_regex_status = /#{TIMESTAMP_REGEX} ([^:]+)/o
-    end
 
-    def cleanup(text)
-      text.tr!("\r", '')
-      # Escape entities since this will be in XML
-      text.gsub!('&', '&amp;') # escape '&' first
-      text.gsub!('<', '&lt;')
-      text.gsub!('>', '&gt;')
-      text.gsub!('"', '&quot;')
-      text.gsub!("'", '&apos;')
-      # Replace newlines with "<br/>" unless they end a chat line.
-      # Add the <br/> after converting to &lt; etc so we
-      # don't escape the tag.
-      text.gsub!(/\n(?!(#{TIMESTAMP_REGEX}|\Z))/, '<br/>')
-      text
+      @file_reader = FileReader.new(source_file_path, Cleaners::TextCleaner)
     end
   end
 end
