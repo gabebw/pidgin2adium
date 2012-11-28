@@ -1,3 +1,7 @@
+### HEAD (unreleased)
+
+* Massive refactoring
+
 ### 3.3.0 / 2011-10-16
 * Pidgin2Adium depended on itself for some reason. Now it doesn't.
 
