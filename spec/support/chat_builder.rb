@@ -10,17 +10,20 @@
 #   b.status_message
 # end
 
+
+require File.expand_path('./file_builder', File.dirname(__FILE__))
+
 module ChatBuilderMacros
   SPEC_DIR = File.dirname(File.dirname(__FILE__))
   TMP_DIRECTORY = File.join(SPEC_DIR, 'tmp')
 
   def create_chat_file(file_name = 'whatever.txt')
-    path = File.join(TMP_DIRECTORY, file_name)
-    correct_builder_for(path).tap do |builder|
+    file = FileBuilder.create_file(file_name)
+    correct_builder_for(file).tap do |builder|
       yield builder if block_given?
       builder.write
     end
-    path
+    file
   end
 
   def clean_up_generated_chat_files
@@ -29,11 +32,11 @@ module ChatBuilderMacros
 
   private
 
-  def correct_builder_for(path)
-    if path =~ /\.html?$/
-      HtmlChatBuilder.new(path)
+  def correct_builder_for(file)
+    if file.path =~ /\.html?$/
+      HtmlChatBuilder.new(file)
     else
-      TextChatBuilder.new(path)
+      TextChatBuilder.new(file)
     end
   end
 end
@@ -41,17 +44,16 @@ end
 class ChatBuilder
   DEFAULT_FROM = 'FROM_SN'
 
-  def initialize(path)
-    @path = path
-    @file = File.new(path, 'w')
+  def initialize(file)
+    @file = file
     @first_line = nil
     @messages = []
   end
 
-  def write
+  def write(separator = "")
     @file.puts(first_line)
     @messages.each do |message|
-      @file.puts(message)
+      @file.puts(message + separator)
     end
     @file.close
   end
@@ -78,7 +80,13 @@ class TextChatBuilder < ChatBuilder
 end
 
 class HtmlChatBuilder < ChatBuilder
+  def write
+    super("<br/>")
+  end
+
   def first_line(options = {})
+    assert_keys(options, [:from, :to, :time, :protocol])
+
     @first_line ||= begin
       to = options[:to] || 'TO_SN'
       time = options[:time] || Time.now.strftime('%m/%d/%Y %I:%M:%S %p')
@@ -90,15 +98,43 @@ class HtmlChatBuilder < ChatBuilder
   end
 
   def message(text = 'hello', options = {})
+    assert_keys(options, [:from, :from_alias, :time, :font_color])
+
     from = options[:from] || DEFAULT_FROM
     from_alias = options[:from_alias] || 'FROM_ALIAS'
     time = options[:time] || Time.now.strftime('%Y-%m-%d %H:%M:%S')
     font_color = '#' + (options[:font_color] || font_color_for(from))
-    message = %{<font color="#{font_color}"><font size="2">(#{time})</font> <b>#{from_alias}</b></font> #{text}<br/>}
+    message = %{<font color="#{font_color}"><font size="2">(#{time})</font> <b>#{from_alias}</b></font> #{text}}
+    @messages << message
+  end
+
+  def status(text = 'Starting transfer of kitties.jpg from Gabe B-W', options = {})
+    assert_keys(options, [:time])
+
+    time = options[:time] || Time.now.strftime('%Y-%m-%d %H:%M:%S')
+    @messages << %{<font size="2">(#{time})</font><b> #{text}</b>}
+  end
+
+  def auto_reply(text = 'ran out for a bit', options = {})
+    assert_keys(options, [:time])
+
+    from = options[:from] || DEFAULT_FROM
+    from_alias = options[:from_alias] || 'FROM_ALIAS'
+    time = options[:time] || Time.now.strftime('%Y-%m-%d %H:%M:%S')
+    font_color = '#' + (options[:font_color] || font_color_for(from))
+
+    message = %{<font color="#{font_color}"><font size="2">(#{time})</font> <b>#{from} &lt;AUTO-REPLY&gt;:</b></font> #{text}}
     @messages << message
   end
 
   private
+
+  def assert_keys(options, possible_keys)
+    extra_keys = options.keys - possible_keys
+    unless extra_keys.empty?
+      raise ArgumentError, "#{__method__} only takes the #{possible_keys}, got extra: #{extra_keys}"
+    end
+  end
 
   def font_color_for(from)
     if from == @from
