@@ -1,8 +1,10 @@
 module Pidgin2Adium
   class BasicParser
-    def initialize(source_file_path, sender_aliases)
+    def initialize(source_file_path, sender_aliases, line_regex, line_regex_status, cleaner)
       @sender_aliases = sender_aliases.split(',')
       @alias_registry = AliasRegistry.new
+      @line_regex = line_regex
+      @line_regex_status = line_regex_status
 
       # @sender_alias is set each time sender_from_alias is called. It is a non-normalized
       # alias.
@@ -10,7 +12,7 @@ module Pidgin2Adium
       # us an alias.
       @sender_alias = @sender_aliases.first
 
-      @file_reader = FileReader.new(source_file_path, Cleaners::HtmlCleaner)
+      @file_reader = FileReader.new(source_file_path, cleaner)
     end
 
     # This method returns a Chat instance, or false if an error occurred.
