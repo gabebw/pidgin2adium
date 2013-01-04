@@ -6,4 +6,8 @@ require 'rspec/core/rake_task'
 
 RSpec::Core::RakeTask.new(:spec)
 
+task :coverage do
+  system "COVERAGE=1 rake ; open coverage/index.html"
+end
+
 task default: :spec
