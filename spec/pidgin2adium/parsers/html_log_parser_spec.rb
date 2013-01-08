@@ -29,7 +29,7 @@ describe Pidgin2Adium::HtmlLogParser do
       'Gabe B-W has become idle.' => 'idle',
       'Gabe B-W is no longer idle.' => 'available'
     }.each do |line, status|
-      it 'correctly detects status messages of format #{line}' do
+      it "correctly detects status messages of format '#{line}'" do
         message = first_line_of_chat do |b|
           b.first_line
           b.status line
