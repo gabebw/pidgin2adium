@@ -53,8 +53,6 @@ module Pidgin2Adium
       parsed
     end
 
-    # Returns a Time object, or nil if the format string doesn't match the
-    # time string.
     def strptime(time_string, format)
       date_hash = Date._strptime(time_string, format)
       if date_hash.nil?

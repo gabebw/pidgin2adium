@@ -13,19 +13,17 @@ describe Pidgin2Adium::TimeParser, "#parse" do
       result.sec.should == 45
     end
 
-    it 'parses "%Y-%m-%d %H:%M:%S"' do
-      time = '2008-01-22 23:08:24'
-      time_parser.parse(time).should == DateTime.parse(time)
-    end
-
-    it 'parses "%Y/%m/%d %H:%M:%S"' do
-      time = '2008/01/22 04:01:45'
-      time_parser.parse(time).should == DateTime.parse(time)
-    end
-
-    it 'parses "%Y-%m-%d %H:%M:%S"' do
-      time = '2008-01-22 04:01:45'
-      time_parser.parse(time).should == DateTime.parse(time)
+    [
+      '%Y-%m-%d %H:%M:%S',
+      '%Y/%m/%d %H:%M:%S',
+      '%Y-%m-%d %H:%M:%S',
+      '%a %b %d %H:%M:%S %Y'
+    ].each do |format|
+      it "parses '#{format}'" do
+        time = Time.now
+        time_string = time.strftime(format)
+        time_parser.parse(time_string).should == DateTime.parse(time_string)
+      end
     end
 
     it 'parses "%a %d %b %Y %H:%M:%S %p %Z", ignoring time zones' do
@@ -34,11 +32,6 @@ describe Pidgin2Adium::TimeParser, "#parse" do
       parsed_time = DateTime.parse(time_without_zone)
       parsed_time.hour.should == 10
       time_parser.parse(time).should == parsed_time
-    end
-
-    it 'parses "%a %b %d %H:%M:%S %Y"' do
-      time = "Wed May 24 19:00:33 2006"
-      time_parser.parse(time).should == DateTime.parse(time)
     end
   end
 
