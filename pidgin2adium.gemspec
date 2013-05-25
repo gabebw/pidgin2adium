@@ -11,6 +11,7 @@ Gem::Specification.new do |spec|
   spec.description   = "A fast, easy way to convert Pidgin (gaim) logs to the Adium format."
   spec.summary       = spec.description
   spec.homepage      = "https://github.com/gabebw/pidgin2adium"
+  spec.license       = "MIT"
 
   spec.files         = `git ls-files`.split($/)
   spec.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
