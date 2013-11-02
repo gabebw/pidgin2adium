@@ -9,7 +9,6 @@ module Pidgin2Adium
 
     attr_reader :lines
 
-    # The lines joined together
     def to_s
       map(&:to_s).join
     end
