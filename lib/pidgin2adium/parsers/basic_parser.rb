@@ -91,13 +91,8 @@ module Pidgin2Adium
       EventMessageCreator.new(text, time, @sender_alias, @metadata.sender_screen_name, @alias_registry).create
     end
 
-    def create_status_message(str, time)
-      regex, status = StatusMessage::MAP.detect { |rxp, stat| str =~ rxp }
-      if regex && status
-        sender_alias = regex.match(str)[1]
-        sender_screen_name = @alias_registry[sender_alias]
-        message = StatusMessage.new(sender_screen_name, time, sender_alias, status)
-      end
+    def create_status_message(text, time)
+      StatusMessageCreator.new(text, time, @alias_registry).create
     end
 
     def parse_time(time_string)
