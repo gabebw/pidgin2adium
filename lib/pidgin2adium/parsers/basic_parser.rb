@@ -2,14 +2,8 @@ module Pidgin2Adium
   class BasicParser
     def initialize(source_file_path, sender_aliases, line_regex, line_regex_status, cleaner)
       @sender_aliases = sender_aliases.split(',')
-      @alias_registry = AliasRegistry.new
       @line_regex = line_regex
       @line_regex_status = line_regex_status
-
-      # @sender_alias is set each time sender_from_alias is called. It is a non-normalized
-      # alias.
-      # Set an initial value just in case the first message doesn't give
-      # us an alias.
       @sender_alias = @sender_aliases.first
 
       @file_reader = FileReader.new(source_file_path, cleaner)
@@ -36,17 +30,10 @@ module Pidgin2Adium
       metadata = Metadata.new(MetadataParser.new(@file_reader.first_line).parse)
       if metadata.valid?
         @metadata = metadata
+        @alias_registry = AliasRegistry.new(@metadata.receiver_screen_name)
         @sender_aliases.each do |sender_alias|
           @alias_registry[sender_alias] = @metadata.sender_screen_name
         end
-      end
-    end
-
-    def sender_from_alias(alias_name)
-      if @alias_registry.key?(alias_name)
-        @alias_registry[alias_name]
-      else
-        @alias_registry[alias_name] = @metadata.receiver_screen_name
       end
     end
 
@@ -61,7 +48,7 @@ module Pidgin2Adium
       time = parse_time(matches[0])
       if time
         sender_alias = matches[1]
-        sender_screen_name = sender_from_alias(sender_alias)
+        sender_screen_name = @alias_registry[sender_alias]
         body = matches[3]
         if matches[2] # auto-reply
           AutoReplyMessage.new(sender_screen_name, time, sender_alias, body)
@@ -100,45 +87,17 @@ module Pidgin2Adium
       Event::IGNORE.any? { |regex| str =~ regex }
     end
 
+    def create_event_message(text, time)
+      EventMessageCreator.new(text, time, @sender_alias, @metadata.sender_screen_name, @alias_registry).create
+    end
+
     def create_status_message(str, time)
       regex, status = StatusMessage::MAP.detect { |rxp, stat| str =~ rxp }
       if regex && status
         sender_alias = regex.match(str)[1]
-        sender_screen_name = sender_from_alias(sender_alias)
+        sender_screen_name = @alias_registry[sender_alias]
         message = StatusMessage.new(sender_screen_name, time, sender_alias, status)
       end
-    end
-
-    def create_event_message(string, time)
-      create_lib_purple_event_message(string, time) || create_non_lib_purple_event_message(string, time)
-    end
-
-    def create_lib_purple_event_message(str, time)
-      regex = Event::LIB_PURPLE.detect { |rxp| str =~ rxp }
-      if regex
-        event_type = 'libpurpleEvent'
-        create_event_message_from(regex, str, time, event_type)
-      end
-    end
-
-    def create_non_lib_purple_event_message(string, time)
-      regex, event_type = Event::MAP.detect { |rxp,ev_type| string =~ rxp }
-      if regex && event_type
-        create_event_message_from(regex, string, time, event_type)
-      end
-    end
-
-    def create_event_message_from(regex, string, time, event_type)
-      regex_matches = regex.match(string)
-      if regex_matches.size == 1
-        # No alias - this means it's the user
-        sender_alias = @sender_alias
-        sender_screen_name = @metadata.sender_screen_name
-      else
-        sender_alias = regex_matches[1]
-        sender_screen_name = sender_from_alias(sender_alias)
-      end
-      Event.new(sender_screen_name, time, sender_alias, string, event_type)
     end
 
     def parse_time(time_string)

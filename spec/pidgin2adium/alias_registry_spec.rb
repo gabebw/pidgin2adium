@@ -19,27 +19,19 @@ describe Pidgin2Adium::AliasRegistry do
     alias_registry['alias'].should == 'aspace'
   end
 
-  def alias_registry
-    @alias_registry ||= Pidgin2Adium::AliasRegistry.new
-  end
-end
+  it 'takes a default' do
+    alias_registry = Pidgin2Adium::AliasRegistry.new('default_name')
 
-describe Pidgin2Adium::AliasRegistry, '#key?' do
-  it 'returns true if the registry contains the key' do
-    alias_registry['present'] = 'yes'
-    alias_registry.key?('present').should be_true
+    alias_registry['alias'].should == 'default_name'
   end
 
-  it 'returns true when the alias has an action' do
-    alias_registry['My Cool Alias'] = 'screen_name88'
-    alias_registry.key?('***My Cool Alias').should be_true
-  end
+  it 'normalizes the default' do
+    alias_registry = Pidgin2Adium::AliasRegistry.new('DEFAULT NAME')
 
-  it 'returns false if the registry does not contain the key' do
-    alias_registry.key?('no').should be_false
+    alias_registry['alias'].should == 'defaultname'
   end
 
   def alias_registry
-    @alias_registry ||= Pidgin2Adium::AliasRegistry.new
+    @alias_registry ||= Pidgin2Adium::AliasRegistry.new('default')
   end
 end

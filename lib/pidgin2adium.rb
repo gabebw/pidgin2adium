@@ -19,6 +19,7 @@ require 'pidgin2adium/messages/xml_message'
 require 'pidgin2adium/messages/auto_reply_message'
 require 'pidgin2adium/messages/event'
 require 'pidgin2adium/messages/status_message'
+require 'pidgin2adium/message_creators/event_message_creator'
 require 'pidgin2adium/cleaners/html_cleaner'
 require 'pidgin2adium/cleaners/text_cleaner'
 
