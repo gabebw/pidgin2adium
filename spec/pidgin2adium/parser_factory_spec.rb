@@ -5,8 +5,8 @@ describe Pidgin2Adium::ParserFactory do
     context "when passed a .#{html_extension} file" do
       it 'returns an HtmlLogParser' do
         logfile_path = "whatever.#{html_extension}"
-        factory = Pidgin2Adium::ParserFactory.new(aliases)
-        factory.parser_for(logfile_path).should be_a Pidgin2Adium::HtmlLogParser
+        factory = Pidgin2Adium::ParserFactory.new(logfile_path, aliases)
+        factory.parser.should be_a Pidgin2Adium::HtmlLogParser
       end
     end
   end
@@ -15,16 +15,17 @@ describe Pidgin2Adium::ParserFactory do
     context "when passed a .#{text_extension} file" do
       it 'returns a TextLogParser' do
         logfile_path = "whatever.#{text_extension}"
-        factory = Pidgin2Adium::ParserFactory.new(aliases)
-        factory.parser_for(logfile_path).should be_a Pidgin2Adium::TextLogParser
+        factory = Pidgin2Adium::ParserFactory.new(logfile_path, aliases)
+        factory.parser.should be_a Pidgin2Adium::TextLogParser
       end
     end
   end
 
   context 'when passed a non-HTML, non-text file' do
     it 'returns something that responds to parse' do
-      factory = Pidgin2Adium::ParserFactory.new(aliases)
-      factory.parser_for('foo.bar').should respond_to(:parse)
+      other_path = 'foo.bar'
+      factory = Pidgin2Adium::ParserFactory.new(other_path, aliases)
+      factory.parser.should respond_to(:parse)
     end
   end
 end
