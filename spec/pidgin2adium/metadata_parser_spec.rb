@@ -25,7 +25,7 @@ describe Pidgin2Adium::MetadataParser do
       end
 
       metadata = Pidgin2Adium::MetadataParser.new(first_line_of(file)).parse
-      metadata[:start_time].should == DateTime.parse(time_string)
+      metadata[:start_time].should == Time.parse(time_string)
     end
 
     it 'can detect peculiar times' do

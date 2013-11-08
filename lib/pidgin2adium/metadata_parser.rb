@@ -49,7 +49,7 @@ module Pidgin2Adium
 
     def parse_time(time_string)
       begin
-        DateTime.parse(time_string)
+        Time.parse(time_string)
       rescue ArgumentError
         matches = time_string.match(TIME_REGEX_FIRST_LINE)
         if matches

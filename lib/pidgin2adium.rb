@@ -1,4 +1,3 @@
-require 'date'
 require 'time'
 
 require 'pidgin2adium/version'

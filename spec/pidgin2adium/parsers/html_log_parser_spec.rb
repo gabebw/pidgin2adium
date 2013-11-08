@@ -118,7 +118,7 @@ describe Pidgin2Adium::HtmlLogParser do
         b.message 'whatever', time: '2008-01-15 07:14:45'
       end
 
-      message.time.should == DateTime.parse('2008-01-15 07:14:45')
+      message.time.should == Time.parse('2008-01-15 07:14:45')
     end
 
     it 'parses out the body' do

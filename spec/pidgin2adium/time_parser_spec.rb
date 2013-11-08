@@ -22,15 +22,14 @@ describe Pidgin2Adium::TimeParser, "#parse" do
       it "parses '#{format}'" do
         time = Time.now
         time_string = time.strftime(format)
-        time_parser.parse(time_string).should == DateTime.parse(time_string)
+        time_parser.parse(time_string).should == Time.parse(time_string)
       end
     end
 
-    it 'parses "%a %d %b %Y %H:%M:%S %p %Z", ignoring time zones' do
+    it 'parses "%a %d %b %Y %H:%M:%S %p %Z", respecting TZ' do
       time = "Sat 18 Apr 2009 10:43:35 AM PDT"
-      time_without_zone = time.sub('PDT', '')
-      parsed_time = DateTime.parse(time_without_zone)
-      parsed_time.hour.should == 10
+      parsed_time = Time.parse(time)
+      parsed_time.utc.hour.should == 17
       time_parser.parse(time).should == parsed_time
     end
   end
