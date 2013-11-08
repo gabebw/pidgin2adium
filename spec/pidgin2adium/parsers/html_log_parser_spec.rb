@@ -139,6 +139,14 @@ describe Pidgin2Adium::HtmlLogParser do
 
       message.body.should == body_with_link.gsub("'", '"')
     end
+
+    it 'has access to the screen name of the other person' do
+      chat = build_chat do |b|
+        b.first_line to: 'person_on_the_other_end'
+      end
+
+      chat.their_screen_name.should == 'person_on_the_other_end'
+    end
   end
 
   def build_chat(aliases = 'Gabe B-W', &block)

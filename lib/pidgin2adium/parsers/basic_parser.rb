@@ -20,7 +20,7 @@ module Pidgin2Adium
           end
         end
 
-        Chat.new(messages)
+        Chat.new(messages, @metadata.receiver_screen_name)
       end
     end
 

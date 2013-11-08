@@ -4,11 +4,12 @@ module Pidgin2Adium
   class Chat
     include Enumerable
 
-    def initialize(lines)
+    def initialize(lines, their_screen_name)
       @lines = lines
+      @their_screen_name = their_screen_name
     end
 
-    attr_reader :lines
+    attr_reader :lines, :their_screen_name
 
     def to_s
       map(&:to_s).join
