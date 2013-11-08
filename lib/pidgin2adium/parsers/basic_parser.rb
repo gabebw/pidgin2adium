@@ -50,12 +50,9 @@ module Pidgin2Adium
         sender_alias = matches[1]
         sender_screen_name = @alias_registry[sender_alias]
         body = matches[3]
-        if matches[2] # auto-reply
-          AutoReplyMessage.new(sender_screen_name, time, sender_alias, body)
-        else
-          # normal message
-          XMLMessage.new(sender_screen_name, time, sender_alias, body)
-        end
+        is_auto_reply = matches[2]
+
+        AutoOrXmlMessageCreator.new(body, time, sender_screen_name, sender_alias, is_auto_reply).create
       end
     end
 
