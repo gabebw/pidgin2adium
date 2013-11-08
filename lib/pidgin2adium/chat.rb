@@ -1,5 +1,6 @@
 module Pidgin2Adium
-  # The parsed chat.
+  # The container object for each line of a parsed chat. It includes the
+  # Enumerable module, so each/map/reject etc all work.
   class Chat
     include Enumerable
 
