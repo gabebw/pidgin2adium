@@ -4,23 +4,15 @@ module Pidgin2Adium
     TIME_REGEX_FIRST_LINE = %r{^(\d{1,2})/(\d{1,2})/(\d{4}) \d{1,2}:\d{2}:\d{2} [AP]M$}
 
     def initialize(first_line)
-      @first_line = first_line
+      @first_line = first_line || ''
     end
 
     def parse
-      if line_is_present?
-        {
-          sender_screen_name: sender_screen_name,
-          receiver_screen_name: receiver_screen_name,
-          start_time: start_time
-        }
-      else
-        {
-          sender_screen_name: nil,
-          receiver_screen_name: nil,
-          start_time: nil
-        }
-      end
+      {
+        sender_screen_name: sender_screen_name,
+        receiver_screen_name: receiver_screen_name,
+        start_time: start_time
+      }
     end
 
     private
@@ -60,10 +52,6 @@ module Pidgin2Adium
           time_parser.parse(time_string)
         end
       end
-    end
-
-    def line_is_present?
-      @first_line && @first_line != ''
     end
   end
 end
