@@ -6,7 +6,7 @@ module Pidgin2Adium
       @start_time = metadata_hash[:start_time]
     end
 
-    attr_reader :my_screen_name, :their_screen_name
+    attr_reader :my_screen_name, :their_screen_name, :start_time
 
     def valid?
       [@their_screen_name, @my_screen_name, @start_time].all?

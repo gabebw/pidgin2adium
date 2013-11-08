@@ -20,7 +20,7 @@ module Pidgin2Adium
           end
         end
 
-        Chat.new(messages, @metadata.their_screen_name)
+        Chat.new(messages, @metadata.their_screen_name, @metadata.start_time)
       end
     end
 

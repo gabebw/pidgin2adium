@@ -13,6 +13,15 @@ describe Pidgin2Adium::Metadata do
     end
   end
 
+  context '#start_time' do
+    it 'returns the start time' do
+      time = Time.now
+      metadata = Pidgin2Adium::Metadata.new(start_time: time)
+
+      metadata.start_time.should == time
+    end
+  end
+
   context '#start_month' do
     it 'returns the start month' do
       start_time = Time.now
