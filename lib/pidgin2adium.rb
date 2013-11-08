@@ -26,9 +26,9 @@ require 'pidgin2adium/cleaners/text_cleaner'
 
 module Pidgin2Adium
   # Parses the log at the given path into a Chat.
-  def self.parse(logfile_path, sender_aliases)
+  def self.parse(logfile_path, my_aliases)
     full_path = File.expand_path(logfile_path)
-    factory = ParserFactory.new(full_path, sender_aliases)
+    factory = ParserFactory.new(full_path, my_aliases)
     factory.parser.parse
   end
 end

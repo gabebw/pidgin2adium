@@ -9,22 +9,22 @@ module Pidgin2Adium
 
     def parse
       {
-        sender_screen_name: sender_screen_name,
-        receiver_screen_name: receiver_screen_name,
+        my_screen_name: my_screen_name,
+        their_screen_name: their_screen_name,
         start_time: start_time
       }
     end
 
     private
 
-    def receiver_screen_name
+    def their_screen_name
       match = @first_line.match(/Conversation with (.+?) at/)
       if match
         match[1]
       end
     end
 
-    def sender_screen_name
+    def my_screen_name
       match = @first_line.match(/ on ([^()]+) /)
       if match
         match[1]

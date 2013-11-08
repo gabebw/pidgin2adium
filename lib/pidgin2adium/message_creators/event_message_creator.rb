@@ -1,10 +1,10 @@
 module Pidgin2Adium
   class EventMessageCreator
-    def initialize(text, time, sender_alias, sender_screen_name, alias_registry)
+    def initialize(text, time, my_alias, my_screen_name, alias_registry)
       @text = text
       @time = time
-      @sender_alias = sender_alias
-      @sender_screen_name = sender_screen_name
+      @my_alias = my_alias
+      @my_screen_name = my_screen_name
       @alias_registry = alias_registry
     end
 
@@ -34,14 +34,14 @@ module Pidgin2Adium
       regex_matches = regex.match(@text)
       if regex_matches.size == 1
         # No alias - this means it's the user
-        sender_alias = @sender_alias
-        sender_screen_name = @sender_screen_name
+        my_alias = @my_alias
+        my_screen_name = @my_screen_name
       else
-        sender_alias = regex_matches[1]
-        sender_screen_name = @alias_registry[sender_alias]
+        my_alias = regex_matches[1]
+        my_screen_name = @alias_registry[my_alias]
       end
 
-      Event.new(sender_screen_name, @time, sender_alias, @text, event_type)
+      Event.new(my_screen_name, @time, my_alias, @text, event_type)
     end
   end
 end

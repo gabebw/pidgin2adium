@@ -10,9 +10,9 @@ module Pidgin2Adium
       regex, status = StatusMessage::MAP.detect { |rxp, stat| @text =~ rxp }
 
       if regex && status
-        sender_alias = regex.match(@text)[1]
-        sender_screen_name = @alias_registry[sender_alias]
-        StatusMessage.new(sender_screen_name, @time, sender_alias, status)
+        my_alias = regex.match(@text)[1]
+        my_screen_name = @alias_registry[my_alias]
+        StatusMessage.new(my_screen_name, @time, my_alias, status)
       end
     end
   end

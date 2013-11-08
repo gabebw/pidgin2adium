@@ -1,15 +1,15 @@
 describe Pidgin2Adium::Metadata do
-  context '#sender_screen_name' do
+  context '#my_screen_name' do
     it "returns the sender's normalized screen name" do
-      metadata = Pidgin2Adium::Metadata.new(sender_screen_name: 'JIM BOB')
-      metadata.sender_screen_name.should == 'jimbob'
+      metadata = Pidgin2Adium::Metadata.new(my_screen_name: 'JIM BOB')
+      metadata.my_screen_name.should == 'jimbob'
     end
   end
 
-  context '#receiver_screen_name' do
+  context '#their_screen_name' do
     it "returns the receiver's screen name" do
-      metadata = Pidgin2Adium::Metadata.new(receiver_screen_name: 'lady anne')
-      metadata.receiver_screen_name.should == 'lady anne'
+      metadata = Pidgin2Adium::Metadata.new(their_screen_name: 'lady anne')
+      metadata.their_screen_name.should == 'lady anne'
     end
   end
 
@@ -39,13 +39,13 @@ describe Pidgin2Adium::Metadata do
 
   context '#valid?' do
     it 'is true when all attributes are provided' do
-      metadata = Pidgin2Adium::Metadata.new({sender_screen_name: '',
-        receiver_screen_name: '',
+      metadata = Pidgin2Adium::Metadata.new({my_screen_name: '',
+        their_screen_name: '',
         start_time: '' })
       metadata.should be_valid
     end
 
-    [:sender_screen_name, :receiver_screen_name, :start_time].each do |attribute|
+    [:my_screen_name, :their_screen_name, :start_time].each do |attribute|
       it "is false when #{attribute} cannot be detected" do
         Pidgin2Adium::Metadata.new(attribute => nil).should_not be_valid
       end

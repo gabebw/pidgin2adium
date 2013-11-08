@@ -1,10 +1,10 @@
 describe Pidgin2Adium::AutoReplyMessage, '#to_s' do
-  it 'has the correct sender_screen_name' do
-    auto_reply_message(sender_screen_name: "hello").to_s.should include 'sender="hello"'
+  it 'has the correct my_screen_name' do
+    auto_reply_message(my_screen_name: "hello").to_s.should include 'sender="hello"'
   end
 
   it 'has the correct alias' do
-    auto_reply_message(sender_alias: "garner").to_s.should
+    auto_reply_message(my_alias: "garner").to_s.should
       include 'alias="garner"'
   end
 
@@ -28,15 +28,15 @@ describe Pidgin2Adium::AutoReplyMessage, '#to_s' do
 
   def auto_reply_message(options = {})
     options = default_options.merge(options)
-    Pidgin2Adium::AutoReplyMessage.new(options[:sender_screen_name],
-      options[:time], options[:sender_alias], options[:body])
+    Pidgin2Adium::AutoReplyMessage.new(options[:my_screen_name],
+      options[:time], options[:my_alias], options[:body])
   end
 
   def default_options
     {
-      sender_screen_name: 'jim_sender',
+      my_screen_name: 'jim_sender',
       time: Time.now,
-      sender_alias: 'jim alias',
+      my_alias: 'jim alias',
       body: 'body'
     }
   end

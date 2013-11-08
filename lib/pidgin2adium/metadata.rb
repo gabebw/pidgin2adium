@@ -1,15 +1,15 @@
 module Pidgin2Adium
   class Metadata
     def initialize(metadata_hash)
-      @sender_screen_name = normalize_screen_name(metadata_hash[:sender_screen_name])
-      @receiver_screen_name = metadata_hash[:receiver_screen_name]
+      @my_screen_name = normalize_screen_name(metadata_hash[:my_screen_name])
+      @their_screen_name = metadata_hash[:their_screen_name]
       @start_time = metadata_hash[:start_time]
     end
 
-    attr_reader :sender_screen_name, :receiver_screen_name
+    attr_reader :my_screen_name, :their_screen_name
 
     def valid?
-      [@receiver_screen_name, @sender_screen_name, @start_time].all?
+      [@their_screen_name, @my_screen_name, @start_time].all?
     end
 
     def start_year

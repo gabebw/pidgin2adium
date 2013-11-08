@@ -1,10 +1,10 @@
 describe Pidgin2Adium::XMLMessage, '#to_s' do
-  it 'has the correct sender_screen_name' do
-    create_xml_message(sender_screen_name: 'jim').to_s.should include %(sender="jim")
+  it 'has the correct my_screen_name' do
+    create_xml_message(my_screen_name: 'jim').to_s.should include %(sender="jim")
   end
 
   it 'has the correct alias' do
-    create_xml_message(sender_alias: 'Jim Alias').to_s.should include %(alias="Jim Alias")
+    create_xml_message(my_alias: 'Jim Alias').to_s.should include %(alias="Jim Alias")
   end
 
   it 'has the correct time' do
@@ -28,7 +28,7 @@ describe Pidgin2Adium::XMLMessage, '#to_s' do
     it 'removes *** from the beginning of the sender alias' do
       alias_with_stars = '***Jim'
       alias_without_stars = 'Jim'
-      create_xml_message(sender_alias: alias_with_stars).to_s.should include %(alias="#{alias_without_stars}")
+      create_xml_message(my_alias: alias_with_stars).to_s.should include %(alias="#{alias_without_stars}")
     end
 
     it 'escapes & to &amp;' do
@@ -44,12 +44,12 @@ describe Pidgin2Adium::XMLMessage, '#to_s' do
   end
 
   def create_xml_message(opts = {})
-    opts[:sender_screen_name] ||= 'jim_sender'
+    opts[:my_screen_name] ||= 'jim_sender'
     opts[:time] ||= Time.now
-    opts[:sender_alias] ||= 'jane_alias'
+    opts[:my_alias] ||= 'jane_alias'
     opts[:body] ||= 'body'
     opts[:event_type] ||= 'libPurpleEvent'
 
-    Pidgin2Adium::XMLMessage.new(opts[:sender_screen_name], opts[:time], opts[:sender_alias], opts[:body])
+    Pidgin2Adium::XMLMessage.new(opts[:my_screen_name], opts[:time], opts[:my_alias], opts[:body])
   end
 end

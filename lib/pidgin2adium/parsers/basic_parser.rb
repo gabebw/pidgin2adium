@@ -1,10 +1,10 @@
 module Pidgin2Adium
   class BasicParser
-    def initialize(source_file_path, sender_aliases, line_regex, line_regex_status, cleaner)
-      @sender_aliases = sender_aliases.split(',')
+    def initialize(source_file_path, my_aliases, line_regex, line_regex_status, cleaner)
+      @my_aliases = my_aliases.split(',')
       @line_regex = line_regex
       @line_regex_status = line_regex_status
-      @sender_alias = @sender_aliases.first
+      @my_alias = @my_aliases.first
 
       @file_reader = FileReader.new(source_file_path, cleaner)
     end
@@ -20,7 +20,7 @@ module Pidgin2Adium
           end
         end
 
-        Chat.new(messages, @metadata.receiver_screen_name)
+        Chat.new(messages, @metadata.their_screen_name)
       end
     end
 
@@ -30,9 +30,9 @@ module Pidgin2Adium
       metadata = Metadata.new(MetadataParser.new(@file_reader.first_line).parse)
       if metadata.valid?
         @metadata = metadata
-        @alias_registry = AliasRegistry.new(@metadata.receiver_screen_name)
-        @sender_aliases.each do |sender_alias|
-          @alias_registry[sender_alias] = @metadata.sender_screen_name
+        @alias_registry = AliasRegistry.new(@metadata.their_screen_name)
+        @my_aliases.each do |my_alias|
+          @alias_registry[my_alias] = @metadata.my_screen_name
         end
       end
     end
@@ -47,12 +47,12 @@ module Pidgin2Adium
       # Either a regular message line or an auto-reply/away message.
       time = parse_time(matches[0])
       if time
-        sender_alias = matches[1]
-        sender_screen_name = @alias_registry[sender_alias]
+        my_alias = matches[1]
+        my_screen_name = @alias_registry[my_alias]
         body = matches[3]
         is_auto_reply = matches[2]
 
-        AutoOrXmlMessageCreator.new(body, time, sender_screen_name, sender_alias, is_auto_reply).create
+        AutoOrXmlMessageCreator.new(body, time, my_screen_name, my_alias, is_auto_reply).create
       end
     end
 
@@ -85,7 +85,7 @@ module Pidgin2Adium
     end
 
     def create_event_message(text, time)
-      EventMessageCreator.new(text, time, @sender_alias, @metadata.sender_screen_name, @alias_registry).create
+      EventMessageCreator.new(text, time, @my_alias, @metadata.my_screen_name, @alias_registry).create
     end
 
     def create_status_message(text, time)

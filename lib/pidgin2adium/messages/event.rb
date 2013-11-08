@@ -53,15 +53,15 @@ module Pidgin2Adium
       /User information not available/ => 'chat-error'
     }
 
-    def initialize(sender_screen_name, time, sender_alias, body, event_type)
-      super(sender_screen_name, time, sender_alias, body)
+    def initialize(my_screen_name, time, my_alias, body, event_type)
+      super(my_screen_name, time, my_alias, body)
       @event_type = event_type
     end
 
     attr_reader :event_type
 
     def to_s
-      %(<event type="#{@event_type}" sender="#{@sender_screen_name}" time="#{adium_formatted_time}" alias="#{@sender_alias}">#{@styled_body}</event>)
+      %(<event type="#{@event_type}" sender="#{@my_screen_name}" time="#{adium_formatted_time}" alias="#{@my_alias}">#{@styled_body}</event>)
     end
   end
 end

@@ -6,7 +6,7 @@ describe Pidgin2Adium::MetadataParser do
       end
 
       metadata = Pidgin2Adium::MetadataParser.new(first_line_of(file)).parse
-      metadata[:sender_screen_name].should == 'JIM'
+      metadata[:my_screen_name].should == 'JIM'
     end
 
     it "finds the receiver's screen name" do
@@ -15,7 +15,7 @@ describe Pidgin2Adium::MetadataParser do
       end
 
       metadata = Pidgin2Adium::MetadataParser.new(first_line_of(file)).parse
-      metadata[:receiver_screen_name].should == 'lady anne'
+      metadata[:their_screen_name].should == 'lady anne'
     end
 
     it 'finds the start time' do
@@ -65,7 +65,7 @@ describe Pidgin2Adium::MetadataParser do
 
   def assert_all_attributes_nil(metadata)
     metadata[:start_time].should be_nil
-    metadata[:receiver_screen_name].should be_nil
-    metadata[:sender_screen_name].should be_nil
+    metadata[:their_screen_name].should be_nil
+    metadata[:my_screen_name].should be_nil
   end
 end

@@ -82,7 +82,7 @@ describe Pidgin2Adium::HtmlLogParser do
         b.message 'whatever', from: 'from', from_alias: 'Gabe B-W'
       end
 
-      message.sender_screen_name.should == 'from'
+      message.my_screen_name.should == 'from'
     end
 
     it 'parses out the alias for the user who is doing the logging' do
@@ -91,7 +91,7 @@ describe Pidgin2Adium::HtmlLogParser do
         b.message 'whatever', from_alias: 'Jack Alias'
       end
 
-      message.sender_alias.should == 'Jack Alias'
+      message.my_alias.should == 'Jack Alias'
     end
 
     it 'parses out the screen name for the user on the other end' do
@@ -100,7 +100,7 @@ describe Pidgin2Adium::HtmlLogParser do
         b.message 'whatever', from: 'from', from_alias: 'my-alias'
       end
 
-      message.sender_screen_name.should == 'from'
+      message.my_screen_name.should == 'from'
     end
 
     it 'parses out the alias for the user on the other end' do
@@ -109,7 +109,7 @@ describe Pidgin2Adium::HtmlLogParser do
         b.message 'whatever', from: 'from', from_alias: 'my-alias'
       end
 
-      message.sender_alias.should == 'my-alias'
+      message.my_alias.should == 'my-alias'
     end
 
     it 'parses out the time' do
