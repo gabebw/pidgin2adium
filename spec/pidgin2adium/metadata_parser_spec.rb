@@ -1,6 +1,6 @@
 describe Pidgin2Adium::MetadataParser do
   context '#parse' do
-    it "finds the sender's screen name" do
+    it "finds my screen name" do
       file = create_chat_file('log.html') do |b|
         b.first_line from: 'JIM'
       end
@@ -9,7 +9,7 @@ describe Pidgin2Adium::MetadataParser do
       metadata[:my_screen_name].should == 'JIM'
     end
 
-    it "finds the receiver's screen name" do
+    it "finds their screen name" do
       file = create_chat_file('log.html') do |b|
         b.first_line to: 'lady anne'
       end

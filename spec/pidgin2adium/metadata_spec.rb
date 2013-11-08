@@ -1,13 +1,13 @@
 describe Pidgin2Adium::Metadata do
   context '#my_screen_name' do
-    it "returns the sender's normalized screen name" do
+    it "returns my normalized screen name" do
       metadata = Pidgin2Adium::Metadata.new(my_screen_name: 'JIM BOB')
       metadata.my_screen_name.should == 'jimbob'
     end
   end
 
   context '#their_screen_name' do
-    it "returns the receiver's screen name" do
+    it "returns their screen name" do
       metadata = Pidgin2Adium::Metadata.new(their_screen_name: 'lady anne')
       metadata.their_screen_name.should == 'lady anne'
     end
