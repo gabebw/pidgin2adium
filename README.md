@@ -1,4 +1,4 @@
-# pidgin2adium [![Build Status](https://secure.travis-ci.org/gabebw/pidgin2adium.png)](http://travis-ci.org/gabebw/pidgin2adium)
+# pidgin2adium [![Build Status](https://secure.travis-ci.org/gabebw/pidgin2adium.png)](http://travis-ci.org/gabebw/pidgin2adium) [![Code Climate](https://codeclimate.com/github/gabebw/pidgin2adium.png)](https://codeclimate.com/github/gabebw/pidgin2adium)
 
 Convert [Pidgin](http://pidgin.im/) (formerly gaim) logs to the
 [Adium](http://adium.im/) format.
