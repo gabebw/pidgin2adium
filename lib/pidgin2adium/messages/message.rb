@@ -14,11 +14,6 @@ module Pidgin2Adium
 
     attr_reader :sender_screen_name, :time, :sender_alias
 
-    # Compare this Message to +other_message+, based on their timestamps.
-    def <=>(other_message)
-      @time <=> other_message.time
-    end
-
     private
 
     def adium_formatted_time

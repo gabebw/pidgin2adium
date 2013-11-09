@@ -15,10 +15,6 @@ module Pidgin2Adium
 
     private
 
-    def key?(alias_name)
-      @items.key?(without_action(alias_name))
-    end
-
     def normalize(screen_name)
       screen_name.gsub(' ', '').downcase
     end
