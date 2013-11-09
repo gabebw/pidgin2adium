@@ -5,29 +5,39 @@ Convert [Pidgin](http://pidgin.im/) (formerly gaim) logs to the
 
 ## For the impatient
 
-This parses a log file and loops through the returned LogFile.
+To deal with meta-information about the chat itself:
 
-    require 'pidgin2adium'
-    logfile = Pidgin2Adium.parse("/path/to/log/file.html", "gabe,gbw,gabeb-w")
-    if logfile
-      logfile.each do |message|
-        # Every Message subclass has sender, time, and buddy_alias
-        puts "Sender's screen name: #{message.sender}"
-        puts "Time message was sent: #{message.time}"
-        puts "Sender's alias: #{message.buddy_alias}"
-        if message.respond_to?(:body)
-          puts "Message body: #{message.body}"
-          if message.respond_to?(:event) # Pidgin2Adium::Event class
-            puts "Event type: #{message.event_type}"
-          end
-        elsif message.respond_to?(:status) # Pidgin2Adium::StatusMessage
-          puts "Status: #{message.status}"
-        end
-        # Prints out the message in Adium log format
-        puts message.to_s
-      end
+    path_to_chat_log = File.expand_path('~/path/to/chat_log.html') # or .txt
+    chat = Pidgin2Adium.parse(path_to_chat_log, "Gabe B-W,Gabe,Other Alias")
+    if chat
+      puts "Screen name of the person you chatted with: #{chat.their_screen_name}"
+      puts "Time the chat started: #{chat.start_time_xmlschema}"
+      puts "Chat contents:"
+      puts chat.to_s
     else
-      puts "Oh no! Could not parse!"
+      puts "Oh no! Could not parse! Please open an issue."
+      puts path_to_chat_log
+      exit 1
+    end
+
+Or, to deal with individual messages in a chat:
+
+    chat = Pidgin2Adium.parse("/path/to/log/file.html", "gabe,gbw,gabeb-w")
+    chat.each do |message|
+      puts "Screen name of person who sent this message: #{message.sender_screen_name}"
+      puts "Alias of person who sent this message: #{message.sender_alias}"
+      puts "Time message was sent: #{message.time}"
+
+      if message.respond_to?(:body)
+        puts "Message body: #{message.body}"
+        if message.respond_to?(:event)
+          puts "Event type: #{message.event_type}"
+        end
+      elsif message.respond_to?(:status)
+        puts "Status: #{message.status}"
+      end
+
+      puts "Message in Adium format: #{message}"
     end
 
 ## The fine print
@@ -46,12 +56,12 @@ removed, so providing `Gabe B-W, GBW` is the same as providing `gabeb-w,gbw`.
 
 You do not need to provide your screenname in the alias list.
 
-
 ## INSTALL
 
     gem install pidgin2adium
 
 ## THANKS
+
 With thanks to Li Ma, whose [blog post](http://li-ma.blogspot.com/2008/10/pidgin-log-file-to-adium-log-converter.html)
 helped tremendously.
 
@@ -67,4 +77,4 @@ helped tremendously.
 
 ## Copyright
 
-Copyright (c) 2009-2012 Gabe Berke-Williams. See LICENSE for details.
+Copyright (c) 2009-2014 Gabe Berke-Williams. See LICENSE for details.
