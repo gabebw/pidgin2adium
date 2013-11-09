@@ -9,14 +9,17 @@ module Pidgin2Adium
       @file_reader = FileReader.new(source_file_path, cleaner)
     end
 
-    # This method returns a Chat instance, or false if an error occurred.
+    # This method returns a Chat instance, or false if it could not parse the
+    # file.
     def parse
       if pre_parse
         messages = @file_reader.other_lines.map do |line|
-          if line =~ @line_regex
-            create_message($~.captures)
-          elsif line =~ @line_regex_status
-            message = create_status_or_event_message($~.captures)
+          basic_message_match =  @line_regex.match(line)
+          meta_message_match = @line_regex_status.match(line)
+          if basic_message_match
+            create_message(basic_message_match)
+          elsif meta_message_match
+            create_status_or_event_message(meta_message_match)
           end
         end
 
@@ -45,12 +48,12 @@ module Pidgin2Adium
     #++
     def create_message(matches)
       # Either a regular message line or an auto-reply/away message.
-      time = parse_time(matches[0])
+      time = parse_time(matches[:timestamp])
       if time
-        my_alias = matches[1]
+        my_alias = matches[:sn_or_alias]
         my_screen_name = @alias_registry[my_alias]
-        body = matches[3]
-        is_auto_reply = matches[2]
+        body = matches[:body]
+        is_auto_reply = matches[:auto_reply]
 
         AutoOrXmlMessageCreator.new(body, time, my_screen_name, my_alias, is_auto_reply).create
       end
@@ -66,8 +69,8 @@ module Pidgin2Adium
       # ["22:58:00", "BuddyName logged in."]
       # 0: time
       # 1: status message or event
-      time = parse_time(matches[0])
-      str = matches[1]
+      time = parse_time(matches[:timestamp])
+      str = matches[:body]
 
       if time && event_we_care_about?(str)
         create_status_message(str, time) || create_event_message(str, time)
