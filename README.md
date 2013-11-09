@@ -60,6 +60,13 @@ You do not need to provide your screenname in the alias list.
 
     gem install pidgin2adium
 
+## Testing
+
+To get a coverage report, run `rake` with the `COVERAGE` environment variable
+set:
+
+    COVERAGE=1 rake
+
 ## THANKS
 
 With thanks to Li Ma, whose [blog post](http://li-ma.blogspot.com/2008/10/pidgin-log-file-to-adium-log-converter.html)
