@@ -23,9 +23,9 @@ describe Pidgin2Adium::TextLogParser do
           text: "what are you doing tomorrow?"
       end.lines.first
 
-      message.my_screen_name.should == "awesomesn"
+      message.sender_screen_name.should == "awesomesn"
       message.body.should == "what are you doing tomorrow?"
-      message.my_alias.should == "Gabe B-W"
+      message.sender_alias.should == "Gabe B-W"
       message.time.should == Time.parse('2006-12-21 22:36:11').utc
     end
   end

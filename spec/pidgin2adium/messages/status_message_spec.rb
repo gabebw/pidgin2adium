@@ -1,8 +1,8 @@
 describe Pidgin2Adium::StatusMessage, '#to_s' do
   it 'has the correct sender' do
-    my_screen_name = 'bob'
-    result = create_status_message(my_screen_name: my_screen_name).to_s
-    result.should include %(sender="#{my_screen_name}")
+    sender_screen_name = 'bob'
+    result = create_status_message(sender_screen_name: sender_screen_name).to_s
+    result.should include %(sender="#{sender_screen_name}")
   end
 
   it 'has the correct time' do
@@ -13,9 +13,9 @@ describe Pidgin2Adium::StatusMessage, '#to_s' do
   end
 
   it 'has the correct alias' do
-    my_alias = 'jane_alias'
-    result = create_status_message(my_alias: my_alias).to_s
-    result.should include %(alias="#{my_alias}")
+    sender_alias = 'jane_alias'
+    result = create_status_message(sender_alias: sender_alias).to_s
+    result.should include %(alias="#{sender_alias}")
   end
 
   it 'has the correct status' do
@@ -33,11 +33,11 @@ describe Pidgin2Adium::StatusMessage, '#to_s' do
   end
 
   def create_status_message(opts = {})
-    opts[:my_screen_name] ||= 'jim_sender'
+    opts[:sender_screen_name] ||= 'jim_sender'
     opts[:time] ||= Time.now
-    opts[:my_alias] ||= 'jane_alias'
+    opts[:sender_alias] ||= 'jane_alias'
     opts[:status] ||= 'status'
 
-    Pidgin2Adium::StatusMessage.new(opts[:my_screen_name], opts[:time], opts[:my_alias], opts[:status])
+    Pidgin2Adium::StatusMessage.new(opts[:sender_screen_name], opts[:time], opts[:sender_alias], opts[:status])
   end
 end

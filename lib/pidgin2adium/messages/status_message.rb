@@ -12,15 +12,15 @@ module Pidgin2Adium
       /(.+) is no longer idle\.$/ => 'available'
     }
 
-    def initialize(my_screen_name, time, my_alias, status)
-      super(my_screen_name, time, my_alias)
+    def initialize(sender_screen_name, time, sender_alias, status)
+      super(sender_screen_name, time, sender_alias)
       @status = status
     end
 
     attr_reader :status
 
     def to_s
-      %(<status type="#{@status}" sender="#{@my_screen_name}" time="#{adium_formatted_time}" alias="#{@my_alias}"/>\n)
+      %(<status type="#{@status}" sender="#{@sender_screen_name}" time="#{adium_formatted_time}" alias="#{@sender_alias}"/>\n)
     end
   end
 end

@@ -6,13 +6,13 @@ module Pidgin2Adium
   class Message
     include Comparable
 
-    def initialize(my_screen_name, time, my_alias)
-      @my_screen_name = my_screen_name
+    def initialize(sender_screen_name, time, sender_alias)
+      @sender_screen_name = sender_screen_name
       @time = time
-      @my_alias = my_alias
+      @sender_alias = sender_alias
     end
 
-    attr_reader :my_screen_name, :time, :my_alias
+    attr_reader :sender_screen_name, :time, :sender_alias
 
     # Compare this Message to +other_message+, based on their timestamps.
     def <=>(other_message)
