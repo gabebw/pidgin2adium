@@ -1,8 +1,5 @@
 module Pidgin2Adium
   class MetadataParser
-    # "4/18/2007 11:02:00 AM" becomes %w(4 18 2007)
-    TIME_REGEX_FIRST_LINE = %r{^(\d{1,2})/(\d{1,2})/(\d{4}) \d{1,2}:\d{2}:\d{2} [AP]M$}
-
     def initialize(first_line)
       @first_line = first_line || ''
     end
@@ -34,23 +31,16 @@ module Pidgin2Adium
     def start_time
       match = @first_line.match(%r{ at ([-\d/APM: ]+) on})
       if match
-        time_string = match[1]
-        parse_time(time_string)
+        timestamp = match[1]
+        parse_time(timestamp)
       end
     end
 
-    def parse_time(time_string)
+    def parse_time(timestamp)
       begin
-        Time.parse(time_string)
+        Time.parse(timestamp)
       rescue ArgumentError
-        matches = time_string.match(TIME_REGEX_FIRST_LINE)
-        if matches
-          year = matches[1]
-          month = matches[2]
-          day = matches[3]
-          time_parser = TimeParser.new(year, month, day)
-          time_parser.parse(time_string)
-        end
+        TimeParser.new(nil, nil, nil).parse(timestamp)
       end
     end
   end
