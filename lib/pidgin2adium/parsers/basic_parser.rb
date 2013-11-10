@@ -40,37 +40,22 @@ module Pidgin2Adium
       end
     end
 
-    #--
-    # create_message takes an array of captures from matching against
-    # @line_regex and returns a Message object or one of its subclasses.
-    # It can be used for TextLogParser and HtmlLogParser because both of
-    # they return data in the same indexes in the matches array.
-    #++
-    def create_message(matches)
+    def create_message(match_data)
       # Either a regular message line or an auto-reply/away message.
-      time = parse_time(matches[:timestamp])
+      time = time_parser.parse(match_data[:timestamp])
       if time
-        my_alias = matches[:sn_or_alias]
+        my_alias = match_data[:sn_or_alias]
         my_screen_name = @alias_registry[my_alias]
-        body = matches[:body]
-        is_auto_reply = matches[:auto_reply]
+        body = match_data[:body]
+        is_auto_reply = match_data[:auto_reply]
 
         AutoOrXmlMessageCreator.new(body, time, my_screen_name, my_alias, is_auto_reply).create
       end
     end
 
-    #--
-    # create_status_or_event_message takes an array of +MatchData+ captures from
-    # matching against @line_regex_status and returns an Event or Status.
-    # Returns nil if it's a message that should be ignored, or false if an
-    # error occurred.
-    #++
-    def create_status_or_event_message(matches)
-      # ["22:58:00", "BuddyName logged in."]
-      # 0: time
-      # 1: status message or event
-      time = parse_time(matches[:timestamp])
-      str = matches[:body]
+    def create_status_or_event_message(match_data)
+      time = time_parser.parse(match_data[:timestamp])
+      str = match_data[:body]
 
       if time && event_we_care_about?(str)
         create_status_message(str, time) || create_event_message(str, time)
@@ -93,12 +78,6 @@ module Pidgin2Adium
 
     def create_status_message(text, time)
       StatusMessageCreator.new(text, time, @alias_registry).create
-    end
-
-    def parse_time(time_string)
-      if time_string
-        time_parser.parse(time_string)
-      end
     end
   end
 end

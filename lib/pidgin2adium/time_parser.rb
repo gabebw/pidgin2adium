@@ -9,26 +9,28 @@ module Pidgin2Adium
       @fallback_date_string = "#{year}-#{month}-#{day}"
     end
 
-    def parse(time_string)
-      if has_no_date?(time_string)
-        parse_with_date(@fallback_date_string + " " + time_string)
-      else
-        parse_with_date(time_string)
+    def parse(timestamp)
+      if timestamp
+        if has_no_date?(timestamp)
+          parse_with_date(@fallback_date_string + " " + timestamp)
+        else
+          parse_with_date(timestamp)
+        end
       end
     end
 
     private
 
-    def parse_with_date(time_string)
+    def parse_with_date(timestamp)
       begin
-        Time.parse(time_string)
+        Time.parse(timestamp)
       rescue ArgumentError
-        Time.strptime(time_string, UNPARSEABLE_BY_DATETIME_PARSE)
+        Time.strptime(timestamp, UNPARSEABLE_BY_DATETIME_PARSE)
       end
     end
 
-    def has_no_date?(time_string)
-      time_string.strip =~ NO_DATE_REGEX
+    def has_no_date?(timestamp)
+      timestamp.strip =~ NO_DATE_REGEX
     end
   end
 end

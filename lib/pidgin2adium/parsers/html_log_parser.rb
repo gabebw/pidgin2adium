@@ -3,8 +3,7 @@ module Pidgin2Adium
     TIMESTAMP_REGEX = /\((?<timestamp>(?:\d{4}-\d{2}-\d{2} )?\d{1,2}:\d{1,2}:\d{1,2}(?: [AP]M)?)\)/
 
     def initialize(source_file_path, user_aliases)
-      # @line_regex matches a line in an HTML log file other than the
-      # first.
+      # @line_regex matches a line in an HTML log file other than the first.
       line_regex = /#{TIMESTAMP_REGEX} ?<b>(?<sn_or_alias>.+?) ?(?<auto_reply>&lt;AUTO-REPLY&gt;)?:?<\/b> ?(?<body>.+)<br ?\/>/o
 
       # @line_regex_status matches a status or event line.
