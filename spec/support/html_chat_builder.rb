@@ -6,30 +6,30 @@ class HtmlChatBuilder < ChatBuilder
   end
 
   def first_line(options = {})
-    assert_keys(options, [:from, :to, :time, :protocol])
+    assert_keys(options, [:my_screen_name, :their_screen_name, :time, :protocol])
 
     @first_line ||= begin
-      to = options[:to] || 'TO_SN'
+      my_screen_name = options[:my_screen_name] || 'my_screen_name'
       time = options[:time] || Time.now.strftime('%m/%d/%Y %I:%M:%S %p')
       protocol = options[:protocol] || 'aim'
       # Need to track this so we can set the message font color correctly.
-      @from = options[:from] || DEFAULT_FROM
-      %(<head><meta http-equiv="content-type" content="text/html; charset=UTF-8"><title>Conversation with #{to} at #{time} on #{@from} (#{protocol})</title></head><h3>Conversation with #{to} at #{time} on #{@from} (#{protocol})</h3>)
+      @their_screen_name = options[:their_screen_name] || DEFAULT_THEIR_SCREEN_NAME
+      %(<head><meta http-equiv="content-type" content="text/html; charset=UTF-8"><title>Conversation with #{@their_screen_name} at #{time} on #{my_screen_name} (#{protocol})</title></head><h3>Conversation with #{@their_screen_name} at #{time} on #{my_screen_name} (#{protocol})</h3>)
     end
   end
 
   def message(text = 'hello', options = {})
-    assert_keys(options, [:from, :from_alias, :time, :font_color])
+    assert_keys(options, [:sender_screen_name, :sender_alias, :time, :font_color])
 
-    from = options[:from] || DEFAULT_FROM
-    from_alias = options[:from_alias] || 'FROM_ALIAS'
+    sender_screen_name = options[:sender_screen_name] || DEFAULT_THEIR_SCREEN_NAME
+    sender_alias = options[:sender_alias] || 'sender_alias'
     time = options[:time] || Time.now.strftime('%Y-%m-%d %H:%M:%S')
-    font_color = '#' + (options[:font_color] || font_color_for(from))
-    message = %{<font color="#{font_color}"><font size="2">(#{time})</font> <b>#{from_alias}</b></font> #{text}}
+    font_color = '#' + (options[:font_color] || font_color_for(sender_screen_name))
+    message = %{<font color="#{font_color}"><font size="2">(#{time})</font> <b>#{sender_alias}:</b></font> <font sml="AIM/ICQ">#{text}</font>}
     @messages << message
   end
 
-  def status(text = 'Starting transfer of kitties.jpg from Gabe B-W', options = {})
+  def status(text = 'Starting transfer of kitties.jpg sender_screen_name Gabe B-W', options = {})
     assert_keys(options, [:time])
 
     time = options[:time] || Time.now.strftime('%Y-%m-%d %H:%M:%S')
@@ -39,12 +39,12 @@ class HtmlChatBuilder < ChatBuilder
   def auto_reply(text = 'ran out for a bit', options = {})
     assert_keys(options, [:time])
 
-    from = options[:from] || DEFAULT_FROM
-    from_alias = options[:from_alias] || 'FROM_ALIAS'
+    sender_screen_name = options[:sender_screen_name] || DEFAULT_SENDER_SCREEN_NAME
+    sender_alias = options[:sender_alias] || 'sender_alias'
     time = options[:time] || Time.now.strftime('%Y-%m-%d %H:%M:%S')
-    font_color = '#' + (options[:font_color] || font_color_for(from))
+    font_color = '#' + (options[:font_color] || font_color_for(sender_screen_name))
 
-    message = %{<font color="#{font_color}"><font size="2">(#{time})</font> <b>#{from} &lt;AUTO-REPLY&gt;:</b></font> #{text}}
+    message = %{<font color="#{font_color}"><font size="2">(#{time})</font> <b>#{sender_screen_name} &lt;AUTO-REPLY&gt;:</b></font> #{text}}
     @messages << message
   end
 
@@ -57,8 +57,8 @@ class HtmlChatBuilder < ChatBuilder
     end
   end
 
-  def font_color_for(from)
-    if from == @from
+  def font_color_for(sender_screen_name)
+    if sender_screen_name == @their_screen_name
       'A82F2F'
     else
       '16569E'
