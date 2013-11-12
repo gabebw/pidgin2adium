@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<chat xmlns="http://purl.org/net/ulf/ns/0.4-02" account="jiggerificbug" service="AIM">
-<message sender="aolsystemmsg" time="2008-01-15T07:14:45-0500" alias="AOL System Msg"><div><span style="font-family: Helvetica; font-size: 12pt;">Your screen name (jiggerificbug) is now signed into AOL(R) Instant Messenger (TM) in 2 locations. To sign off the other location(s), reply to this message with the number 1. Click <a href="http://www.aim.com/password/routing.adp">here</a> for more information.</span></div></message>
-<message sender="jiggerificbug" time="2008-01-15T07:14:48-0500" alias="Gabe B-W"><div><span style="font-family: Helvetica; font-size: 12pt;">1</span></div></message>
-<message sender="aolsystemmsg" time="2008-01-15T07:14:48-0500" alias="AOL System Msg"><div><span style="font-family: Helvetica; font-size: 12pt;">Your other AIM sessions have been signed-off.  You are now signed-on from 1 location(s).</span></div></message>
-</chat>
