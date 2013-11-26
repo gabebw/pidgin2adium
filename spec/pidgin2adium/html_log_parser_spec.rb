@@ -3,7 +3,7 @@ describe Pidgin2Adium::HtmlLogParser do
    :span_tag_instead_of_font_tag,
    :no_tag_around_body
   ].each do |format|
-    context "with format #{format}" do
+    context "with format #{format.inspect}" do
       it 'can parse out timestamps' do
         messages = result_of_parsing do |b|
           b.message 'hi', time: '2007-01-17 18:59:42', format: format
@@ -20,6 +20,7 @@ describe Pidgin2Adium::HtmlLogParser do
         expect(messages.first.sender_alias).to eq 'Gabe B-W'
       end
 
+      # no_tag_around_body breaks
       it 'can parse out the message body' do
         messages = result_of_parsing do |b|
           b.message 'yo', format: format
@@ -28,6 +29,7 @@ describe Pidgin2Adium::HtmlLogParser do
         expect(messages.first.body).to eq 'yo'
       end
 
+      # all of 'em break
       it 'can parse out the message body when it contains HTML' do
         html = '<a HREF="http://software.johnroark.net/">http://software.johnroark.net/</a>'
         body = "check it: #{html} haha"

@@ -21,6 +21,8 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version = Gem::Requirement.new(">= 1.9.2")
 
   spec.add_dependency("nokogiri")
+  spec.add_dependency("loofah")
+
   spec.add_development_dependency("mocha")
   spec.add_development_dependency("rspec", "~> 2.11")
   spec.add_development_dependency("rake")

@@ -13,18 +13,8 @@ module Pidgin2Adium
     def parse
       @doc.css(SELECTOR).map do |node|
         timestamp_and_alias = node.text
-        if node.next.next.name == 'br'
-          body = node.next.text
-        else
-          string = node.next.to_s
-          current = node.next.next
-          while current.name != 'br'
-            string << current.to_s
-            current = current.next
-          end
-          body = string
-        end
 
+        body = node.next.next.inner_html
         matches = timestamp_and_alias.match(/\((?<timestamp>.*)\) (?<sender_alias>.*):$/)
 
         Message.new(
