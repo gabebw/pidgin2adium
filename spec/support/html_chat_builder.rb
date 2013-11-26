@@ -19,14 +19,22 @@ class HtmlChatBuilder < ChatBuilder
   end
 
   def message(text = 'hello', options = {})
-    assert_keys(options, [:sender_screen_name, :sender_alias, :time, :font_color])
+    assert_keys(options, [:sender_screen_name, :sender_alias, :time, :font_color, :format])
 
     sender_screen_name = options[:sender_screen_name] || DEFAULT_THEIR_SCREEN_NAME
     sender_alias = options[:sender_alias] || 'sender_alias'
     time = options[:time] || Time.now.strftime('%Y-%m-%d %H:%M:%S')
     font_color = '#' + (options[:font_color] || font_color_for(sender_screen_name))
-    message = %{<font color="#{font_color}"><font size="2">(#{time})</font> <b>#{sender_alias}:</b></font> <font sml="AIM/ICQ">#{text}</font>}
-    @messages << message
+    message_prefix = %{<font color="#{font_color}"><font size="2">(#{time})</font> <b>#{sender_alias}:</b></font> }
+    body = case options[:format]
+           when :span_tag_instead_of_font_tag
+             %{<span style='color: #000000; font-size: x-small'>#{text}</span>}
+           when :no_tag_around_body
+             text
+           else
+             %{<font sml="AIM/ICQ">#{text}</font>}
+           end
+    @messages << (message_prefix + body)
   end
 
   def status(text = 'Starting transfer of kitties.jpg sender_screen_name Gabe B-W', options = {})
@@ -53,7 +61,7 @@ class HtmlChatBuilder < ChatBuilder
   def assert_keys(options, possible_keys)
     extra_keys = options.keys - possible_keys
     unless extra_keys.empty?
-      raise ArgumentError, "#{__method__} only takes the #{possible_keys}, got extra: #{extra_keys}"
+      raise ArgumentError, "#{__method__} only takes #{possible_keys}, got extra: #{extra_keys}"
     end
   end
 

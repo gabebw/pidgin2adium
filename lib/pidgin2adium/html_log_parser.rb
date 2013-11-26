@@ -13,7 +13,17 @@ module Pidgin2Adium
     def parse
       @doc.css(SELECTOR).map do |node|
         timestamp_and_alias = node.text
-        body = node.next.next.text
+        if node.next.next.name == 'br'
+          body = node.next.text
+        else
+          string = node.next.to_s
+          current = node.next.next
+          while current.name != 'br'
+            string << current.to_s
+            current = current.next
+          end
+          body = string
+        end
 
         matches = timestamp_and_alias.match(/\((?<timestamp>.*)\) (?<sender_alias>.*):$/)
 
@@ -21,7 +31,7 @@ module Pidgin2Adium
           time: Time.parse(matches[:timestamp]),
           sender_alias: matches[:sender_alias],
           sender_screen_name: screen_name_based_on_color(node[:color]),
-          body: body
+          body: body.strip
         )
       end
     end
