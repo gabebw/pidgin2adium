@@ -1,5 +1,11 @@
 module Pidgin2Adium
   class ParserFactory
+    PARSER_FOR_EXTENSION = {
+      "html" => HtmlLogParser,
+      "htm" => HtmlLogParser,
+      "txt" => TextLogParser
+    }
+
     def initialize(logfile_path, aliases)
       @logfile_path = logfile_path
       @aliases = aliases
@@ -12,14 +18,15 @@ module Pidgin2Adium
     private
 
     def parser_class
-      case @logfile_path
-      when /\.html?$/i
-        HtmlLogParser
-      when /\.txt$/i
-        TextLogParser
-      else
-        NullParser
-      end
+      PARSER_FOR_EXTENSION.fetch(extension, NullParser)
+    end
+
+    def extension
+      extension_with_leading_period[1..-1]
+    end
+
+    def extension_with_leading_period
+      File.extname(@logfile_path).downcase
     end
   end
 end
