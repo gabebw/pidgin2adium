@@ -1,6 +1,6 @@
 module Pidgin2Adium
   class TimeParser
-    NO_DATE_REGEX = /\A\d{1,2}:\d{1,2}:\d{1,2}(?: [AP]M)?\Z/
+    NO_DATE = /\A\d{1,2}:\d{1,2}:\d{1,2}(?: [AP]M)?\Z/
 
     # 01/22/2008 03:01:45 PM
     UNPARSEABLE_BY_DATETIME_PARSE = '%m/%d/%Y %I:%M:%S %P'
@@ -30,7 +30,7 @@ module Pidgin2Adium
     end
 
     def has_no_date?(timestamp)
-      timestamp.strip =~ NO_DATE_REGEX
+      timestamp.strip =~ NO_DATE
     end
   end
 end
