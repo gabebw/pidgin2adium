@@ -6,7 +6,7 @@ describe Pidgin2Adium::HtmlLogParser do
         3.times { b.message }
       end
 
-      chat.lines.size.should == 3
+      expect(chat.lines.size).to eq(3)
     end
 
     it 'returns a Chat with the correct message type' do
@@ -16,7 +16,7 @@ describe Pidgin2Adium::HtmlLogParser do
         b.message 'second'
       end
 
-      chat.lines.map(&:class).should == [Pidgin2Adium::XMLMessage] * 2
+      expect(chat.lines.map(&:class)).to eq([Pidgin2Adium::XMLMessage] * 2)
     end
 
     {
@@ -35,7 +35,7 @@ describe Pidgin2Adium::HtmlLogParser do
           b.status line
         end
 
-        message.status.should == status
+        expect(message.status).to eq(status)
       end
     end
 
@@ -45,7 +45,7 @@ describe Pidgin2Adium::HtmlLogParser do
         b.status 'Starting transfer of kitten.jpg from Gabe B-W'
       end
 
-      message.event_type.should == 'libpurpleEvent'
+      expect(message.event_type).to eq('libpurpleEvent')
     end
 
     it 'correctly detects non-libpurple events' do
@@ -54,7 +54,7 @@ describe Pidgin2Adium::HtmlLogParser do
         b.status 'You missed 8 messages from Gabe B-W because they were too large'
       end
 
-      message.event_type.should == 'chat-error'
+      expect(message.event_type).to eq('chat-error')
     end
 
     it 'does not build Messages for ignored events' do
@@ -63,7 +63,7 @@ describe Pidgin2Adium::HtmlLogParser do
         b.status 'Gabe B-W is now known as gbw.'
       end
 
-      chat.lines.should == [nil]
+      expect(chat.lines).to eq([nil])
     end
 
     it 'correctly detects auto-reply messages' do
@@ -72,8 +72,8 @@ describe Pidgin2Adium::HtmlLogParser do
         b.auto_reply 'I ran out for a bit'
       end
 
-      message.should be_instance_of(Pidgin2Adium::AutoReplyMessage)
-      message.body.should == 'I ran out for a bit'
+      expect(message).to be_instance_of(Pidgin2Adium::AutoReplyMessage)
+      expect(message.body).to eq('I ran out for a bit')
     end
 
     it 'parses out the screen name for the user who is doing the logging' do
@@ -82,7 +82,7 @@ describe Pidgin2Adium::HtmlLogParser do
         b.message 'whatever', from: 'from', from_alias: 'Gabe B-W'
       end
 
-      message.sender_screen_name.should == 'from'
+      expect(message.sender_screen_name).to eq('from')
     end
 
     it 'parses out the alias for the user who is doing the logging' do
@@ -91,7 +91,7 @@ describe Pidgin2Adium::HtmlLogParser do
         b.message 'whatever', from_alias: 'Jack Alias'
       end
 
-      message.sender_alias.should == 'Jack Alias'
+      expect(message.sender_alias).to eq('Jack Alias')
     end
 
     it 'parses out the screen name for the user on the other end' do
@@ -100,7 +100,7 @@ describe Pidgin2Adium::HtmlLogParser do
         b.message 'whatever', from: 'from', from_alias: 'my-alias'
       end
 
-      message.sender_screen_name.should == 'from'
+      expect(message.sender_screen_name).to eq('from')
     end
 
     it 'parses out the alias for the user on the other end' do
@@ -109,7 +109,7 @@ describe Pidgin2Adium::HtmlLogParser do
         b.message 'whatever', from: 'from', from_alias: 'my-alias'
       end
 
-      message.sender_alias.should == 'my-alias'
+      expect(message.sender_alias).to eq('my-alias')
     end
 
     it 'parses out the time' do
@@ -118,7 +118,7 @@ describe Pidgin2Adium::HtmlLogParser do
         b.message 'whatever', time: '2008-01-15 07:14:45'
       end
 
-      message.time.should == Time.parse('2008-01-15 07:14:45')
+      expect(message.time).to eq(Time.parse('2008-01-15 07:14:45'))
     end
 
     it 'parses out the body' do
@@ -127,7 +127,7 @@ describe Pidgin2Adium::HtmlLogParser do
         b.message 'body'
       end
 
-      message.body.should == 'body'
+      expect(message.body).to eq('body')
     end
 
     it 'double quotes hrefs in the body' do
@@ -137,7 +137,7 @@ describe Pidgin2Adium::HtmlLogParser do
         b.message body_with_link
       end
 
-      message.body.should == body_with_link.gsub("'", '"')
+      expect(message.body).to eq(body_with_link.gsub("'", '"'))
     end
 
     it 'has access to the screen name of the other person' do
@@ -145,7 +145,7 @@ describe Pidgin2Adium::HtmlLogParser do
         b.first_line to: 'person_on_the_other_end'
       end
 
-      chat.their_screen_name.should == 'person_on_the_other_end'
+      expect(chat.their_screen_name).to eq('person_on_the_other_end')
     end
   end
 

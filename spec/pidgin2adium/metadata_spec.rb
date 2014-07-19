@@ -2,14 +2,14 @@ describe Pidgin2Adium::Metadata do
   context '#my_screen_name' do
     it "returns my normalized screen name" do
       metadata = Pidgin2Adium::Metadata.new(my_screen_name: 'JIM BOB')
-      metadata.my_screen_name.should == 'jimbob'
+      expect(metadata.my_screen_name).to eq('jimbob')
     end
   end
 
   context '#their_screen_name' do
     it "returns their screen name" do
       metadata = Pidgin2Adium::Metadata.new(their_screen_name: 'lady anne')
-      metadata.their_screen_name.should == 'lady anne'
+      expect(metadata.their_screen_name).to eq('lady anne')
     end
   end
 
@@ -18,7 +18,7 @@ describe Pidgin2Adium::Metadata do
       time = Time.now
       metadata = Pidgin2Adium::Metadata.new(start_time: time)
 
-      metadata.start_time.should == time
+      expect(metadata.start_time).to eq(time)
     end
   end
 
@@ -26,7 +26,7 @@ describe Pidgin2Adium::Metadata do
     it 'returns the start month' do
       start_time = Time.now
       metadata = Pidgin2Adium::Metadata.new(start_time: start_time)
-      metadata.start_month.should == start_time.mon
+      expect(metadata.start_month).to eq(start_time.mon)
     end
   end
 
@@ -34,7 +34,7 @@ describe Pidgin2Adium::Metadata do
     it 'returns the start year' do
       start_time = Time.now
       metadata = Pidgin2Adium::Metadata.new(start_time: start_time)
-      metadata.start_year.should == start_time.year
+      expect(metadata.start_year).to eq(start_time.year)
     end
   end
 
@@ -42,7 +42,7 @@ describe Pidgin2Adium::Metadata do
     it 'returns the start mday' do
       start_time = Time.now
       metadata = Pidgin2Adium::Metadata.new(start_time: start_time)
-      metadata.start_mday.should == start_time.mday
+      expect(metadata.start_mday).to eq(start_time.mday)
     end
   end
 
@@ -51,12 +51,12 @@ describe Pidgin2Adium::Metadata do
       metadata = Pidgin2Adium::Metadata.new({my_screen_name: '',
         their_screen_name: '',
         start_time: '' })
-      metadata.should be_valid
+      expect(metadata).to be_valid
     end
 
     [:my_screen_name, :their_screen_name, :start_time].each do |attribute|
       it "is false when #{attribute} cannot be detected" do
-        Pidgin2Adium::Metadata.new(attribute => nil).should_not be_valid
+        expect(Pidgin2Adium::Metadata.new(attribute => nil)).not_to be_valid
       end
     end
   end

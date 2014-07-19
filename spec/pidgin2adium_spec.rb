@@ -1,12 +1,12 @@
 describe Pidgin2Adium, ".parse" do
   context "with bad input" do
     it "returns false when file is not text or html" do
-      Pidgin2Adium.parse(non_html_or_txt_path, aliases).should be_false
+      expect(Pidgin2Adium.parse(non_html_or_txt_path, aliases)).to be_falsey
     end
 
     it "returns false for nonexistent files" do
-      Pidgin2Adium.parse('i_do_not_exist.html', aliases).should be_false
-      Pidgin2Adium.parse('i_do_not_exist.txt', aliases).should be_false
+      expect(Pidgin2Adium.parse('i_do_not_exist.html', aliases)).to be_falsey
+      expect(Pidgin2Adium.parse('i_do_not_exist.txt', aliases)).to be_falsey
     end
 
     def non_html_or_txt_path
@@ -18,21 +18,21 @@ describe Pidgin2Adium, ".parse" do
     context "for a text file" do
       it "returns a Chat instance" do
         result = Pidgin2Adium.parse(text_logfile_path, aliases)
-        result.should be_instance_of(Pidgin2Adium::Chat)
+        expect(result).to be_instance_of(Pidgin2Adium::Chat)
       end
     end
 
     context "for an htm file" do
       it "returns a Chat instance" do
         result = Pidgin2Adium.parse(htm_logfile_path, aliases)
-        result.should be_instance_of(Pidgin2Adium::Chat)
+        expect(result).to be_instance_of(Pidgin2Adium::Chat)
       end
     end
 
     context "for an html file" do
       it "returns a Chat instance" do
         result = Pidgin2Adium.parse(html_logfile_path, aliases)
-        result.should be_instance_of(Pidgin2Adium::Chat)
+        expect(result).to be_instance_of(Pidgin2Adium::Chat)
       end
     end
   end

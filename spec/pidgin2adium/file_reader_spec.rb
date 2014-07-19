@@ -40,13 +40,13 @@ describe Pidgin2Adium::FileReader, 'with a nonexistent file' do
   it 'has empty first_line' do
     file_reader = Pidgin2Adium::FileReader.new('nonexistent', no_op_cleaner)
     file_reader.read
-    file_reader.first_line.should == ''
+    expect(file_reader.first_line).to eq('')
   end
 
   it 'has empty other_lines' do
     file_reader = Pidgin2Adium::FileReader.new('nonexistent', no_op_cleaner)
     file_reader.read
-    file_reader.other_lines.should == []
+    expect(file_reader.other_lines).to eq([])
   end
 end
 
@@ -61,7 +61,7 @@ describe Pidgin2Adium::FileReader, '#first_line' do
 
     file_reader = Pidgin2Adium::FileReader.new(file.path, no_op_cleaner)
     file_reader.read
-    file_reader.first_line.should == 'first'
+    expect(file_reader.first_line).to eq('first')
   end
 
   it 'does not clean the first line' do
@@ -71,7 +71,7 @@ describe Pidgin2Adium::FileReader, '#first_line' do
 
     file_reader = Pidgin2Adium::FileReader.new(file.path, dirty_cleaner)
     file_reader.read
-    file_reader.first_line.should == "dirty"
+    expect(file_reader.first_line).to eq("dirty")
   end
 end
 
@@ -87,7 +87,7 @@ describe Pidgin2Adium::FileReader, '#other_lines' do
 
     file_reader = Pidgin2Adium::FileReader.new(file.path, no_op_cleaner)
     file_reader.read
-    file_reader.other_lines.should == %w(second third)
+    expect(file_reader.other_lines).to eq(%w(second third))
   end
 
   it 'cleans the other lines' do
@@ -98,7 +98,7 @@ describe Pidgin2Adium::FileReader, '#other_lines' do
 
     file_reader = Pidgin2Adium::FileReader.new(file.path, dirty_cleaner)
     file_reader.read
-    file_reader.other_lines.should == %w(clean)
+    expect(file_reader.other_lines).to eq(%w(clean))
   end
 
 
@@ -112,7 +112,7 @@ describe Pidgin2Adium::FileReader, '#other_lines' do
 
     file_reader = Pidgin2Adium::FileReader.new(file.path, no_op_cleaner)
     file_reader.read
-    file_reader.other_lines.should == %w(before after)
+    expect(file_reader.other_lines).to eq(%w(before after))
   end
 
   it 'removes all-whitespace lines from the other lines' do
@@ -125,6 +125,6 @@ describe Pidgin2Adium::FileReader, '#other_lines' do
 
     file_reader = Pidgin2Adium::FileReader.new(file.path, no_op_cleaner)
     file_reader.read
-    file_reader.other_lines.should == %w(before after)
+    expect(file_reader.other_lines).to eq(%w(before after))
   end
 end

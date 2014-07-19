@@ -6,7 +6,7 @@ describe Pidgin2Adium::MetadataParser do
       end
 
       metadata = Pidgin2Adium::MetadataParser.new(first_line_of(file)).parse
-      metadata[:my_screen_name].should == 'JIM'
+      expect(metadata[:my_screen_name]).to eq('JIM')
     end
 
     it "finds their screen name" do
@@ -15,7 +15,7 @@ describe Pidgin2Adium::MetadataParser do
       end
 
       metadata = Pidgin2Adium::MetadataParser.new(first_line_of(file)).parse
-      metadata[:their_screen_name].should == 'lady anne'
+      expect(metadata[:their_screen_name]).to eq('lady anne')
     end
 
     it 'finds the start time' do
@@ -25,7 +25,7 @@ describe Pidgin2Adium::MetadataParser do
       end
 
       metadata = Pidgin2Adium::MetadataParser.new(first_line_of(file)).parse
-      metadata[:start_time].should == Time.parse(time_string)
+      expect(metadata[:start_time]).to eq(Time.parse(time_string))
     end
 
     it 'can detect peculiar times' do
@@ -36,7 +36,7 @@ describe Pidgin2Adium::MetadataParser do
       end
 
       metadata = Pidgin2Adium::MetadataParser.new(first_line_of(file)).parse
-      metadata[:start_time].should == expected_time
+      expect(metadata[:start_time]).to eq(expected_time)
     end
 
     it 'sets all attributes to nil when initialized with an empty string' do
@@ -64,8 +64,8 @@ describe Pidgin2Adium::MetadataParser do
   end
 
   def assert_all_attributes_nil(metadata)
-    metadata[:start_time].should be_nil
-    metadata[:their_screen_name].should be_nil
-    metadata[:my_screen_name].should be_nil
+    expect(metadata[:start_time]).to be_nil
+    expect(metadata[:their_screen_name]).to be_nil
+    expect(metadata[:my_screen_name]).to be_nil
   end
 end

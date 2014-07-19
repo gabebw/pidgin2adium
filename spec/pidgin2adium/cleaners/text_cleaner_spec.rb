@@ -1,26 +1,26 @@
 describe Pidgin2Adium::Cleaners::TextCleaner, '.clean' do
   it 'removes \r' do
-    clean("\r").should == ''
+    expect(clean("\r")).to eq('')
   end
 
   it 'converts & to &amp;' do
-    clean('&').should == '&amp;'
+    expect(clean('&')).to eq('&amp;')
   end
 
   it 'converts < to &lt;' do
-    clean('<').should == '&lt;'
+    expect(clean('<')).to eq('&lt;')
   end
 
   it 'converts > to &gt;' do
-    clean('>').should == '&gt;'
+    expect(clean('>')).to eq('&gt;')
   end
 
   it 'converts " to &quot;' do
-    clean('"').should == '&quot;'
+    expect(clean('"')).to eq('&quot;')
   end
 
   it "converts ' to &apos;" do
-    clean("'").should == '&apos;'
+    expect(clean("'")).to eq('&apos;')
   end
 
   def clean(line)

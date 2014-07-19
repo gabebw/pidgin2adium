@@ -11,4 +11,8 @@ Dir['spec/support/**/*.rb'].each { |f| require File.expand_path(f) }
 
 RSpec.configure do |config|
   config.mock_with :mocha
+
+  config.expect_with :rspec do |c|
+    c.syntax = :expect
+  end
 end

@@ -6,7 +6,7 @@ describe Pidgin2Adium::ParserFactory do
       it 'returns an HtmlLogParser' do
         logfile_path = "whatever.#{html_extension}"
         factory = Pidgin2Adium::ParserFactory.new(logfile_path, aliases)
-        factory.parser.should be_a Pidgin2Adium::HtmlLogParser
+        expect(factory.parser).to be_a Pidgin2Adium::HtmlLogParser
       end
     end
   end
@@ -16,7 +16,7 @@ describe Pidgin2Adium::ParserFactory do
       it 'returns a TextLogParser' do
         logfile_path = "whatever.#{text_extension}"
         factory = Pidgin2Adium::ParserFactory.new(logfile_path, aliases)
-        factory.parser.should be_a Pidgin2Adium::TextLogParser
+        expect(factory.parser).to be_a Pidgin2Adium::TextLogParser
       end
     end
   end
@@ -25,7 +25,7 @@ describe Pidgin2Adium::ParserFactory do
     it 'returns something that responds to parse' do
       other_path = 'foo.bar'
       factory = Pidgin2Adium::ParserFactory.new(other_path, aliases)
-      factory.parser.should respond_to(:parse)
+      expect(factory.parser).to respond_to(:parse)
     end
   end
 end
