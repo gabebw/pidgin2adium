@@ -2,6 +2,8 @@
 
 * Massive refactoring
 * Chat times respect time zones instead of assuming inputs are UTC
+* Remove C extension
+* Test against Travis
 
 ### 3.3.0 / 2011-10-16
 * Pidgin2Adium depended on itself for some reason. Now it doesn't.
