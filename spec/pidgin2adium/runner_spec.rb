@@ -2,6 +2,7 @@ require "spec_helper"
 
 describe Pidgin2Adium::Runner do
   it "asks for aliases" do
+    FileUtils.mkdir_p("HELLO")
     stdout = StringIO.new
 
     runner = Pidgin2Adium::Runner.new(path_to_file, stdout: stdout)
