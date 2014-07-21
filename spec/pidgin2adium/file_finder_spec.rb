@@ -4,7 +4,7 @@ describe Pidgin2Adium::FileFinder do
   include FakeFS::SpecHelpers
 
   before do
-    FileUtils.mkdir_p(expanded_directory)
+    FileUtils.mkdir_p(expanded_directory_with_username)
   end
 
   it "finds .html files" do
@@ -12,7 +12,7 @@ describe Pidgin2Adium::FileFinder do
 
     file_finder = Pidgin2Adium::FileFinder.new(unexpanded_directory)
 
-    expect(file_finder.find).to eq ["#{expanded_directory}/in.html"]
+    expect(file_finder.find).to eq ["#{expanded_directory_with_username}/in.html"]
   end
 
   it "finds .htm files" do
@@ -20,7 +20,7 @@ describe Pidgin2Adium::FileFinder do
 
     file_finder = Pidgin2Adium::FileFinder.new(unexpanded_directory)
 
-    expect(file_finder.find).to eq ["#{expanded_directory}/in.htm"]
+    expect(file_finder.find).to eq ["#{expanded_directory_with_username}/in.htm"]
   end
 
   it "finds .txt files" do
@@ -28,7 +28,7 @@ describe Pidgin2Adium::FileFinder do
 
     file_finder = Pidgin2Adium::FileFinder.new(unexpanded_directory)
 
-    expect(file_finder.find).to eq ["#{expanded_directory}/in.txt"]
+    expect(file_finder.find).to eq ["#{expanded_directory_with_username}/in.txt"]
   end
 
   it "does not find files with other extensions" do
@@ -40,7 +40,11 @@ describe Pidgin2Adium::FileFinder do
   end
 
   def unexpanded_directory
-    "~/input-logs"
+    "~/input-logs/"
+  end
+
+  def expanded_directory_with_username
+    File.join(expanded_directory, "gabebw")
   end
 
   def expanded_directory
@@ -48,6 +52,6 @@ describe Pidgin2Adium::FileFinder do
   end
 
   def create_file_with_extension(extension)
-    FileUtils.touch(File.join(expanded_directory, "in.#{extension}"))
+    FileUtils.touch(File.join(expanded_directory_with_username, "in.#{extension}"))
   end
 end

@@ -13,7 +13,7 @@ module Pidgin2Adium
     private
 
     def glob
-      File.join(@directory, "*.{#{comma_separated_extensions}}")
+      File.join(@directory, "**/*.{#{comma_separated_extensions}}")
     end
 
     def comma_separated_extensions
