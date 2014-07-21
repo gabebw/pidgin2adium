@@ -1,22 +1,13 @@
 require "spec_helper"
 
 describe Pidgin2Adium::Runner do
-  # include FakeFS::SpecHelpers
-
-  it "asks for aliases" do
-    stdout = StringIO.new
-
-    run_runner(path_to_directory, stdout: stdout)
-
-    expect(stdout.string).to eq "What are your aliases (comma-separated like Gabe,Gabe B-W)? > "
-  end
+  include FakeFS::SpecHelpers
 
   it "creates the Adium log directory if it does not exist" do
     run_runner(path_to_directory)
 
     expect(File.exist?(adium_log_directory)).to be true
   end
-
 
   it "parses a Pidgin-formatted logfile and outputs it to the Adium log directory" do
     file_finder = double(
@@ -54,8 +45,8 @@ describe Pidgin2Adium::Runner do
     File.expand_path('~/Library/Application Support/Adium 2.0/Users/Default/Logs/')
   end
 
-  def run_runner(path, stdout: StringIO.new)
-    runner = Pidgin2Adium::Runner.new(path, stdout: stdout)
+  def run_runner(path)
+    runner = Pidgin2Adium::Runner.new(path)
     runner.run
   end
 end

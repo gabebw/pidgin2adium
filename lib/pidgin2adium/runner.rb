@@ -1,8 +1,7 @@
 module Pidgin2Adium
   class Runner
-    def initialize(path_to_directory, options = {})
+    def initialize(path_to_directory)
       @path_to_directory = path_to_directory
-      @stdout = options.fetch(:stdout, STDOUT)
     end
 
     def run
@@ -14,8 +13,6 @@ module Pidgin2Adium
         FileUtils.mkdir_p(File.dirname(path))
         FileUtils.touch(path)
       end
-
-      @stdout.print "What are your aliases (comma-separated like Gabe,Gabe B-W)? > "
     end
 
     private
