@@ -1,4 +1,6 @@
 module Pidgin2Adium
+  ADIUM_LOG_DIRECTORY = Pathname.new(File.expand_path('~/Library/Application Support/Adium 2.0/Users/Default/Logs/'))
+
   class Runner
     def initialize(path_to_directory)
       @path_to_directory = path_to_directory
@@ -9,7 +11,12 @@ module Pidgin2Adium
 
       files_to_parse.each do |file_path|
         chat = Pipio::Chat.new(file_path)
-        path = "#{adium_log_directory}/#{chat.service}.#{chat.my_screen_name}/#{chat.their_screen_name}/#{chat.their_screen_name} (#{chat.start_time_xmlschema}).chatlog/#{chat.their_screen_name} (#{chat.start_time_xmlschema}).xml"
+        path = ADIUM_LOG_DIRECTORY.join(
+          "#{chat.service}.#{chat.my_screen_name}",
+          chat.their_screen_name,
+          "#{chat.their_screen_name} (#{chat.start_time_xmlschema}).chatlog",
+          "#{chat.their_screen_name} (#{chat.start_time_xmlschema}).xml"
+        )
         FileUtils.mkdir_p(File.dirname(path))
         FileUtils.touch(path)
       end
@@ -22,11 +29,7 @@ module Pidgin2Adium
     end
 
     def create_adium_logs_directory
-      FileUtils.mkdir_p(adium_log_directory)
-    end
-
-    def adium_log_directory
-      File.expand_path('~/Library/Application Support/Adium 2.0/Users/Default/Logs/')
+      FileUtils.mkdir_p(ADIUM_LOG_DIRECTORY)
     end
   end
 end
