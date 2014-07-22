@@ -7,3 +7,6 @@ rvm:
 branches:
   only:
     - master
+notifications:
+  email:
+    - false
