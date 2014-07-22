@@ -15,9 +15,16 @@ describe Pidgin2Adium::Runner do
 
     run_runner(path_to_directory)
 
-    path = "#{adium_log_directory}/aim.me/them/them (#{chat.start_time_xmlschema}).chatlog/them (#{chat.start_time_xmlschema}).xml"
+    path = output_path(chat)
 
     expect(File.exist?(path)).to be true
+  end
+
+  it "puts the correct data in the Adium file" do
+    chat = stubbed_chat(lines: %w(one two three))
+
+    path = output_path(chat)
+    content = File.read(path)
   end
 
   def path_to_file
@@ -37,14 +44,25 @@ describe Pidgin2Adium::Runner do
     runner.run
   end
 
-  def stubbed_chat
+  def output_path(chat)
+    File.join(
+      adium_log_directory,
+      "#{chat.service}.#{chat.my_screen_name}",
+      chat.their_screen_name,
+      "#{chat.their_screen_name} (#{chat.start_time_xmlschema}).chatlog",
+      "#{chat.their_screen_name} (#{chat.start_time_xmlschema}).xml"
+    )
+  end
+
+  def stubbed_chat(options = {})
     timestamp = Time.now.xmlschema
-    chat = double(
+    chat = double({
+      lines: %w(one two three),
       my_screen_name: "me",
       their_screen_name: "them",
       start_time_xmlschema: timestamp,
       service: "aim",
-    )
+    }.merge(options))
     allow(Pipio::Chat).to receive(:new).and_return(chat)
     chat
   end
