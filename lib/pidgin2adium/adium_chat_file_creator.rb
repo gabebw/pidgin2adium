@@ -1,3 +1,5 @@
+require "pathname"
+
 module Pidgin2Adium
   class AdiumChatFileCreator
     ADIUM_LOG_DIRECTORY = Pathname.new(File.expand_path('~/Library/Application Support/Adium 2.0/Users/Default/Logs/'))
