@@ -10,15 +10,7 @@ module Pidgin2Adium
       create_adium_logs_directory
 
       files_to_parse.each do |file_path|
-        chat = Pipio::Chat.new(file_path)
-        path = ADIUM_LOG_DIRECTORY.join(
-          "#{chat.service}.#{chat.my_screen_name}",
-          chat.their_screen_name,
-          "#{chat.their_screen_name} (#{chat.start_time_xmlschema}).chatlog",
-          "#{chat.their_screen_name} (#{chat.start_time_xmlschema}).xml"
-        )
-        FileUtils.mkdir_p(File.dirname(path))
-        FileUtils.touch(path)
+        AdiumChatFileCreator.new(file_path).create
       end
     end
 

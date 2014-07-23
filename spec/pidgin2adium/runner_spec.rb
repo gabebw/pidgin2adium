@@ -9,28 +9,20 @@ describe Pidgin2Adium::Runner do
     expect(File.exist?(adium_log_directory)).to be true
   end
 
-  it "parses a Pidgin-formatted logfile and outputs it to the Adium log directory" do
+  it "passes every found file to the file creator" do
     file_finder = double(
       find: [path_to_file]
     )
+    creator = double(create: nil)
     allow(Pidgin2Adium::FileFinder).to receive(:new).
       with(path_to_directory).and_return(file_finder)
-
-    time = Time.now.xmlschema
-
-    chat = double(
-      my_screen_name: "me",
-      their_screen_name: "them",
-      start_time_xmlschema: time,
-      service: "aim",
-    )
-    allow(Pipio::Chat).to receive(:new).and_return(chat)
+    allow(Pidgin2Adium::AdiumChatFileCreator).to receive(:new).
+      and_return(creator)
 
     run_runner(path_to_directory)
 
-    path = "#{adium_log_directory}/aim.me/them/them (#{time}).chatlog/them (#{time}).xml"
-
-    expect(File.exist?(path)).to be true
+    expect(Pidgin2Adium::AdiumChatFileCreator).to have_received(:new).with(path_to_file)
+    expect(creator).to have_received(:create)
   end
 
   def path_to_file
