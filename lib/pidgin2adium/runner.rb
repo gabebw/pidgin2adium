@@ -1,6 +1,6 @@
 module Pidgin2Adium
   class Runner
-    def initialize(path_to_directory)
+    def initialize(path_to_directory, aliases)
       @path_to_directory = path_to_directory
     end
 

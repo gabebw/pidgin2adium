@@ -12,6 +12,10 @@ parser = OptionParser.new do |parser|
     options[:in_directory] = in_directory
   end
 
+  parser.on('-a', '--aliases "gabebw,Gabe B-W"', "Your aliases from Pidgin") do |aliases|
+    options[:aliases] = aliases.split(",")
+  end
+
   parser.on("-v", "--version", "Show version information") do
     puts "Pidgin2Adium, version #{Pidgin2Adium::VERSION}"
     exit
@@ -25,10 +29,10 @@ end
 
 parser.parse!
 
-if options[:in_directory]
-  runner = Pidgin2Adium::Runner.new(options[:in_directory])
+if options[:in_directory] && options[:aliases]
+  runner = Pidgin2Adium::Runner.new(options[:in_directory], option[:aliases])
   runner.run
 else
-  puts "-i/--in argument is required! Run with --help for more information"
+  STDERR.puts "Please provide -i/--in argument and -a/--aliases. Run with --help for more information"
   exit 1
 end
