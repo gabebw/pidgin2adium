@@ -22,5 +22,7 @@ parser = OptionParser.new do |opts|
   end
 end
 
+parser.parse!
+
 runner = Pidgin2Adium::Runner.new(options[:in_directory])
 runner.run
