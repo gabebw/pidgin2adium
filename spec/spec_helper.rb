@@ -12,4 +12,12 @@ RSpec.configure do |config|
   config.expect_with :rspec do |c|
     c.syntax = :expect
   end
+
+  def path_to_file
+    File.join(path_to_directory, "gabebw", "in.html")
+  end
+
+  def path_to_directory
+    File.expand_path("./in-logs/")
+  end
 end

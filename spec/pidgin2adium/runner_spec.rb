@@ -25,14 +25,6 @@ describe Pidgin2Adium::Runner do
     expect(creator).to have_received(:create)
   end
 
-  def path_to_file
-    File.join(path_to_directory, "gabebw", "in.html")
-  end
-
-  def path_to_directory
-    File.expand_path("./in-logs/")
-  end
-
   def adium_log_directory
     File.expand_path('~/Library/Application Support/Adium 2.0/Users/Default/Logs/')
   end
