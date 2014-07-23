@@ -5,25 +5,30 @@ require "optparse"
 
 options = {}
 
-parser = OptionParser.new do |opts|
-  opts.banner = "Usage: #{File.basename($0)} -i PIDGIN_LOG_DIR"
+parser = OptionParser.new do |parser|
+  parser.banner = "Usage: #{File.basename($0)} -i PIDGIN_LOG_DIR"
 
-  opts.on('-i', '--in=IN_DIR', String, 'Directory where pidgin logs are stored') do |in_directory|
+  parser.on('-i', '--in IN_DIR', 'Directory where pidgin logs are stored') do |in_directory|
     options[:in_directory] = in_directory
   end
 
-  opts.on("-v", "--version", "Show version information") do
+  parser.on("-v", "--version", "Show version information") do
     puts "Pidgin2Adium, version #{Pidgin2Adium::VERSION}"
     exit
   end
 
-  opts.on_tail("-h", "--help", "Show this message") do
-    puts opts
+  parser.on_tail("-h", "--help", "Show this message") do
+    puts parser
     exit
   end
 end
 
 parser.parse!
 
-runner = Pidgin2Adium::Runner.new(options[:in_directory])
-runner.run
+if options[:in_directory]
+  runner = Pidgin2Adium::Runner.new(options[:in_directory])
+  runner.run
+else
+  puts "-i/--in argument is required! Run with --help for more information"
+  exit 1
+end
