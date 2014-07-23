@@ -1,0 +1,26 @@
+#!/usr/bin/env ruby
+
+require "pidgin2adium"
+
+options = {}
+
+parser = OptionParser.new do |opts|
+  opts.banner = "Usage: #{File.basename($0)} -i PIDGIN_LOG_DIR"
+
+  opts.on('-i', '--in=IN_DIR', String, 'Directory where pidgin logs are stored') do |in_directory|
+    options[:in_directory] = in_directory
+  end
+
+  opts.on("-v", "--version", "Show version information") do
+    puts "Pidgin2Adium, version #{Pidgin2Adium::VERSION}"
+    exit
+  end
+
+  opts.on_tail("-h", "--help", "Show this message") do
+    puts opts
+    exit
+  end
+end
+
+runner = Pidgin2Adium::Runner.new(options[:in_directory])
+runner.run
