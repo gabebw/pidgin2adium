@@ -9,7 +9,7 @@ module Pidgin2Adium
     def create
       create_containing_directory
       File.open(path, 'w') do |file|
-        file.puts prolog
+        file.puts xml_prolog
         file.puts opening_chat_tag
         file.puts chat.to_s
         file.puts closing_chat_tag
@@ -31,7 +31,7 @@ module Pidgin2Adium
       )
     end
 
-    def prolog
+    def xml_prolog
       %(<?xml version="1.0" encoding="UTF-8" ?>)
     end
 
