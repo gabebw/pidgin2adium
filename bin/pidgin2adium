@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require "pidgin2adium"
+require "optparse"
 
 options = {}
 
