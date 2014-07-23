@@ -1,5 +1,7 @@
 module Pidgin2Adium
   class AdiumChatFileCreator
+    ADIUM_LOG_DIRECTORY = Pathname.new(File.expand_path('~/Library/Application Support/Adium 2.0/Users/Default/Logs/'))
+
     def initialize(file_path)
       @file_path = file_path
     end
@@ -21,7 +23,7 @@ module Pidgin2Adium
     end
 
     def path
-      Pidgin2Adium::ADIUM_LOG_DIRECTORY.join(
+      ADIUM_LOG_DIRECTORY.join(
         "#{chat.service}.#{chat.my_screen_name}",
         chat.their_screen_name,
         "#{chat.their_screen_name} (#{chat.start_time_xmlschema}).chatlog",

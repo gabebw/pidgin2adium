@@ -73,11 +73,11 @@ describe Pidgin2Adium::AdiumChatFileCreator do
   end
 
   def path_for(chat)
-    Pidgin2Adium::ADIUM_LOG_DIRECTORY.join(
+    Pidgin2Adium::AdiumChatFileCreator::ADIUM_LOG_DIRECTORY.join(
       "#{chat.service}.#{chat.my_screen_name}",
       chat.their_screen_name,
       "#{chat.their_screen_name} (#{chat.start_time_xmlschema}).chatlog",
       "#{chat.their_screen_name} (#{chat.start_time_xmlschema}).xml"
-    )
+    ).to_s
   end
 end
