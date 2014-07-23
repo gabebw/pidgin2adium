@@ -7,8 +7,6 @@ module Pidgin2Adium
     end
 
     def run
-      create_adium_logs_directory
-
       files_to_parse.each do |file_path|
         AdiumChatFileCreator.new(file_path).create
       end
@@ -18,10 +16,6 @@ module Pidgin2Adium
 
     def files_to_parse
       FileFinder.new(@path_to_directory).find
-    end
-
-    def create_adium_logs_directory
-      FileUtils.mkdir_p(ADIUM_LOG_DIRECTORY)
     end
   end
 end

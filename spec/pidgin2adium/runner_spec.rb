@@ -3,12 +3,6 @@ require "spec_helper"
 describe Pidgin2Adium::Runner do
   include FakeFS::SpecHelpers
 
-  it "creates the Adium log directory if it does not exist" do
-    run_runner(path_to_directory)
-
-    expect(File.exist?(adium_log_directory)).to be true
-  end
-
   it "passes every found file to the file creator" do
     file_finder = double(
       find: [path_to_file]
