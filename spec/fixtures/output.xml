@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<chat xmlns="http://purl.org/net/ulf/ns/0.4-02" account="jiggerificbug" service="AIM" adiumversion="1.5.9" buildid="213f4163a8b5">
+<message sender="them@gmail.com" time="2014-03-16T23:55:48-0400"><div><span style="font-family: Helvetica; font-size: 12pt;">Hi</span></div></message>
+<message sender="jiggerificbug" time="2014-03-16T23:55:50-0400"><div><span style="font-family: Helvetica; font-size: 12pt;">Hi back</span></div></message>
+</event></chat>
