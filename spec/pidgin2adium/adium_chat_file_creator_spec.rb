@@ -50,12 +50,12 @@ describe Pidgin2Adium::AdiumChatFileCreator do
   end
 
   def chat
-    timestamp = Time.now.xmlschema
+    time = Time.now
     messages = [:a, 1, 3]
     double(
       my_screen_name: "me",
       their_screen_name: "them",
-      start_time_xmlschema: timestamp,
+      start_time: time,
       service: "aim",
       messages: messages,
       to_s: messages.map(&:to_s).join("\n")
@@ -73,11 +73,11 @@ describe Pidgin2Adium::AdiumChatFileCreator do
   end
 
   def path_for(chat)
-    Pidgin2Adium::AdiumChatFileCreator::ADIUM_LOG_DIRECTORY.join(
+    Pidgin2Adium::Runner::ADIUM_LOG_DIRECTORY.join(
       "#{chat.service}.#{chat.my_screen_name}",
       chat.their_screen_name,
-      "#{chat.their_screen_name} (#{chat.start_time_xmlschema}).chatlog",
-      "#{chat.their_screen_name} (#{chat.start_time_xmlschema}).xml"
+      "#{chat.their_screen_name} (#{chat.start_time.xmlschema}).chatlog",
+      "#{chat.their_screen_name} (#{chat.start_time.xmlschema}).xml"
     ).to_s
   end
 end

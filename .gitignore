@@ -25,3 +25,4 @@ tags
 spec/output-dir
 spec/nonexistent_output_dir
 Gemfile.lock
+tmp

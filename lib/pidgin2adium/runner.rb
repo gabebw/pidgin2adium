@@ -1,19 +1,23 @@
 module Pidgin2Adium
   class Runner
-    def initialize(path_to_directory, aliases)
-      @path_to_directory = path_to_directory
+    ADIUM_LOG_DIRECTORY = Pathname.new(File.expand_path('~/Library/Application Support/Adium 2.0/Users/Default/Logs/'))
+
+    def initialize(path_to_input_directory, aliases, output_directory = ADIUM_LOG_DIRECTORY)
+      @path_to_input_directory = path_to_input_directory
+      @aliases = aliases
+      @output_directory = output_directory
     end
 
     def run
       files_to_parse.each do |file_path|
-        AdiumChatFileCreator.new(file_path).create
+        AdiumChatFileCreator.new(file_path, @aliases, @output_directory).create
       end
     end
 
     private
 
     def files_to_parse
-      FileFinder.new(@path_to_directory).find
+      FileFinder.new(@path_to_input_directory).find
     end
   end
 end

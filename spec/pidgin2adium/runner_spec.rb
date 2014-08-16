@@ -49,18 +49,18 @@ describe Pidgin2Adium::Runner do
       adium_log_directory,
       "#{chat.service}.#{chat.my_screen_name}",
       chat.their_screen_name,
-      "#{chat.their_screen_name} (#{chat.start_time_xmlschema}).chatlog",
-      "#{chat.their_screen_name} (#{chat.start_time_xmlschema}).xml"
+      "#{chat.their_screen_name} (#{chat.start_time.xmlschema}).chatlog",
+      "#{chat.their_screen_name} (#{chat.start_time.xmlschema}).xml"
     )
   end
 
   def stubbed_chat(options = {})
-    timestamp = Time.now.xmlschema
+    time = Time.now
     chat = double({
       lines: %w(one two three),
       my_screen_name: "me",
       their_screen_name: "them",
-      start_time_xmlschema: timestamp,
+      start_time: time,
       service: "aim",
     }.merge(options))
     allow(Pipio::Chat).to receive(:new).and_return(chat)

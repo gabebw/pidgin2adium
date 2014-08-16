@@ -2,10 +2,10 @@ require "pathname"
 
 module Pidgin2Adium
   class AdiumChatFileCreator
-    ADIUM_LOG_DIRECTORY = Pathname.new(File.expand_path('~/Library/Application Support/Adium 2.0/Users/Default/Logs/'))
-
-    def initialize(file_path)
+    def initialize(file_path, aliases, output_directory = Runner::ADIUM_LOG_DIRECTORY)
       @file_path = file_path
+      @aliases = aliases
+      @output_directory = Pathname.new(output_directory.to_s)
     end
 
     def create
@@ -25,11 +25,11 @@ module Pidgin2Adium
     end
 
     def path
-      ADIUM_LOG_DIRECTORY.join(
-        "#{chat.service}.#{chat.my_screen_name}",
+      @output_directory.join(
+        "#{normalized_service}.#{chat.my_screen_name}",
         chat.their_screen_name,
-        "#{chat.their_screen_name} (#{chat.start_time_xmlschema}).chatlog",
-        "#{chat.their_screen_name} (#{chat.start_time_xmlschema}).xml"
+        "#{chat.their_screen_name} (#{formatted_start_time}).chatlog",
+        "#{chat.their_screen_name} (#{formatted_start_time}).xml"
       )
     end
 
@@ -38,15 +38,27 @@ module Pidgin2Adium
     end
 
     def opening_chat_tag
-      %(<chat xmlns="http://purl.org/net/ulf/ns/0.4-02" account="#{chat.my_screen_name}" service="#{chat.service}" adiumversion="1.5.9">)
+      %(<chat xmlns="http://purl.org/net/ulf/ns/0.4-02" account="#{chat.my_screen_name}" service="#{normalized_service}" adiumversion="1.5.9">)
     end
 
     def closing_chat_tag
       "</chat>"
     end
 
+    def formatted_start_time
+      chat.start_time.xmlschema.sub(/:00$/, "00")
+    end
+
+    def normalized_service
+      if chat.service == "aim"
+        "AIM"
+      else
+        chat.service
+      end
+    end
+
     def chat
-      @chat ||= Pipio::Chat.new(@file_path)
+      @chat ||= Pipio.parse(@file_path, @aliases)
     end
   end
 end
