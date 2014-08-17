@@ -1,7 +1,13 @@
 require "spec_helper"
 
 describe Pidgin2Adium::FileFinder do
-  include FakeFS::SpecHelpers
+  if on_travis_ci?
+    before do
+      FileUtils.rm_rf(expanded_directory)
+    end
+  else
+    include FakeFS::SpecHelpers
+  end
 
   before do
     FileUtils.mkdir_p(expanded_directory_with_username)

@@ -22,4 +22,8 @@ RSpec.configure do |config|
   def path_to_directory
     File.expand_path("./in-logs/")
   end
+
+  def on_travis_ci?
+    ENV['TRAVIS']
+  end
 end

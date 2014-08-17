@@ -1,7 +1,9 @@
 require "spec_helper"
 
 describe Pidgin2Adium::AdiumChatFileCreator do
-  include FakeFS::SpecHelpers
+  unless on_travis_ci?
+    include FakeFS::SpecHelpers
+  end
 
   it "creates a file in the correct place" do
     chat = stub_chat
