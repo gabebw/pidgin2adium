@@ -6,7 +6,7 @@ describe Pidgin2Adium::AdiumChatFileCreator do
   it "creates a file in the correct place" do
     chat = stub_chat
 
-    chat_file_creator = Pidgin2Adium::AdiumChatFileCreator.new(path_to_file)
+    chat_file_creator = Pidgin2Adium::AdiumChatFileCreator.new(path_to_file, %w(gabe))
     chat_file_creator.create
 
     expect(File.exist?(path_for(chat))).to be true
@@ -24,7 +24,7 @@ describe Pidgin2Adium::AdiumChatFileCreator do
     second_line = file_contents[1]
 
     expect(second_line).to eq(
-      %(<chat xmlns="http://purl.org/net/ulf/ns/0.4-02" account="#{chat.my_screen_name}" service="#{chat.service}" adiumversion="1.5.9">\n)
+      %(<chat xmlns="http://purl.org/net/ulf/ns/0.4-02" account="#{chat.my_screen_name}" service="AIM" adiumversion="1.5.9">\n)
     )
   end
 
@@ -45,7 +45,7 @@ describe Pidgin2Adium::AdiumChatFileCreator do
   end
 
   def stub_chat(new_chat = chat)
-    allow(Pipio::Chat).to receive(:new).and_return(new_chat)
+    allow(Pipio).to receive(:parse).and_return(new_chat)
     new_chat
   end
 
@@ -68,16 +68,20 @@ describe Pidgin2Adium::AdiumChatFileCreator do
 
   def create_file
     chat = stub_chat
-    chat_file_creator = Pidgin2Adium::AdiumChatFileCreator.new(path_to_file)
+    chat_file_creator = Pidgin2Adium::AdiumChatFileCreator.new(path_to_file, %w(gabe))
     chat_file_creator.create
   end
 
   def path_for(chat)
     Pidgin2Adium::Runner::ADIUM_LOG_DIRECTORY.join(
-      "#{chat.service}.#{chat.my_screen_name}",
+      "AIM.#{chat.my_screen_name}",
       chat.their_screen_name,
-      "#{chat.their_screen_name} (#{chat.start_time.xmlschema}).chatlog",
-      "#{chat.their_screen_name} (#{chat.start_time.xmlschema}).xml"
+      "#{chat.their_screen_name} (#{xmlschema_for(chat)}).chatlog",
+      "#{chat.their_screen_name} (#{xmlschema_for(chat)}).xml"
     ).to_s
+  end
+
+  def xmlschema_for(chat)
+    chat.start_time.xmlschema.sub(/:00$/, "00")
   end
 end
