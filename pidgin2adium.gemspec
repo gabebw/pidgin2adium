@@ -20,7 +20,7 @@ Gem::Specification.new do |spec|
 
   spec.required_ruby_version = Gem::Requirement.new(">= 1.9.2")
 
-  spec.add_dependency("pipio", "~> 0.0.1")
+  spec.add_dependency("pipio", "~> 0.0.2")
 
   spec.add_development_dependency("rspec", "~> 3.0")
   spec.add_development_dependency("rake")
