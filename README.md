@@ -1,64 +1,37 @@
 # pidgin2adium [![Build Status](https://secure.travis-ci.org/gabebw/pidgin2adium.png)](http://travis-ci.org/gabebw/pidgin2adium) [![Code Climate](https://codeclimate.com/github/gabebw/pidgin2adium.png)](https://codeclimate.com/github/gabebw/pidgin2adium)
 
 Convert [Pidgin](http://pidgin.im/) (formerly gaim) logs to the
-[Adium](http://adium.im/) format.
+[Adium](http://adium.im/) format. This is a command-line wrapper around the
+[Pipio] log-parsing library.
 
-## For the impatient
+[Pipio]: https://github.com/gabebw/pipio
 
-To deal with meta-information about the chat itself:
-
-    path_to_chat_log = File.expand_path('~/path/to/chat_log.html') # or .txt
-    chat = Pidgin2Adium.parse(path_to_chat_log, "Gabe B-W,Gabe,Other Alias")
-    if chat
-      puts "Screen name of the person you chatted with: #{chat.their_screen_name}"
-      puts "Time the chat started: #{chat.start_time_xmlschema}"
-      puts "Chat contents:"
-      puts chat.to_s
-    else
-      puts "Oh no! Could not parse! Please open an issue."
-      puts path_to_chat_log
-      exit 1
-    end
-
-Or, to deal with individual messages in a chat:
-
-    chat = Pidgin2Adium.parse("/path/to/log/file.html", "gabe,gbw,gabeb-w")
-    chat.each do |message|
-      puts "Screen name of person who sent this message: #{message.sender_screen_name}"
-      puts "Alias of person who sent this message: #{message.sender_alias}"
-      puts "Time message was sent: #{message.time}"
-
-      if message.respond_to?(:body)
-        puts "Message body: #{message.body}"
-        if message.respond_to?(:event)
-          puts "Event type: #{message.event_type}"
-        end
-      elsif message.respond_to?(:status)
-        puts "Status: #{message.status}"
-      end
-
-      puts "Message in Adium format: #{message}"
-    end
-
-## The fine print
-
-This library needs access to aliases to work correctly, which may require a bit
-of explanation. Adium and Pidgin allow you to set aliases for buddies as well as
-for yourself, so that you show up in chats as (for example) `Me` instead of as
-`best_screen_name_ever_018845`.
-
-However, Pidgin then uses aliases in the log file instead of the actual screen
-name, which complicates things. To parse properly, this gem needs to know which
-aliases belong to you so it can map them to the correct screen name. If it
-encounters an alias that you did not list,  it assumes that it belongs to the
-person to whom you are chatting. Note that aliases are lower-cased and space is
-removed, so providing `Gabe B-W, GBW` is the same as providing `gabeb-w,gbw`.
-
-You do not need to provide your screenname in the alias list.
-
-## INSTALL
+## Install
 
     gem install pidgin2adium
+
+## Quick Start
+
+Let's say you have some logs in `~/pidgin-logs`, and your aliases are "Gabe
+B-W", "Gabe", and "Gabe Berke-Williams". Then you should run this:
+
+    pidgin2adium --in ~/pidgin-logs --aliases "Gabe B-W,Gabe,Gabe Berke-Williams"
+
+## OK, what's with the aliases?
+
+Pidgin2adium needs a comma-separated list of your aliases to work. Aliases make
+it so that you show up in chats as (for example) `Me` instead of as
+`best_screen_name_ever_018845`.
+
+Pidgin then uses aliases in the log file instead of the actual screen name,
+which makes it impossible to match "Me" to your actual screen name.  Therefore
+Pidgin2adium needs to know which aliases belong to you so it can map them to the
+correct screen name.
+
+If Pidgin2adium encounters an alias that you did not list, it assumes that it
+belongs to the person to whom you are chatting.
+
+You do not need to provide your screenname in the alias list.
 
 ## Testing
 
