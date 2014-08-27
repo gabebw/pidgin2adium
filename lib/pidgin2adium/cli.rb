@@ -1,6 +1,6 @@
 module Pidgin2Adium
   class Cli
-    def initialize(args, stdout: STDOUT, stderr: STDERR)
+    def initialize(args, stdout=STDOUT, stderr=STDERR)
       @arguments = args
       @stdout = stdout
       @stderr = stderr

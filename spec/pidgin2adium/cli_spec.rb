@@ -19,7 +19,7 @@ describe Pidgin2Adium::Cli do
     it "prints to stderr if --in is missing" do
       stderr = StringIO.new
 
-      cli = Pidgin2Adium::Cli.new(%w(-a hello), stderr: stderr)
+      cli = Pidgin2Adium::Cli.new(%w(-a hello), STDOUT, stderr)
 
       rescuing_from_exit { cli.parse_and_run }
 
@@ -29,7 +29,7 @@ describe Pidgin2Adium::Cli do
     it "prints to stderr if --aliases is missing" do
       stderr = StringIO.new
 
-      cli = Pidgin2Adium::Cli.new(%w(--in home), stderr: stderr)
+      cli = Pidgin2Adium::Cli.new(%w(--in home), STDOUT, stderr)
 
       rescuing_from_exit { cli.parse_and_run }
 
@@ -39,7 +39,7 @@ describe Pidgin2Adium::Cli do
     it "prints its version" do
       stdout = StringIO.new
 
-      cli = Pidgin2Adium::Cli.new(%w(-v), stdout: stdout)
+      cli = Pidgin2Adium::Cli.new(%w(-v), stdout)
 
       rescuing_from_exit { cli.parse_and_run }
 
