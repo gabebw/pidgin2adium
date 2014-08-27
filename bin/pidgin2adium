@@ -1,38 +1,5 @@
 #!/usr/bin/env ruby
 
 require "pidgin2adium"
-require "optparse"
 
-options = {}
-
-parser = OptionParser.new do |parser|
-  parser.banner = "Usage: #{File.basename($0)} -i PIDGIN_LOG_DIR"
-
-  parser.on('-i', '--in IN_DIR', 'Directory where pidgin logs are stored') do |in_directory|
-    options[:in_directory] = in_directory
-  end
-
-  parser.on('-a', '--aliases "gabebw,Gabe B-W"', "Your aliases from Pidgin") do |aliases|
-    options[:aliases] = aliases.split(",")
-  end
-
-  parser.on("-v", "--version", "Show version information") do
-    puts "Pidgin2Adium, version #{Pidgin2Adium::VERSION}"
-    exit
-  end
-
-  parser.on_tail("-h", "--help", "Show this message") do
-    puts parser
-    exit
-  end
-end
-
-parser.parse!
-
-if options[:in_directory] && options[:aliases]
-  runner = Pidgin2Adium::Runner.new(options[:in_directory], option[:aliases])
-  runner.run
-else
-  STDERR.puts "Please provide -i/--in argument and -a/--aliases. Run with --help for more information"
-  exit 1
-end
+Pidgin2Adium::Cli.new(ARGV).parse_and_run

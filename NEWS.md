@@ -1,8 +1,13 @@
-### HEAD (unreleased)
+### 4.0.0.beta2
+
+* Extract `Pidgin2Adium::Cli`
+* Fix bugs
+
+### 4.0.0.beta1
 
 * Massive refactoring
+* Use Pipio gem to parse logs
 * Chat times respect time zones instead of assuming inputs are UTC
-* Remove C extension
 * Test against Travis
 
 ### 3.3.0 / 2011-10-16

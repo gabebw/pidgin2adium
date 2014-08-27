@@ -1,5 +1,3 @@
-require "pathname"
-
 module Pidgin2Adium
   class AdiumChatFileCreator
     def initialize(file_path, aliases, output_directory = Runner::ADIUM_LOG_DIRECTORY)
