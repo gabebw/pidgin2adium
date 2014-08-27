@@ -1,5 +1,6 @@
-require 'pathname'
+require 'fileutils'
 require 'optparse'
+require 'pathname'
 
 require 'pipio'
 
