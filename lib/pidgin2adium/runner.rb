@@ -10,7 +10,12 @@ module Pidgin2Adium
 
     def run
       files_to_parse.each do |file_path|
-        AdiumChatFileCreator.new(file_path, @aliases, @output_directory).create
+        success = AdiumChatFileCreator.new(file_path, @aliases, @output_directory).create
+        if success
+          $stdout.print "."
+        else
+          $stderr.puts "\n!! Could not parse #{file_path}"
+        end
       end
     end
 

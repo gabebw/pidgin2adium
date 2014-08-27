@@ -7,12 +7,17 @@ module Pidgin2Adium
     end
 
     def create
-      create_containing_directory
-      File.open(path, 'w') do |file|
-        file.puts xml_prolog
-        file.puts opening_chat_tag
-        file.puts chat.to_s
-        file.puts closing_chat_tag
+      if chat
+        create_containing_directory
+        File.open(path, 'w') do |file|
+          file.puts xml_prolog
+          file.puts opening_chat_tag
+          file.puts chat.to_s
+          file.puts closing_chat_tag
+        end
+        true
+      else
+        false
       end
     end
 

@@ -5,28 +5,82 @@ describe "Parse a Pidgin log file" do
     FileUtils.rm_rf(tmp_directory)
   end
 
-  it "outputs to the correct file" do
+  context "with good input" do
+    before do
+      $stdout = StringIO.new
+    end
+
+    it "outputs to the correct file" do
+      runner = Pidgin2Adium::Runner.new(
+        path_containing_good_pidgin_logs,
+        ["Gabe B-W"],
+        output_path
+      )
+
+      runner.run
+
+      path = Dir["#{output_path}/**/*.xml"].first
+
+      expect(path).to eq File.join(
+        tmp_directory,
+        "AIM.jiggerificbug",
+        "them@gmail.com",
+        "them@gmail.com (2014-03-16T23:55:43#{tz_offset}).chatlog",
+        "them@gmail.com (2014-03-16T23:55:43#{tz_offset}).xml",
+      )
+    end
+
+    it "does not print an error message" do
+      $stderr = StringIO.new
+
+      runner = Pidgin2Adium::Runner.new(
+        path_containing_good_pidgin_logs,
+        ["Gabe B-W"],
+        output_path
+      )
+
+      runner.run
+
+      expect($stderr.string).to eq ""
+    end
+
+    it "prints a dot to stdout" do
+      $stdout = StringIO.new
+
+      runner = Pidgin2Adium::Runner.new(
+        path_containing_good_pidgin_logs,
+        ["Gabe B-W"],
+        output_path
+      )
+
+      runner.run
+
+      expect($stdout.string).to eq "."
+    end
+
+  end
+
+  it "prints an error message if the chat is unparseable" do
+    $stderr = StringIO.new
+
     runner = Pidgin2Adium::Runner.new(
-      path_containing_pidgin_logs,
+      path_containing_bad_pidgin_logs,
       ["Gabe B-W"],
       output_path
     )
 
     runner.run
 
-    path = Dir["#{output_path}/**/*.xml"].first
-
-    expect(path).to eq File.join(
-      tmp_directory,
-      "AIM.jiggerificbug",
-      "them@gmail.com",
-      "them@gmail.com (2014-03-16T23:55:43#{tz_offset}).chatlog",
-      "them@gmail.com (2014-03-16T23:55:43#{tz_offset}).xml",
-    )
+    expect($stderr.string).to match /Could not parse.*bad_input\/bad.html/
   end
 
-  def path_containing_pidgin_logs
+
+  def path_containing_good_pidgin_logs
     File.join(SPEC_ROOT, "fixtures", "input")
+  end
+
+  def path_containing_bad_pidgin_logs
+    File.join(SPEC_ROOT, "fixtures", "bad_input")
   end
 
   def output_path

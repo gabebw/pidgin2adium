@@ -2,6 +2,7 @@
 
 * Extract `Pidgin2Adium::Cli`
 * Fix bugs
+* Print error and progress messages
 
 ### 4.0.0.beta1
 
