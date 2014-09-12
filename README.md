@@ -17,6 +17,11 @@ B-W", "Gabe", and "Gabe Berke-Williams". Then you should run this:
 
     pidgin2adium --in ~/pidgin-logs --aliases "Gabe B-W,Gabe,Gabe Berke-Williams"
 
+By default, `pidgin2adium` outputs logs to the directory that Adium looks for
+logs in. If you want to customize the output directory, use the `--out` option:
+
+    pidgin2adium --in ~/pidgin-logs --aliases "Gabe B-W,Gabe" -o ./output-dir
+
 ## OK, what's with the aliases?
 
 Pidgin2adium needs a comma-separated list of your aliases to work. Aliases make
