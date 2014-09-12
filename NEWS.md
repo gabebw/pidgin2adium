@@ -1,3 +1,8 @@
+### HEAD (unreleased)
+
+* Users can specify a custom output directory with `-o`/`--out`
+* Extract `ArgumentParser` class
+
 ### 4.0.0.beta2
 
 * Extract `Pidgin2Adium::Cli`
