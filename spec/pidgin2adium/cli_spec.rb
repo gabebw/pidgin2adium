@@ -1,14 +1,17 @@
 require "spec_helper"
 
 describe Pidgin2Adium::Cli do
-  context "#parse" do
+  context "#run" do
     it "passes in_directory and aliases to a Runner" do
       runner = double("runner", run: nil)
       allow(Pidgin2Adium::Runner).to receive(:new).and_return(runner)
 
-      argv = %w(--in home --aliases gabe,me)
-      cli = Pidgin2Adium::Cli.new(argv)
-      cli.parse_and_run
+      options = {
+        in_directory: "home",
+        aliases: %w(gabe me)
+      }
+      cli = Pidgin2Adium::Cli.new(options)
+      cli.run
 
       expect(Pidgin2Adium::Runner).to have_received(:new).with(
         "home", %w(gabe me)
@@ -19,9 +22,10 @@ describe Pidgin2Adium::Cli do
     it "prints to stderr if --in is missing" do
       stderr = StringIO.new
 
-      cli = Pidgin2Adium::Cli.new(%w(-a hello), STDOUT, stderr)
+      options = { aliases: %w(hello) }
+      cli = Pidgin2Adium::Cli.new(options, STDOUT, stderr)
 
-      rescuing_from_exit { cli.parse_and_run }
+      rescuing_from_exit { cli.run }
 
       expect(stderr.string).to include "Please provide"
     end
@@ -29,21 +33,12 @@ describe Pidgin2Adium::Cli do
     it "prints to stderr if --aliases is missing" do
       stderr = StringIO.new
 
-      cli = Pidgin2Adium::Cli.new(%w(--in home), STDOUT, stderr)
+      options = { in_directory: "home" }
+      cli = Pidgin2Adium::Cli.new(options, STDOUT, stderr)
 
-      rescuing_from_exit { cli.parse_and_run }
+      rescuing_from_exit { cli.run }
 
       expect(stderr.string).to include "Please provide"
-    end
-
-    it "prints its version" do
-      stdout = StringIO.new
-
-      cli = Pidgin2Adium::Cli.new(%w(-v), stdout)
-
-      rescuing_from_exit { cli.parse_and_run }
-
-      expect(stdout.string).to eq "Pidgin2Adium, version #{Pidgin2Adium::VERSION}\n"
     end
 
     def rescuing_from_exit

@@ -2,4 +2,5 @@
 
 require "pidgin2adium"
 
-Pidgin2Adium::Cli.new(ARGV).parse_and_run
+options = Pidgin2Adium::ArgumentParser.new(ARGV).parse
+Pidgin2Adium::Cli.new(options).run
