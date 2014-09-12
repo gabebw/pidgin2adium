@@ -4,14 +4,21 @@ describe Pidgin2Adium::ArgumentParser do
   context "#parse" do
     %w(-i --in).each do |format|
       it "can parse out in_directory as #{format}" do
-        runner = double("runner", run: nil)
-        allow(Pidgin2Adium::Runner).to receive(:new).and_return(runner)
-
         argv = [format, "home"]
         parser = Pidgin2Adium::ArgumentParser.new(argv)
         options = parser.parse
 
         expect(options[:in_directory]).to eq "home"
+      end
+    end
+
+    %w(-o --out).each do |format|
+      it "can parse out out_directory as #{format}" do
+        argv = [format, "home"]
+        parser = Pidgin2Adium::ArgumentParser.new(argv)
+        options = parser.parse
+
+        expect(options[:out_directory]).to eq "home"
       end
     end
 

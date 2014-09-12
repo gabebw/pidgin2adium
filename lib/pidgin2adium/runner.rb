@@ -2,10 +2,10 @@ module Pidgin2Adium
   class Runner
     ADIUM_LOG_DIRECTORY = Pathname.new(File.expand_path('~/Library/Application Support/Adium 2.0/Users/Default/Logs/'))
 
-    def initialize(path_to_input_directory, aliases, output_directory = ADIUM_LOG_DIRECTORY)
+    def initialize(path_to_input_directory, aliases, output_directory)
       @path_to_input_directory = path_to_input_directory
       @aliases = aliases
-      @output_directory = output_directory
+      @output_directory = output_directory || ADIUM_LOG_DIRECTORY
     end
 
     def run

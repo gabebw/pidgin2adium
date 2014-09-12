@@ -20,6 +20,10 @@ module Pidgin2Adium
           @options[:in_directory] = in_directory
         end
 
+        parser.on('-o', '--out OUT_DIR', 'Directory where converted logs will be output to') do |out_directory|
+          @options[:out_directory] = out_directory
+        end
+
         parser.on('-a', '--aliases "gabebw,Gabe B-W"', "Your aliases from Pidgin") do |aliases|
           @options[:aliases] = aliases.split(",")
         end

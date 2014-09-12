@@ -8,7 +8,11 @@ module Pidgin2Adium
 
     def run
       if @options[:in_directory] && @options[:aliases]
-        runner = Runner.new(@options[:in_directory], @options[:aliases])
+        runner = Runner.new(
+          @options[:in_directory],
+          @options[:aliases],
+          @options[:out_directory]
+        )
         runner.run
       else
         @stderr.puts "Please provide -i/--in argument and -a/--aliases. Run with --help for more information"
