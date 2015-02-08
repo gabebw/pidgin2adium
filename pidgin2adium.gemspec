@@ -7,7 +7,7 @@ Gem::Specification.new do |spec|
   spec.name          = "pidgin2adium"
   spec.version       = Pidgin2Adium::VERSION
   spec.authors       = ["Gabe Berke-Williams"]
-  spec.email         = "gabe@thoughtbot.com"
+  spec.email         = "gabebw@gabebw.com"
   spec.description   = "A fast, easy way to convert Pidgin (gaim) logs to the Adium format."
   spec.summary       = spec.description
   spec.homepage      = "https://github.com/gabebw/pidgin2adium"
