@@ -18,7 +18,7 @@ Gem::Specification.new do |spec|
   spec.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
   spec.require_paths = ["lib"]
 
-  spec.required_ruby_version = Gem::Requirement.new(">= 1.9.2")
+  spec.required_ruby_version = Gem::Requirement.new(">= 2.0.0")
 
   spec.add_dependency("pipio", "~> 0.0.2")
 

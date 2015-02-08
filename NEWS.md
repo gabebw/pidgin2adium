@@ -2,6 +2,7 @@
 
 * Users can specify a custom output directory with `-o`/`--out`
 * Extract `ArgumentParser` class
+* Drop support for Ruby 1.9.x (#20)
 
 ### 4.0.0.beta2
 
