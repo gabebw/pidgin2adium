@@ -49,6 +49,7 @@ module Pidgin2Adium
     end
 
     def formatted_start_time
+      # FIXME: turn `xx:xx:xxZ` into `xx.xx.xxZ`
       chat.start_time.xmlschema.sub(/:00$/, "00")
     end
 
