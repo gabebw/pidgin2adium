@@ -21,12 +21,17 @@ describe "Parse a Pidgin log file" do
 
       path = Dir["#{output_path}/**/*.xml"].first
 
+      timestamp = Time.parse("2014-03-16 11:55:43 AM #{Time.now.zone}").utc.xmlschema
+      # STDOUT.puts timestamp
+      # STDOUT.puts timestamp.utc
+      # STDOUT.puts timestamp.utc.xmlschema
+
       expect(path).to eq File.join(
         tmp_directory,
         "AIM.jiggerificbug",
         "them@gmail.com",
-        "them@gmail.com (2014-03-16T23:55:43#{tz_offset}).chatlog",
-        "them@gmail.com (2014-03-16T23:55:43#{tz_offset}).xml",
+        "them@gmail.com (#{timestamp}).chatlog",
+        "them@gmail.com (#{timestamp}).xml",
       )
     end
 
